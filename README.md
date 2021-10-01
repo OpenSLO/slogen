@@ -74,6 +74,8 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 #### Using the tool
 
+Set the sumologic auth : https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables
+
 ```
 Usage:
 slogen [paths to yaml config]... [flags]

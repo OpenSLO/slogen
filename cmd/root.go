@@ -17,10 +17,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/agaurav/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
-	"slogen/libs"
 	"strings"
 
 	"github.com/spf13/viper"
