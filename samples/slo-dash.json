@@ -1,0 +1,68 @@
+{
+  "type": "DashboardV2SyncDefinition",
+  "name": "Anomaly generation",
+  "description": "Tracks objective : checks anomaly are being calculated and with acceptable delays",
+  "title": "Anomaly generation",
+  "rootPanel": null,
+  "theme": "Light",
+  "topologyLabelMap": {
+    "data": {
+      "service": [
+        "tsat"
+      ]
+    }
+  },
+  "refreshInterval": 300,
+  "timeRange": {
+    "type": "BeginBoundedTimeRange",
+    "from": {
+      "type": "LiteralTimeRangeBoundary",
+      "rangeName": "today"
+    },
+    "to": null
+  },
+  "layout": {
+    "layoutType": "Grid",
+    "layoutStructures": [
+      {
+        "key": "gauge-today",
+        "structure": "gauge-today"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": null,
+      "key": "gauge-today",
+      "title": "Today's Availability",
+      "visualSettings": "{\"general\":{\"displayType\":\"{{$panel.Mode}}\",\"lineDashType\":\"{{$panel.Mode}}\",\"lineThickness\":1,\"markerSize\":5,\"markerType\":\"{{$panel.Mode}}\",\"mode\":\"{{$panel.Mode}}\",\"type\":\"{{$panel.Mode}}\"},\"legend\":{\"enabled\":true,\"fontSize\":12,\"maxHeight\":50,\"showAsTable\":false,\"verticalAlign\":\"bottom\",\"wrap\":true},\"title\":{\"fontSize\":14}}",
+      "keepVisualSettingsConsistentWithParent": true,
+      "panelType": "SumoSearchPanel",
+      "queries": [
+        {
+          "queryString": "_view=slogen_tf_tsat_drift_gen\n| sum(sliceGoodCount) as totalGood, sum(sliceTotalCount) as totalCount\n| (totalGood/totalCount)*100 as SLO | format(\"%.2f%%\",SLO) as sloStr\n| fields SLO\n\n",
+          "queryType": "Logs",
+          "queryKey": "A",
+          "metricsQueryMode": null,
+          "metricsQueryData": null,
+          "tracesQueryData": null,
+          "parseMode": "Auto",
+          "timeSource": "Message"
+        }
+      ],
+      "description": "#good-requests / #requests since start of day",
+      "timeRange": {
+        "type": "BeginBoundedTimeRange",
+        "from": {
+          "type": "LiteralTimeRangeBoundary",
+          "rangeName": "today"
+        },
+        "to": null
+      },
+      "coloringRules": null,
+      "linkedDashboards": []
+    }
+  ],
+  "variables": [],
+  "coloringRules": []
+}

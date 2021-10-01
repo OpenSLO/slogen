@@ -1,0 +1,15 @@
+terraform {
+    required_providers {
+        sumologic = {
+            source = "sumologic/sumologic"
+        }
+    }
+}
+
+{{range $var := . }}
+
+variable "{{$var}}" {
+    type = string
+}
+
+{{end}}

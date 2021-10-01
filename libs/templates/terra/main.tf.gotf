@@ -1,0 +1,39 @@
+terraform {
+    required_providers {
+        sumologic = {
+            source  = "sumologic/sumologic"
+            version = "2.10.0"
+        }
+    }
+}
+
+# Configure the Sumo Logic Provider
+provider "sumologic" {
+}
+
+resource "sumologic_monitor_folder" "slo_mon_root_folder" {
+    name        = "{{.MonitorFolder}}"
+    description = "Root folder for SLO monitors created with slogen"
+}
+
+data "sumologic_personal_folder" "personalFolder" {}
+
+resource "sumologic_folder" "slo_dash_root_folder" {
+    name        = "{{.DashFolder}}"
+    description = "Your SLO dashboards created with slogen"
+    parent_id   = data.sumologic_personal_folder.personalFolder.id
+}
+
+module "views" {
+    source = "./views"
+}
+
+module "dashboards" {
+    source                  = "./dashboards"
+    slo_dash_root_folder_id = sumologic_folder.slo_dash_root_folder.id
+}
+
+module "monitors" {
+    source                 = "./monitors"
+    slo_mon_root_folder_id = sumologic_monitor_folder.slo_mon_root_folder.id
+}

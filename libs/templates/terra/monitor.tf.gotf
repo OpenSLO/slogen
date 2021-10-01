@@ -1,0 +1,60 @@
+{{range $Obj := .Objectives }}
+resource "sumologic_monitor" "slo_monitor_{{$.Name}}" {
+    name             = "SLO-monitor-{{$.Name}}"
+    description      = "{{$.Desc}}"
+    parent_id        = sumologic_monitor_folder.{{$.Service}}.id
+    type             = "MonitorsLibraryMonitor"
+    is_disabled      = false
+    content_type     = "Monitor"
+    monitor_type     = "Logs"
+    evaluation_delay = "5m"
+    queries {
+        row_id = "A"
+        query  = <<QUERY
+{{$Obj.Query}}
+QUERY
+    }
+    trigger_conditions {
+        logs_static_condition {
+            field = "{{$Obj.Field}}"
+            critical {
+                time_range = "{{$Obj.TimeRange}}"
+                alert {
+                    threshold      = "{{$Obj.ValueCritical}}"
+                    threshold_type = "GreaterThan"
+                }
+                resolution {
+                    threshold      = "{{$Obj.ValueCritical}}"
+                    threshold_type = "LessThanOrEqual"
+                }
+            }
+            warning {
+                time_range = "{{$Obj.TimeRange}}"
+                alert {
+                    threshold      = "{{$Obj.ValueWarning}}"
+                    threshold_type = "GreaterThan"
+                }
+                resolution {
+                    threshold      = "{{$Obj.ValueWarning}}"
+                    threshold_type = "LessThanOrEqual"
+                }
+            }
+        }
+        logs_missing_data_condition {
+            time_range = "30m"
+        }
+    }
+    notifications {
+        notification {
+            connection_type = "Email"
+            recipients      = [
+                "agaurav@sumologic.com",
+            ]
+            subject         = "SLO breach alert: {{$.Service}} - {{$.Name}}"
+            time_zone       = "PST"
+            message_body    = "{{`{{Description}} \n Result : {{ResultJson}}\n Alert: {{AlertResponseURL}}`}}"
+        }
+        run_for_trigger_types = ["Critical", "ResolvedCritical"]
+    }
+}
+{{end}}

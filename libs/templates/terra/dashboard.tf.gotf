@@ -1,0 +1,75 @@
+resource "sumologic_dashboard" "{{.SLOName}}" {
+    title            = "SLO-{{.Title}}"
+    description      = "Tracks {{.Objective}} objective: {{.Desc}}"
+    folder_id        = sumologic_folder.{{.Service}}.id
+    refresh_interval = 300
+    theme            = "Light"
+
+    time_range {
+        begin_bounded_time_range {
+            from {
+                literal_time_range {
+                    range_name = "today"
+                }
+            }
+        }
+    }
+
+    topology_label_map {
+        data {
+            label  = "service"
+            values = ["{{.Service}}"]
+        }
+    }
+
+
+    {{range $panel := .SearchPanels}}
+    ## search panel - log query
+    panel {
+        sumo_search_panel {
+            key                                         = "{{$panel.Key}}"
+            title                                       = "{{$panel.Title}}"
+            description                                 = "{{$panel.Desc}}"
+            # stacked time series
+            visual_settings                             = jsonencode(
+            {{$panel.VisualSettings}}
+            )
+            keep_visual_settings_consistent_with_parent = true
+            query {
+                query_string = <<QUERY
+{{$panel.Query}}
+QUERY
+                query_type   = "Logs"
+                query_key    = "A"
+            }
+            time_range {
+                begin_bounded_time_range {
+                    from {
+                        {{if $panel.IsRelativeTimeRange}}
+                        relative_time_range {
+                            relative_time = "{{$panel.TimeRange}}"
+                        }
+                        {{else}}
+                        literal_time_range {
+                            range_name = "{{$panel.TimeRange}}"
+                        }
+                        {{end}}
+                    }
+                }
+            }
+        }
+    }
+    {{end}}
+
+    ## layout
+    layout {
+        grid {
+            {{range $lt := .Layout}}
+            layout_structure {
+                key       = "{{$lt.Key}}"
+                structure = "{{$lt.Structure}}"
+            }
+            {{end}}
+        }
+    }
+}

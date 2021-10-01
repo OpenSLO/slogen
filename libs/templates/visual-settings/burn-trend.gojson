@@ -1,0 +1,33 @@
+{
+  "title": {
+    "fontSize": 14
+  },
+  "general": {
+    "type": "honeyComb",
+    "displayType": "default",
+    "mode": "honeyComb"
+  },
+  "honeyComb": {
+    "thresholds": [
+      {
+        "from": 0,
+        "to": 0.5,
+        "color": "#98ECA9"
+      },
+      {
+        "from": 0.5,
+        "to": 1,
+        "color": "#F2DA73"
+      },
+      {
+        "from": 1,
+        "to": null,
+        "color": "#FFB5B5"
+      }
+    ],
+    "shape": "hexagon",
+    "groupBy": [],
+    "aggregationType": "avg"
+  },
+  "series": {}
+}

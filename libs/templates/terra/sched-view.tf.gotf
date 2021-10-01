@@ -1,0 +1,12 @@
+resource "sumologic_scheduled_view" "{{.Index}}" {
+    index_name       = "{{.Index}}"
+    query            = <<QUERY
+{{.Query}}
+QUERY
+    start_time       = "{{.StartTime}}"
+    retention_period = "{{.Retention}}"
+    parsing_mode     = "AutoParse"
+    lifecycle {
+        prevent_destroy = "{{.PreventDestroy}}"
+    }
+}

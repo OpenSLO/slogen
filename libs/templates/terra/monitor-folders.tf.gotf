@@ -1,0 +1,7 @@
+{{range $folder := .}}
+resource "sumologic_monitor_folder" "{{$folder}}" {
+    name        = "{{$folder}}"
+    description = "folder for SLO monitors for service : {{$folder}}"
+    parent_id   = var.slo_mon_root_folder_id
+}
+{{end}}

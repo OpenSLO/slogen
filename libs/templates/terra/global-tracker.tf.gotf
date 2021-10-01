@@ -1,0 +1,125 @@
+resource "sumologic_dashboard" "global-dashboard" {
+    title            = "SLO overview"
+    description      = "Panels for health of SLO configured across services"
+    folder_id        = var.slo_dash_root_folder_id
+    refresh_interval = 120
+    theme            = "Light"
+
+    time_range {
+        begin_bounded_time_range {
+            from {
+                literal_time_range {
+                    range_name = "today"
+                }
+            }
+        }
+    }
+
+    ## text panel
+    panel {
+        text_panel {
+            key                                         = "description"
+            title                                       = "Description"
+            visual_settings                             = jsonencode(
+            {
+                "text" : {
+                    "verticalAlignment" : "top",
+                    "horizontalAlignment" : "left",
+                    "fontSize" : 12
+                }
+            }
+            )
+            keep_visual_settings_consistent_with_parent = true
+            text                                        = <<-EOF
+                Sample content
+            EOF
+        }
+    }
+
+    ## search panel - log query
+    panel {
+        sumo_search_panel {
+            key                                         = "search-panel-01"
+            title                                       = "Api Errors by Host"
+            description                                 = "Errors in api service since last 12 hours"
+            # stacked time series
+            visual_settings                             = jsonencode(
+            {
+                "title" : {
+                    "fontSize" : 14
+                },
+                "axes" : {
+                    "axisX" : {
+                        "titleFontSize" : 12,
+                        "labelFontSize" : 12
+                    },
+                    "axisY" : {
+                        "titleFontSize" : 12,
+                        "labelFontSize" : 12
+                    }
+                },
+                "series" : {},
+                "general" : {
+                    "type" : "table",
+                    "displayType" : "default",
+                    "paginationPageSize" : 100,
+                    "fontSize" : 12,
+                    "mode" : "distribution"
+                },
+                "legend" : {
+                    "enabled" : false
+                }
+            }
+            )
+            keep_visual_settings_consistent_with_parent = true
+            query {
+                query_string = <<QUERY
+{{.Query}}
+QUERY
+                query_type   = "Logs"
+                query_key    = "A"
+            }
+            time_range {
+                begin_bounded_time_range {
+                    from {
+                        relative_time_range {
+                            relative_time = "-12h"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ## layout
+    layout {
+        grid {
+            layout_structure {
+                key       = "description"
+                structure = "{\"height\":5,\"width\":24,\"x\":0,\"y\":0}"
+            }
+            layout_structure {
+                key       = "search-panel-01"
+                structure = "{\"height\":10,\"width\":12,\"x\":0,\"y\":5}"
+            }
+        }
+    }
+
+    {{range $dashVar := .DashVars}}
+    ## variables
+    variable {
+        name               = "{{$dashVar}}"
+        display_name       = "{{$dashVar}}"
+        default_value      = "*"
+        source_definition {
+            log_query_variable_source_definition {
+                query = "_view=slogen_tf*"
+                field = "{{$dashVar}}"
+            }
+        }
+        allow_multi_select = true
+        include_all_option = true
+        hide_from_ui       = false
+    }
+    {{end}}
+}

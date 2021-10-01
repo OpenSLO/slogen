@@ -1,0 +1,28 @@
+{
+  "title": {
+    "fontSize": 14
+  },
+  "series": {},
+  "general": {
+    "type": "column",
+    "displayType": "default",
+    "fillOpacity": 1,
+    "mode": "timeSeries"
+  },
+  "color": {
+    "family": "Diverging 2"
+  },
+  "axes": {
+    "axisX": {
+      "title": ""
+    },
+    "axisY": {
+      "title": "hourlyBurnRate",
+      "unit": {
+        "value": "%",
+        "isCustom": false
+      }
+    }
+  },
+  "overrides": []
+}

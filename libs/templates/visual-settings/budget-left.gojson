@@ -1,0 +1,74 @@
+{
+    "legend": {
+        "enabled": false,
+        "fontSize": 12,
+        "maxHeight": 50,
+        "showAsTable": false,
+        "verticalAlign": "bottom",
+        "wrap": true
+    },
+    "title": {
+        "fontSize": 14
+    },
+    "series": {
+        "A_totalGood": {
+            "visible": false
+        },
+        "A_totalCount": {
+            "visible": false
+        },
+        "A_SLO": {
+            "visible": true
+        },
+        "A_budgetRemaining": {
+            "visible": true
+        },
+        "A_burnRate": {
+            "visible": true
+        },
+        "A_budgetRemaining_1d": {
+            "visible": false
+        }
+    },
+    "axes": {
+        "axisY": {
+            "unit": {
+                "value": "%",
+                "isCustom": false
+            }
+        }
+    },
+    "overrides": [
+        {
+            "series": [
+                "budgetRemaining"
+            ],
+            "queries": [],
+            "properties": {
+                "name": "last 24 hr"
+            }
+        },
+        {
+            "series": [
+                "budgetRemaining_1d"
+            ],
+            "queries": [],
+            "properties": {
+                "name": "Previous 24h"
+            }
+        }
+    ],
+    "general": {
+        "type": "area",
+        "displayType": "default",
+        "markerSize": 5,
+        "lineDashType": "solid",
+        "markerType": "none",
+        "lineThickness": 1,
+        "fillOpacity": 0.25,
+        "mode": "timeSeries"
+    },
+    "color": {
+        "family": "Categorical Dark"
+    }
+}
