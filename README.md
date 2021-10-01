@@ -115,7 +115,7 @@ various fields
   flag `-d or --dashboardFolder` followed by name of the folder. It will take some time for historical data to be
   calculated for new views for dashboards to be accurate.
 - Monitors by default are created in a folder `slogen-tf-monitors`. A different folder can be set with the
-  flag `-d or --dashboardFolder` followed by name of the folder.
+  flag `-m or --monitorFolder` followed by name of the folder.
 - Scheduled view are created with a prefix `slogen_tf_`, this can't be changed as of now.
 - `SLO Overview` dashboard is created at the root of Dashboard folder specified.
 
