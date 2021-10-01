@@ -16,19 +16,42 @@ func giveOverviewListQuery(dashVars []string) string {
 
 	wherePart := strings.Join(clauses, " and ")
 
-	query := "_view=slogen_tfm_* | where " + wherePart + `
-| sum(sliceGoodCount) as GoodReqs, sum(sliceTotalCount) as TotalReqs by Service,SLOName
+	query := "_view=slogen_tf_* | where " + wherePart + `
+| sum(sliceGoodCount) as GoodReqs, sum(sliceTotalCount) as TotalReqs by Service, SLOName
 | (GoodReqs/TotalReqs)*100 as SLAVal
 | order by SLAVal asc
-| format("%.2f%%",SLAVal)  as SLA | fields  Service, SLOName, SLA, GoodReqs, TotalReqs
+| SLOName as SLO
+| format("%.2f%%",SLAVal)  as SLA 
+| fields  Service, SLO, SLA, GoodReqs, TotalReqs
+`
+
+	return query
+}
+
+func giveOverviewWeeksQuery(dashVars []string) string {
+
+	clauses := []string{}
+	for _, v := range dashVars {
+		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
+	}
+
+	wherePart := strings.Join(clauses, " and ")
+
+	query := "_view=slogen_tf_* | where " + wherePart + `
+| timeslice 1d
+| sum(sliceGoodCount) as GoodReqs, sum(sliceTotalCount) as TotalReqs by _timeslice,Service, SLOName
+| (GoodReqs/TotalReqs) as SLAVal
+| avg(SLAVal)  as AvgAvailability by _timeslice,Service
+| transpose row _timeslice column Service
 `
 
 	return query
 }
 
 type SLOOverviewDashConf struct {
-	Query    string
-	DashVars []string
+	QueryTable string
+	QueryDaily string
+	DashVars   []string
 }
 
 func GenOverviewTF(s map[string]*SLO, c GenConf) error {
@@ -38,8 +61,9 @@ func GenOverviewTF(s map[string]*SLO, c GenConf) error {
 
 	dashVars = append([]string{"Service"}, dashVars...)
 	conf := SLOOverviewDashConf{
-		Query:    query,
-		DashVars: dashVars,
+		QueryTable: query,
+		QueryDaily: giveOverviewWeeksQuery(dashVars),
+		DashVars:   dashVars,
 	}
 	path := filepath.Join(c.OutDir, DashboardsFolder, "overview.tf")
 	return FileFromTmpl(NameGlobalTrackerTmpl, path, conf)

@@ -23,20 +23,22 @@ import (
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
-	Use:   "new",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "new [path-to-create]",
+	Short: "create a sample config from given profile",
+	Example: `
+slogen -n sumo-logs team-rockstar/important-service.yaml
+`,
+	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("new called")
 	},
 }
 
+const FlagProfileLong = "profile"
+const FlagProfileShort = "p"
+
 func init() {
+
 	rootCmd.AddCommand(newCmd)
 
 	// Here you will define your flags and configuration settings.
@@ -47,5 +49,8 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// newCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	newCmd.Flags().StringP(FlagProfileLong, FlagProfileShort, "sumo-logs",
+		"template profile for the slo config, allowed values : sumo-logs | sumo-metrics",
+	)
+
 }

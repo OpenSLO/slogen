@@ -1,6 +1,6 @@
 {{range $Obj := .Objectives }}
-resource "sumologic_monitor" "slo_monitor_{{$.Name}}" {
-    name             = "SLO-monitor-{{$.Name}}"
+resource "sumologic_monitor" "slo_monitor_{{$.Name}}-{{.Suffix}}" {
+    name             = "slo-{{$.Name}}-{{.Suffix}}"
     description      = "{{$.Desc}}"
     parent_id        = sumologic_monitor_folder.{{$.Service}}.id
     type             = "MonitorsLibraryMonitor"
@@ -44,17 +44,29 @@ QUERY
             time_range = "30m"
         }
     }
+    {{range $n := $Obj.Notifications}}
     notifications {
         notification {
-            connection_type = "Email"
+            connection_type = "{{$n.ConnectionType}}"
+            {{if eq $n.ConnectionType "Email" }}
             recipients      = [
-                "agaurav@sumologic.com",
+                {{range $mailId := $n.Recipients}}
+                "{{$mailId}}",
+                {{end}}
             ]
             subject         = "SLO breach alert: {{$.Service}} - {{$.Name}}"
             time_zone       = "PST"
             message_body    = "{{`{{Description}} \n Result : {{ResultJson}}\n Alert: {{AlertResponseURL}}`}}"
+            {{else}}
+            connection_id   = "{{$n.ConnectionID}}"
+            {{end}}
         }
-        run_for_trigger_types = ["Critical", "ResolvedCritical"]
+        run_for_trigger_types = [
+            {{range $t := $n.TriggerFor}}
+            "{{$t}}",
+            {{- end}}
+        ]
     }
+    {{end}}
 }
 {{end}}

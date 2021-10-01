@@ -24,6 +24,7 @@ type ScheduledView struct {
 type ViewTemplateValues struct {
 	Name       string
 	Service    string
+	Goal       float64
 	TotalQuery string
 	GoodQuery  string
 	Labels     map[string]string `yaml:"labels,omitempty"`
@@ -53,7 +54,7 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	goal := *(sloConf.Spec.Objectives[0].BudgetTarget) * 100.0
 	buf := bytes.Buffer{}
 	ratio := sloConf.Spec.Objectives[0].RatioMetrics
 	viewVals := ViewTemplateValues{
@@ -63,6 +64,7 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 		GoodQuery:  ratio.Good.Query,
 		Fields:     sloConf.Fields,
 		Labels:     sloConf.Labels,
+		Goal:       goal,
 	}
 
 	err = tmpl.Execute(&buf, viewVals)

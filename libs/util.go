@@ -18,6 +18,20 @@ func DeDupe(strSlice []string) []string {
 }
 
 func EnsureDir(dirName string, clean bool) error {
+
+	if clean {
+		yes, _ := dirExists(dirName)
+
+		var err error
+		if yes {
+			err = os.RemoveAll(dirName)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
 	err := os.Mkdir(dirName, 0755)
 	if err == nil {
 		return nil
@@ -32,14 +46,6 @@ func EnsureDir(dirName string, clean bool) error {
 			return errors.New("path exists but is not a directory")
 		}
 
-		if clean {
-			err = os.RemoveAll(dirName)
-
-			if err != nil {
-				return err
-			}
-		}
-
 		return nil
 	}
 	return err
@@ -52,4 +58,16 @@ func GiveKeys(m map[string]bool) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+// exists returns whether the given file or directory exists
+func dirExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

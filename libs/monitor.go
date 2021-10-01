@@ -2,6 +2,7 @@ package libs
 
 import (
 	"bytes"
+	"github.com/kr/pretty"
 	"text/template"
 )
 
@@ -13,14 +14,25 @@ type SLOMonitorConfig struct {
 	//Notify []
 }
 
+const (
+	TriggerNameCritical        = "Critical"
+	TriggerNameResolveCritical = "ResolvedCritical"
+	TriggerNameWarning         = "Warning"
+	TriggerNameResolveWarning  = "ResolvedWarning"
+)
+
+func giveDefaultTriggers() []string {
+	return []string{TriggerNameCritical, TriggerNameResolveCritical}
+}
+
 type Notification struct {
-	ActionType     string `yaml:"action_type,omitempty"`
-	ConnectionType string `yaml:"connectionType"`
-	ConnectionID   string `yaml:"connection_id,omitempty"`
-	Subject        string `yaml:"subject,omitempty"`
-	Recipients     string `yaml:"recipients,omitempty"`
-	MessageBody    string `yaml:"messageBody,omitempty"`
-	TimeZone       string `yaml:"timeZone,omitempty"`
+	TriggerFor     []string `yaml:"triggerFor,omitempty"`
+	ConnectionType string   `yaml:"connectionType"`
+	ConnectionID   string   `yaml:"connectionID,omitempty"`
+	Subject        string   `yaml:"subject,omitempty"`
+	Recipients     []string `yaml:"recipients,omitempty"`
+	MessageBody    string   `yaml:"messageBody,omitempty"`
+	TimeZone       string   `yaml:"timeZone,omitempty"`
 }
 
 type SLOObjective struct {
@@ -62,6 +74,7 @@ const MultiWindowMultiBurnTmpl = `_view={{.View}}
 
 func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
+	pretty.Println(sloConf)
 	tmpl, err := template.New("monitor").Parse(MultiWindowMultiBurnTmpl)
 
 	if err != nil {
@@ -90,6 +103,7 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 			TimeRange:     alert.LongWindow,
 			ValueWarning:  1,
 			ValueCritical: 2,
+			Notifications: alert.Notifications,
 		}
 		objs = append(objs, obj)
 	}
