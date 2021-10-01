@@ -1,0 +1,55 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: Trend prediction delay
+  name: trend-prediction-delay
+spec:
+  service: forecasting
+  description: checks trending values are being calculated with acceptable delays
+  budgetingMethod: Timeslices
+  objectives:
+    - ratioMetrics:
+        good:
+          source: sumologic
+          queryType: Logs
+          query: '!isNull(duration) and duration/1000 < 100'
+        incremental: true
+        total:
+          source: sumologic
+          queryType: Logs
+          query: '_sourceCategory=tsat-batcher | where msg="trends query completed"'
+      displayName: delay less than 350
+      target: 0.98
+  timeWindows:
+    - count: 1
+      isRolling: true
+      unit: Day
+createView: true
+fields:
+  aws_region: "Region"
+labels:
+  team: analytics
+  tier: 1
+burnRateAlerts:
+  - shortWindow: '10m'
+    shortLimit: 14
+    longWindow: '1h'
+    longLimit: 14
+    notifications:
+      - connectionType: 'Email'
+        recipients:
+          - 'agaurav@sumologic.com'
+        triggerFor:
+          - Warning
+          - ResolvedWarning
+  - shortWindow: '1h'
+    shortLimit: 14
+    longWindow: '6h'
+    longLimit: 4
+    notifications:
+      - connectionType: 'Email'
+        recipients:
+          - 'agaurav@sumologic.com'
+        triggerFor:
+          - Warning
+          - ResolvedWarning

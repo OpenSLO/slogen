@@ -1,0 +1,48 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: SLO descriptive name
+  name: slo-minimal-name   #only '-' is allowed apart from alphanumeric, '-' not allowed in start or end
+spec:
+  service: my-service
+  description: service description to be added in dashboard text panel
+  budgetingMethod: Occurrences
+  objectives:
+    - ratioMetrics:
+        total: # sumo query to filter out all the messages counting to valid request
+          source: sumologic
+          queryType: Logs
+          query: '_sourceCategory=my-service | where api_path="/login"'
+        good: # condition to filter out healthy request/events
+          source: sumologic
+          queryType: Logs
+          query: '(responseTime) < 500 and (statusCode matches /[2-3][0-9]{2}/ )'
+        incremental: true
+      displayName: delay less than 350
+      target: 0.98
+  timeWindows:
+    - count: 1
+      isRolling: true
+      unit: Day
+fields: # fields from log to retain
+  region: "aws_region"    # log field as it is
+  deployment: 'if(isNull(deployment),"dev",deployment)' # using an expression
+labels:
+  tier: 0                 # static labels to include in SLI view, that are not present in the log messages
+burnRateAlerts: #
+  - shortWindow: '10m'
+    shortLimit: 14
+    longWindow: '1h'
+    longLimit: 14
+    notifications: # one or more notification channels
+      - connetionType: 'Email'
+        recipients: 'youremailid@email.com'
+        triggerFor:
+          - Warning
+          - ResolvedWarning
+      - connetionType: 'PagerDuty'
+        connectionID: '1234abcd'  # id of pagerduty connection created in sumo
+        triggerFor:
+          - Critical
+          - ResolvedCritical
+
