@@ -68,9 +68,11 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 #### Getting the tool
 
-##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
-
 ##### install with go1.17 as `go install github.com/agaurav/slogen@latest`
+
+latest golang release can be installed by using the direction here : https://github.com/udhos/update-golang#usage
+
+##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
 
 #### Using the tool
 
