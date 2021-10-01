@@ -57,6 +57,7 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 	goal := *(sloConf.Spec.Objectives[0].BudgetTarget) * 100.0
 	buf := bytes.Buffer{}
 	ratio := sloConf.Spec.Objectives[0].RatioMetrics
+
 	viewVals := ViewTemplateValues{
 		Name:       sloName,
 		Service:    sloConf.Spec.Service,
@@ -72,14 +73,20 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 		return nil, err
 	}
 
-	start := GetStartOfMonth().Format(time.RFC3339)
+	//start := GetStartOfMonth().Add(-1 * time.Hour * 24 * 30).Format(time.RFC3339)
+	start := GetStartOfMonth()
+
+	// if less than 15 days from start of month then subtract 15 more days
+	if time.Since(start) < 15*24*time.Hour {
+		start = start.Add(-15 * 24 * time.Hour)
+	}
 
 	conf := &ScheduledView{
 		SLOName:        sloName,
 		Service:        sloConf.Spec.Service,
 		Index:          sloConf.ViewName,
 		Query:          buf.String(),
-		StartTime:      start,
+		StartTime:      start.Format(time.RFC3339),
 		Retention:      31,
 		PreventDestroy: false,
 	}
@@ -93,6 +100,7 @@ func GetStartOfMonth() time.Time {
 	currentLocation := now.Location()
 
 	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+
 	return firstOfMonth
 }
 
