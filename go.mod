@@ -1,4 +1,4 @@
-module slogen
+module github.com/agaurav/slogen
 
 go 1.17
 

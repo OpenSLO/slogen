@@ -70,11 +70,7 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 ##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
 
-##### Mac users
-
-```shell
-brew install slogen
-```
+##### install with go1.17 as `go install github.com/agaurav/slogen@latest`
 
 #### Using the tool
 
