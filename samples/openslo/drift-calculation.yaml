@@ -2,11 +2,11 @@ apiVersion: openslo/v1alpha
 kind: SLO
 metadata:
   displayName: Drift Computation Time
-  name: drift-compute-time
+  name: anomaly-compute-delay
 spec:
   service: tsat
   description: checks anomalies are being calculated and with acceptable delays
-  budgetingMethod: Timeslices
+  budgetingMethod: Occurrences
   objectives:
     - ratioMetrics:
         good:
@@ -20,10 +20,6 @@ spec:
           query: '_sourceCategory=tsat-batcher | where msg="DriftGen query completed"'
       displayName: delay less than 350
       target: 0.98
-  timeWindows:
-    - count: 1
-      isRolling: true
-      unit: Day
 createView: true
 fields:
   aws_region: "Region"
