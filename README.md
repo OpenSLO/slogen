@@ -123,7 +123,7 @@ various fields
 
 #### Limitations
 
-- only support Sumologic Logs as data source.
+- only support Sumologic Logs as data source and content target.
 - Only `Occurrences` based `budgetingMethod` is handled. support for `Timeslices` is work in progress.
 - Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
   31 days.
