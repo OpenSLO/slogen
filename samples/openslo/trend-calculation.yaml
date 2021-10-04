@@ -2,11 +2,11 @@ apiVersion: openslo/v1alpha
 kind: SLO
 metadata:
   displayName: Trend prediction delay
-  name: trend-prediction-delay
+  name: trend-compute-delay
 spec:
   service: forecasting
   description: checks trending values are being calculated with acceptable delays
-  budgetingMethod: Timeslices
+  budgetingMethod: Occurrences
   objectives:
     - ratioMetrics:
         good:

@@ -10,6 +10,12 @@ For a given config it will create the following content via sumo terraform provi
 - Multi-Window, Multi-BurnRate monitors
 - Global dashboard, to track availability across all services in a single view
 - The content are grouped into folders of the service they belong to
+- slice & dice SLI data in view to create custom reports by metadata (e.g. availability by customers, region)
+
+![panels](misc/slo_panel.png )
+![overview](misc/view_search.png)
+![panels](misc/overview.png)
+![monitors](misc/monitors.png)
 
 #### sample config
 
@@ -36,10 +42,6 @@ spec:
         incremental: true
       displayName: delay less than 350
       target: 0.98
-  timeWindows:
-    - count: 1
-      isRolling: true
-      unit: Day
 fields: # fields from log to retain
   region: "aws_region"    # log field as it is
   deployment: 'if(isNull(deployment),"dev",deployment)' # using an expression
