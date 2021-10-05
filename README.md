@@ -92,8 +92,11 @@ slogen ~/team-a/slo/ -o team-a/tf
 slogen ~/team-a/slo/ -o team-a/tf --apply 
 
 Available Commands:
-completion generate the autocompletion script for the specified shell docs A brief description of your command help Help
-about any command new create a sample config from given profile validate A brief description of your command
+help Help about any command 
+new create a sample config from given profile 
+validate config is as per OpesSLO standards and has valid values.
+completion generate the autocompletion script for the specified shell 
+docs A brief description of your command 
 
 Flags:
 -o, --out string        :   output directory where to create the terraform files (default "tf")
@@ -123,7 +126,7 @@ various fields
 
 #### Limitations
 
-- only support Sumologic Logs as data source.
+-  as of now only supports Sumologic Logs as data source and content target.
 - Only `Occurrences` based `budgetingMethod` is handled. support for `Timeslices` is work in progress.
 - Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
   31 days.
