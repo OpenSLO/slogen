@@ -19,9 +19,8 @@ resource "sumologic_dashboard" "global-dashboard" {
     panel {
         sumo_search_panel {
             key                                         = "search-panel-01"
-            title                                       = ""
-            description                                 = "Errors in api service since last 12 hours"
-            # stacked time series
+            title                                       = "SLO List"
+            description                                 = ""
             visual_settings                             = jsonencode(
             {
                 "title" : {
@@ -42,7 +41,7 @@ resource "sumologic_dashboard" "global-dashboard" {
                     "type" : "table",
                     "displayType" : "default",
                     "paginationPageSize" : 100,
-                    "fontSize" : 12,
+                    "fontSize" : 14,
                     "mode" : "distribution"
                 },
                 "legend" : {
@@ -73,7 +72,7 @@ QUERY
     panel {
         sumo_search_panel {
             key                                         = "search-panel-02"
-            title                                       = "Overall Service Availability over last 7 days"
+            title                                       = "Daily Service Availability over last 7 days (Computed as Average of all SLO's configured for the given service)"
             description                                 = "Computed as Average of all SLO's configured for the given service"
             # stacked time series
             visual_settings                             = jsonencode(
@@ -116,10 +115,10 @@ QUERY
                 "general" : {
                     "type" : "line",
                     "displayType" : "default",
-                    "markerSize" : 5,
+                    "markerSize" : 10,
                     "lineDashType" : "solid",
-                    "markerType" : "none",
-                    "lineThickness" : 1,
+                    "markerType" : "triangle",
+                    "lineThickness" : 2,
                     "mode" : "timeSeries"
                 },
                 "color" : {

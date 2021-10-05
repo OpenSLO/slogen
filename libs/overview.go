@@ -20,9 +20,9 @@ func giveOverviewListQuery(dashVars []string) string {
 | sum(sliceGoodCount) as GoodReqs, sum(sliceTotalCount) as TotalReqs by Service, SLOName
 | (GoodReqs/TotalReqs)*100 as SLAVal
 | order by SLAVal asc
-| SLOName as SLO
-| format("%.2f%%",SLAVal)  as SLA 
-| fields  Service, SLO, SLA, GoodReqs, TotalReqs
+| SLOName as ObjectiveName
+| format("%.2f%%",SLAVal)  as Availability 
+| fields  Service, ObjectiveName, Availability, GoodReqs, TotalReqs
 `
 
 	return query
