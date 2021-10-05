@@ -21,16 +21,16 @@
     "thresholds": [
       {
         "from": 0,
-        "to": 95,
+        "to": [[.TargetBad]],
         "color": "#bf2121"
       },
       {
-        "from": 95,
-        "to": 99,
+        "from": [[.TargetBad]],
+        "to": [[.TargetMidBad]],
         "color": "#DFBE2E"
       },
       {
-        "from": 99,
+        "from": [[.TargetMidBad]],
         "to": 100.1,
         "color": "#16943e"
       }

@@ -64,7 +64,7 @@ resource "sumologic_lookup_table" "slogenLookupTable" {
 
     ttl               = 0
     primary_keys      = ["service", "sloName"]
-    parent_folder_id  = "${data.sumologic_folder.slo_dash_root_folder.id}"
+    parent_folder_id  = "${sumologic_folder.slo_dash_root_folder.id}"
     size_limit_action = "DeleteOldData"
     description       = "important params in of SLO's created by slogen"
 }

@@ -1,8 +1,10 @@
 package libs
 
 import (
+	"bytes"
 	_ "embed"
 	"gopkg.in/yaml.v3"
+	"text/template"
 )
 
 type SLODashboard struct {
@@ -107,15 +109,40 @@ func giveSLOPanels(s SLO) ([]SearchPanel, error) {
 	return panels, nil
 }
 
+type gaugeVizSettingParams struct {
+	TargetMidBad float64
+	TargetBad    float64
+}
+
 func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
+
+	target := *(s.Spec.Objectives[0].BudgetTarget)
+	tmpl, err := template.New("vizGaugeSetting").Delims("[[", "]]").Parse(vizSettingGauge)
+
+	if err != nil {
+		return nil, err
+	}
+
+	vizParams := gaugeVizSettingParams{
+		TargetMidBad: (1 + target) * 50,
+		TargetBad:    (target) * 100,
+	}
+	vizBuff := bytes.Buffer{}
+
+	err = tmpl.Execute(&vizBuff, vizParams)
+
+	if err != nil {
+		return nil, err
+	}
 
 	query := givePanelQuery(KeyGaugeToday, s.ViewName)
 
+	vizSetting := vizBuff.String()
 	today := SearchPanel{
 		Key:            KeyGaugeToday,
 		Title:          "Today's Availability",
 		Desc:           "#good-requests / #requests since start of day",
-		VisualSettings: vizSettingGauge,
+		VisualSettings: vizSetting,
 		Query:          query,
 		TimeRange:      "today",
 	}
@@ -123,7 +150,7 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 		Key:            KeyGaugeWeek,
 		Title:          "Week's Availability",
 		Desc:           "#good-requests / #requests since start of week",
-		VisualSettings: vizSettingGauge,
+		VisualSettings: vizSetting,
 		Query:          query,
 		TimeRange:      "week",
 	}
@@ -131,7 +158,7 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 		Key:            KeyGaugeMonth,
 		Title:          "Month's Availability",
 		Desc:           "#good-requests / #requests since start of month",
-		VisualSettings: vizSettingGauge,
+		VisualSettings: vizSetting,
 		Query:          query,
 		TimeRange:      "month",
 	}

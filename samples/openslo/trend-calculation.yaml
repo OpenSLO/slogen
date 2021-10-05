@@ -19,7 +19,7 @@ spec:
           queryType: Logs
           query: '_sourceCategory=tsat-batcher | where msg="trends query completed"'
       displayName: delay less than 350
-      target: 0.98
+      target: 0.975
   timeWindows:
     - count: 1
       isRolling: true

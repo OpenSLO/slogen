@@ -19,7 +19,7 @@ spec:
           queryType: Logs
           query: '_sourceCategory=tsat-batcher | where msg="DriftGen query completed"'
       displayName: delay less than 350
-      target: 0.98
+      target: 0.80
 createView: true
 fields:
   aws_region: "Region"
