@@ -1,6 +1,6 @@
 resource "sumologic_dashboard" "{{.SLOName}}" {
     title            = "SLO-{{.Title}}"
-    description      = "Tracks {{.Objective}} objective: {{.Desc}}"
+    description      = "Tracks {{.Target}} objective: {{.Desc}}"
     folder_id        = sumologic_folder.{{.Service}}.id
     refresh_interval = 300
     theme            = "Light"
@@ -60,6 +60,81 @@ QUERY
         }
     }
     {{end}}
+
+    panel {
+
+        text_panel {
+            key                                         = "text-panel-details"
+            title                                       = "Details"
+            visual_settings                             = jsonencode({
+                "general" : {
+                    "mode" : "TextPanel",
+                    "type" : "text",
+                    "displayType" : "default"
+                },
+                "title" : {
+                    "fontSize" : 14
+                },
+                "text" : {
+                    "format" : "markdownV2",
+                    "verticalAlignment" : "center",
+                    "horizontalAlignment" : "center",
+                    "textColor" : "#005982",
+                    "fontSize" : 40,
+                    "backgroundColor" : "#e4f5fa"
+                },
+                "series" : {},
+                "legend" : {
+                    "enabled" : false
+                }
+            })
+            keep_visual_settings_consistent_with_parent = true
+            text                                        = <<-EOF
+# Target
+**{{printf "%.2f" .Target}} %**
+
+## {{.Desc}}
+
+#### {{ range $key, $val := .Labels }}**`{{$key}}`**:*`{{$val}}`*  {{ end }}
+EOF
+        }
+    }
+
+    panel {
+
+        text_panel {
+            key                                         = "text-panel-config"
+            title                                       = "OpenSLO config"
+            visual_settings                             = jsonencode({
+                "general" : {
+                    "mode" : "TextPanel",
+                    "type" : "text",
+                    "displayType" : "default"
+                },
+                "title" : {
+                    "fontSize" : 14
+                },
+                "text" : {
+                    "format" : "markdownV2",
+                    "verticalAlignment" : "top",
+                    "horizontalAlignment" : "left",
+                    "textColor" : "#170546",
+                    "fontSize" : 20,
+                    "backgroundColor" : "#e4f5fa"
+                },
+                "series" : {},
+                "legend" : {
+                    "enabled" : false
+                }
+            })
+            keep_visual_settings_consistent_with_parent = true
+            text                                        = <<-EOF
+``` yaml
+{{.StrYAMLConfig}}
+```
+            EOF
+        }
+    }
 
     ## layout
     layout {

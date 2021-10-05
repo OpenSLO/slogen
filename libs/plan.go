@@ -80,13 +80,24 @@ func TFExec(wdPath string, action TFAction) error {
 
 	if action == TFApply {
 		err = tf.Apply(context.Background())
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+
 	}
 
-	if err != nil {
-		log.Error(err)
-		return err
-	}
+	//output, err := tf.Output(context.Background())
+	//
+	//if err != nil {
+	//	log.Error(err)
+	//	return err
+	//}
 
-	log.Infof("tf action '%s' done", action)
+	//log.Infof("tf action '%s' done", action)
+	//log.Infow("output given", LookupTableIdKey, output[LookupTableIdKey].Value)
+
 	return nil
 }
+
+const LookupTableIdKey = "lookupTableId"

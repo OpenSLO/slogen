@@ -66,7 +66,7 @@ func TestGetStartOfMonth(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetStartOfMonth(tt.args.offset); !reflect.DeepEqual(got, tt.want) {
+			if got := GetStartOfMonth(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetStartOfMonth() = %v, want %v", got, tt.want)
 			}
 		})

@@ -72,14 +72,25 @@ One or more config or directory containing configs can be given as arg. Doesn't 
 		if err != nil {
 			libs.BadResult("\nerror generating terraform for : %s\n", path)
 			libs.BadInfo("%s\n\n", err)
+			return
 		}
 
 		if c.DoPlan {
-			libs.TFExec(c.OutDir, libs.TFPlan)
+			err = libs.TFExec(c.OutDir, libs.TFPlan)
+			if err != nil {
+				libs.BadResult("\nerror planning terraform")
+				libs.BadInfo("%s\n\n", err)
+				return
+			}
 		}
 
 		if c.DoApply {
 			libs.TFExec(c.OutDir, libs.TFApply)
+			if err != nil {
+				libs.BadResult("\nerror applying terraform")
+				libs.BadInfo("%s\n\n", err)
+				return
+			}
 		}
 	},
 }
@@ -104,6 +115,7 @@ const FlagMonitorFolderLong = "monitorFolder"
 const FlagMonitorFolderShort = "m"
 const FlagViewPrefixLong = "viewPrefix"
 const FlagViewPrefixShort = "v"
+const FlagViewDestroy = "viewDestroy"
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -140,6 +152,9 @@ func init() {
 	)
 	rootCmd.Flags().BoolP(FlagApplyLong, FlagApplyShort, false,
 		"apply the generated terraform config as well",
+	)
+	rootCmd.Flags().Bool(FlagViewDestroy, false,
+		"whether to destroy old view on change of attributes like query, start_time & parsing mode",
 	)
 	rootCmd.Flags().BoolP(FlagCleanLong, FlagCleanShort, false,
 		"clean the old tf files for which openslo config were not found in the path args",

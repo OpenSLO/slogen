@@ -24,11 +24,19 @@ type ScheduledView struct {
 type ViewTemplateValues struct {
 	Name       string
 	Service    string
-	Goal       float64
 	TotalQuery string
 	GoodQuery  string
 	Labels     map[string]string `yaml:"labels,omitempty"`
 	Fields     map[string]string `yaml:"fields,omitempty"`
+	Goal       float64
+}
+
+type ViewSpec struct {
+	IndexName       string `yaml:"indexName"`
+	AutoParse       bool   `yaml:"autoParse"`
+	StartTime       string `yaml:"startTime"`
+	RetentionInDays int    `yaml:"retentionInDays"`
+	PreventDestroy  bool   `yaml:"preventDestroy"`
 }
 
 const ScheduledViewQueryTemp = `{{.TotalQuery}} 
@@ -86,9 +94,9 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 		Service:        sloConf.Spec.Service,
 		Index:          sloConf.ViewName,
 		Query:          buf.String(),
-		StartTime:      start.Format(time.RFC3339),
+		StartTime:      start.UTC().Format(time.RFC3339),
 		Retention:      31,
-		PreventDestroy: false,
+		PreventDestroy: true,
 	}
 
 	return conf, nil

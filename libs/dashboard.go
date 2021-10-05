@@ -2,19 +2,22 @@ package libs
 
 import (
 	_ "embed"
+	"gopkg.in/yaml.v3"
 )
 
 type SLODashboard struct {
-	Service      string
-	SLOName      string
-	Title        string
-	Desc         string
-	Theme        string
-	Objective    string
-	RefreshFreq  int
-	SearchPanels []SearchPanel
-	Layout       []LayoutItem
-	Viz          VisualSetting
+	Service       string
+	SLOName       string
+	Title         string
+	Desc          string
+	Theme         string
+	Target        float64
+	RefreshFreq   int
+	SearchPanels  []SearchPanel
+	Layout        []LayoutItem
+	Viz           VisualSetting
+	StrYAMLConfig string
+	Labels        map[string]string
 }
 
 type SearchPanel struct {
@@ -44,6 +47,13 @@ type LayoutItem struct {
 
 func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 	sloName := sloConf.Metadata.Name
+	target := *(sloConf.Spec.Objectives[0].BudgetTarget)
+
+	configYamlBytes, err := yaml.Marshal(sloConf)
+
+	if err != nil {
+		return nil, err
+	}
 
 	panels, err := giveSLOPanels(sloConf)
 
@@ -52,14 +62,17 @@ func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 	}
 
 	conf := &SLODashboard{
-		Service:      sloConf.Spec.Service,
-		SLOName:      sloName,
-		Title:        sloConf.Metadata.DisplayName,
-		Desc:         sloConf.Spec.Description,
-		Theme:        "Light",
-		RefreshFreq:  300,
-		Layout:       sloLayout,
-		SearchPanels: panels,
+		Service:       sloConf.Spec.Service,
+		SLOName:       sloName,
+		Title:         sloConf.Metadata.DisplayName,
+		Desc:          sloConf.Spec.Description,
+		Theme:         "Light",
+		Target:        target * 100,
+		RefreshFreq:   300,
+		Layout:        sloLayout,
+		SearchPanels:  panels,
+		StrYAMLConfig: string(configYamlBytes),
+		Labels:        sloConf.Labels,
 	}
 
 	return conf, nil
@@ -203,6 +216,14 @@ var sloLayout = []LayoutItem{
 	{
 		Key:       KeyPanelBudgetLeft,
 		Structure: `{\"height\":6,\"width\":18,\"x\":6,\"y\":12}`,
+	},
+	{
+		Key:       "text-panel-config",
+		Structure: `{\"height\":6,\"width\":12,\"x\":0,\"y\":18}`,
+	},
+	{
+		Key:       "text-panel-details",
+		Structure: `{\"height\":6,\"width\":12,\"x\":12,\"y\":18}`,
 	},
 }
 
