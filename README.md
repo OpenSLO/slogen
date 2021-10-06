@@ -31,7 +31,7 @@ spec:
   budgetingMethod: Occurrences
   objectives:
     - ratioMetrics:
-        total: # sumo query to filter out all the messages counting to valid request
+        total: # sumo query to filter out all the messages counting requests for this slo
           source: sumologic
           queryType: Logs
           query: '_sourceCategory=my-service | where api_path="/login"'
