@@ -72,9 +72,15 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 ##### install with go1.17 as `go install github.com/agaurav/slogen@latest`
 
-latest golang release can be installed by using the direction here : https://github.com/udhos/update-golang#usage
+latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage
+add `$GOPATH/bin` in your `$PATH`.
 
-##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
+It can be done with 
+```
+export PATH=`go env GOPATH`/bin:$PATH
+```
+
+##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
 
 ### Using the tool
 
