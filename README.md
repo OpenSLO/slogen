@@ -27,7 +27,7 @@ metadata:
   name: slo-minimal-name   # only '-' is allowed apart from alphanumeric chars, '-' not allowed in start or end
 spec:
   service: my-service
-  description: service description to be added in dashboard text panel
+  description: slo description to be added in dashboard text panel
   budgetingMethod: Occurrences
   objectives:
     - ratioMetrics:
