@@ -91,7 +91,7 @@ slogen ~/team-a/slo/ ~/team-b/slo ~/core/slo/login.yaml
 slogen ~/team-a/slo/ -o team-a/tf
 slogen ~/team-a/slo/ -o team-a/tf --apply 
 
-Available Commands:
+Available sub-commands:
 help          Help about any command 
 new           create a sample config from given profile 
 validate      config is as per OpesSLO standards and has valid values.
