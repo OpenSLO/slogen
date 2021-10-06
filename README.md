@@ -1,6 +1,6 @@
 ### slogen
 
-CLI tool to generate SLO dashboards, monitors & scheduled views from [OpenSLO](https://github.com/OpenSLO/OpenSLO) configs. Currently only supports sumo as
+CLI tool to generate SLO dashboards, monitors & scheduled views from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. Currently only supports sumo as
 data source and target.
 
 For a given config it will create the following content via sumo terraform provider
