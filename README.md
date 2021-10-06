@@ -92,11 +92,11 @@ slogen ~/team-a/slo/ -o team-a/tf
 slogen ~/team-a/slo/ -o team-a/tf --apply 
 
 Available Commands:
-help Help about any command 
-new create a sample config from given profile 
-validate config is as per OpesSLO standards and has valid values.
-completion generate the autocompletion script for the specified shell 
-docs A brief description of your command 
+help          Help about any command 
+new           create a sample config from given profile 
+validate      config is as per OpesSLO standards and has valid values.
+completion    generate the autocompletion script for the specified shell 
+docs          A brief description of your command 
 
 Flags:
 -o, --out string        :   output directory where to create the terraform files (default "tf")
