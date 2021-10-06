@@ -76,9 +76,30 @@ latest golang release can be installed by using the direction here : https://git
 
 ##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
 
-#### Using the tool
+### Using the tool
 
-Set the sumologic auth : https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables
+###### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
+
+--- 
+
+###### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
+
+--- 
+
+###### validate the configs as (you can also pass the path to the entire dir to validate the files in it.)
+
+`slogen validate path/to/config`
+
+--- 
+
+###### run the tool to generate the terraform files and apply them (you can remove the `--apply` to just generate the files)
+
+`slogen path/to/config --apply`
+
+
+--- 
+
+###### for further details run `slogen help`
 
 ```
 Usage:
@@ -126,7 +147,7 @@ various fields
 
 #### Limitations
 
--  as of now only supports Sumologic Logs as data source and content target.
+- as of now only supports Sumologic Logs as data source and content target.
 - Only `Occurrences` based `budgetingMethod` is handled. support for `Timeslices` is work in progress.
 - Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
   31 days.

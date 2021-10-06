@@ -17,12 +17,12 @@ func giveOverviewListQuery(dashVars []string) string {
 	wherePart := strings.Join(clauses, " and ")
 
 	query := "_view=slogen_tf_* | where " + wherePart + `
-| sum(sliceGoodCount) as GoodReqs, sum(sliceTotalCount) as TotalReqs by Service, SLOName
-| (GoodReqs/TotalReqs)*100 as SLAVal
+| sum(sliceGoodCount) as GoodCount, sum(sliceTotalCount) as TotalCount by Service, SLOName
+| (GoodCount/TotalCount)*100 as SLAVal
 | order by SLAVal asc
 | SLOName as ObjectiveName
 | format("%.2f%%",SLAVal)  as Availability 
-| fields  Service, ObjectiveName, Availability, GoodReqs, TotalReqs
+| fields  Service, ObjectiveName, Availability, GoodCount, TotalCount
 `
 
 	return query
