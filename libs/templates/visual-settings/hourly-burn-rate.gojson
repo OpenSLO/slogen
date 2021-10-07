@@ -1,28 +1,51 @@
 {
-  "title": {
-    "fontSize": 14
-  },
-  "series": {},
-  "general": {
-    "type": "column",
-    "displayType": "default",
-    "fillOpacity": 1,
-    "mode": "timeSeries"
-  },
-  "color": {
-    "family": "Diverging 2"
-  },
-  "axes": {
-    "axisX": {
-      "title": ""
-    },
-    "axisY": {
-      "title": "hourlyBurnRate",
-      "unit": {
-        "value": "%",
-        "isCustom": false
+    "axes": {
+      "axisX": {
+        "title": ""
+      },
+      "axisY": {
+        "title": "hourlyBurnRate",
+        "unit": {
+          "isCustom": false,
+          "value": "%"
+        }
       }
-    }
-  },
-  "overrides": []
-}
+    },
+    "color": {
+      "family": "Diverging 2"
+    },
+    "general": {
+      "displayType": "default",
+      "fillOpacity": 1,
+      "mode": "timeSeries",
+      "type": "column"
+    },
+    "series": {},
+    "title": {
+      "fontSize": 14
+    },
+    "overrides": [
+      {
+        "series": [
+          "hourlyBurnRate"
+        ],
+        "queries": [],
+        "properties": {
+          "color": "#7959b3",
+          "fillOpacity": 0.8,
+          "name": "today"
+        }
+      },
+      {
+        "series": [
+          "hourlyBurnRate_1d"
+        ],
+        "queries": [],
+        "properties": {
+          "color": "#4ea0bc",
+          "fillOpacity": 0.7,
+          "name": "today-24h"
+        }
+      }
+    ]
+  }

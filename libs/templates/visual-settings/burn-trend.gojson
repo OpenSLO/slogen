@@ -9,20 +9,20 @@
   },
   "honeyComb": {
     "thresholds": [
-      {
+     {
         "from": 0,
-        "to": 0.5,
-        "color": "#98ECA9"
+        "to": 50,
+        "color": "#16943e"
       },
       {
-        "from": 0.5,
-        "to": 1,
-        "color": "#F2DA73"
+        "from": 50,
+        "to": 200,
+        "color": "#ebc034"
       },
       {
-        "from": 1,
-        "to": null,
-        "color": "#FFB5B5"
+        "from": 200,
+        "to": 10000,
+        "color": "#c40e20"
       }
     ],
     "shape": "hexagon",

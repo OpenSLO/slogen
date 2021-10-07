@@ -49,7 +49,7 @@ type LayoutItem struct {
 
 func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 	sloName := sloConf.Metadata.Name
-	target := *(sloConf.Spec.Objectives[0].BudgetTarget)
+	target := sloConf.Target()
 
 	configYamlBytes, err := yaml.Marshal(sloConf)
 
@@ -117,32 +117,29 @@ type gaugeVizSettingParams struct {
 func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 
 	target := *(s.Spec.Objectives[0].BudgetTarget)
-	tmpl, err := template.New("vizGaugeSetting").Delims("[[", "]]").Parse(vizSettingGauge)
-
-	if err != nil {
-		return nil, err
-	}
 
 	vizParams := gaugeVizSettingParams{
 		TargetMidBad: (1 + target) * 50,
 		TargetBad:    (target) * 100,
 	}
-	vizBuff := bytes.Buffer{}
 
-	err = tmpl.Execute(&vizBuff, vizParams)
+	vizSettingStr, err := GiveStrFromTmpl(vizSettingGauge, vizParams)
 
 	if err != nil {
 		return nil, err
 	}
 
-	query := givePanelQuery(KeyGaugeToday, s.ViewName)
+	query, err := givePanelQuery(s, KeyGaugeToday)
 
-	vizSetting := vizBuff.String()
+	if err != nil {
+		return nil, err
+	}
+
 	today := SearchPanel{
 		Key:            KeyGaugeToday,
 		Title:          "Today's Availability",
 		Desc:           "#good-requests / #requests since start of day",
-		VisualSettings: vizSetting,
+		VisualSettings: vizSettingStr,
 		Query:          query,
 		TimeRange:      "today",
 	}
@@ -150,7 +147,7 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 		Key:            KeyGaugeWeek,
 		Title:          "Week's Availability",
 		Desc:           "#good-requests / #requests since start of week",
-		VisualSettings: vizSetting,
+		VisualSettings: vizSettingStr,
 		Query:          query,
 		TimeRange:      "week",
 	}
@@ -158,7 +155,7 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 		Key:            KeyGaugeMonth,
 		Title:          "Month's Availability",
 		Desc:           "#good-requests / #requests since start of month",
-		VisualSettings: vizSetting,
+		VisualSettings: vizSettingStr,
 		Query:          query,
 		TimeRange:      "month",
 	}
@@ -169,7 +166,12 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 }
 
 func giveHourlyBurnRatePanel(s SLO) (SearchPanel, error) {
-	query := givePanelQuery(KeyPanelHourlyBurn, s.ViewName)
+	query, err := givePanelQuery(s, KeyPanelHourlyBurn)
+
+	if err != nil {
+		return SearchPanel{}, err
+	}
+
 	panel := SearchPanel{
 		Key:                 KeyPanelHourlyBurn,
 		Title:               "Hourly Burn Rate",
@@ -183,7 +185,13 @@ func giveHourlyBurnRatePanel(s SLO) (SearchPanel, error) {
 }
 
 func giveTrendOfBurnRatePanel(s SLO) (SearchPanel, error) {
-	query := givePanelQuery(KeyPanelBurnTrend, s.ViewName)
+
+	query, err := givePanelQuery(s, KeyPanelBurnTrend)
+
+	if err != nil {
+		return SearchPanel{}, err
+	}
+
 	panel := SearchPanel{
 		Key:            KeyPanelBurnTrend,
 		Title:          "Burn rate trend compared to last 7 days  (upto current time of the day)",
@@ -196,7 +204,12 @@ func giveTrendOfBurnRatePanel(s SLO) (SearchPanel, error) {
 }
 
 func giveBudgetDepletionPanel(s SLO) (SearchPanel, error) {
-	query := givePanelQuery(KeyPanelBudgetLeft, s.ViewName)
+	query, err := givePanelQuery(s, KeyPanelBudgetLeft)
+
+	if err != nil {
+		return SearchPanel{}, err
+	}
+
 	panel := SearchPanel{
 		Key:            KeyPanelBudgetLeft,
 		Title:          "Budget remaining",
@@ -266,7 +279,17 @@ var vizSettingBudgetLeft string
 //go:embed templates/visual-settings/hourly-burn-rate.gojson
 var vizSettingHourlyBurn string
 
-func givePanelQuery(Key PanelKey, view string) string {
+func givePanelQuery(s SLO, key PanelKey) (string, error) {
+	queryStr := givePanelQueryStr(key, s.ViewName)
+
+	tmplParams := struct {
+		Target float64
+	}{Target: s.Target()}
+
+	return GiveStrFromTmpl(queryStr, tmplParams)
+}
+
+func givePanelQueryStr(Key PanelKey, view string) string {
 
 	var qPart string
 	switch Key {
@@ -283,4 +306,18 @@ func givePanelQuery(Key PanelKey, view string) string {
 	}
 
 	return "_view=" + view + qPart
+}
+
+func GiveStrFromTmpl(tmplStr string, data interface{}) (string, error) {
+	tmpl, err := template.New("giveQueryFromTmpl").Parse(tmplStr)
+
+	if err != nil {
+		return "", err
+	}
+
+	buff := bytes.Buffer{}
+
+	err = tmpl.Execute(&buff, data)
+
+	return buff.String(), err
 }

@@ -25,3 +25,7 @@ func Parse(filename string) (*SLO, error) {
 
 	return &slo, err
 }
+
+func (s SLO) Target() float64 {
+	return *(s.Spec.Objectives[0].BudgetTarget)
+}
