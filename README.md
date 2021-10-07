@@ -1,13 +1,13 @@
 ### slogen
 
-CLI tool to generate SLO dashboards, monitors & scheduled views from OpenSLO configs. Currently only supports sumo as
+CLI tool to generate SLO dashboards, monitors & scheduled views from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. Currently only supports sumo as
 data source and target.
 
 For a given config it will create the following content via sumo terraform provider
 
-- Scheduled view to generate the aggregated SLI data
-- Dashboard to track availability, burn rate and budget remaining
-- Multi-Window, Multi-BurnRate monitors
+- [Scheduled view](https://help.sumologic.com/Manage/Scheduled-Views) to generate the aggregated SLI data
+- [Dashboards](https://help.sumologic.com/Visualizations-and-Alerts/Dashboard_(New)) to track availability, burn rate and budget remaining
+- [monitors](https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Monitors) :  [Multi-Window, Multi-BurnRate](https://sre.google/workbook/alerting-on-slos/) 
 - Global dashboard, to track availability across all services in a single view
 - The content are grouped into folders of the service they belong to
 - slice & dice SLI data in view to create custom reports by metadata (e.g. availability by customers, region)
@@ -27,11 +27,11 @@ metadata:
   name: slo-minimal-name   # only '-' is allowed apart from alphanumeric chars, '-' not allowed in start or end
 spec:
   service: my-service
-  description: service description to be added in dashboard text panel
+  description: slo description to be added in dashboard text panel
   budgetingMethod: Occurrences
   objectives:
     - ratioMetrics:
-        total: # sumo query to filter out all the messages counting to valid request
+        total: # sumo query to filter out all the messages counting requests for this slo
           source: sumologic
           queryType: Logs
           query: '_sourceCategory=my-service | where api_path="/login"'
@@ -72,9 +72,19 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 ##### install with go1.17 as `go install github.com/agaurav/slogen@latest`
 
-latest golang release can be installed by using the direction here : https://github.com/udhos/update-golang#usage
+latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
+Add `$GOPATH/bin` to your `$PATH`.
 
-##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases)
+It can be done with 
+```
+export PATH=`go env GOPATH`/bin:$PATH
+```
+
+##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
+
+```
+wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.0/slogen_0.5.0_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+```
 
 ### Using the tool
 
