@@ -83,7 +83,7 @@ export PATH=`go env GOPATH`/bin:$PATH
 ##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
 
 ```
-wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.0/slogen_0.5.0_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.0/slogen_0.5.1_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
