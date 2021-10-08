@@ -1,13 +1,15 @@
 ### slogen
 
-CLI tool to generate SLO dashboards, monitors & scheduled views from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. Currently only supports sumo as
-data source and target.
+CLI tool to generate SLO dashboards, monitors & scheduled views
+from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. Currently only supports sumo as data source
+and target.
 
 For a given config it will create the following content via sumo terraform provider
 
 - [Scheduled view](https://help.sumologic.com/Manage/Scheduled-Views) to generate the aggregated SLI data
-- [Dashboards](https://help.sumologic.com/Visualizations-and-Alerts/Dashboard_(New)) to track availability, burn rate and budget remaining
-- [monitors](https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Monitors) :  [Multi-Window, Multi-BurnRate](https://sre.google/workbook/alerting-on-slos/) 
+- [Dashboards](https://help.sumologic.com/Visualizations-and-Alerts/Dashboard_(New)) to track availability, burn rate
+  and budget remaining
+- [monitors](https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Monitors) :  [Multi-Window, Multi-BurnRate](https://sre.google/workbook/alerting-on-slos/)
 - Global dashboard, to track availability across all services in a single view
 - The content are grouped into folders of the service they belong to
 - slice & dice SLI data in view to create custom reports by metadata (e.g. availability by customers, region)
@@ -75,7 +77,8 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
 Add `$GOPATH/bin` to your `$PATH`.
 
-It can be done with 
+It can be done with
+
 ```
 export PATH=`go env GOPATH`/bin:$PATH
 ```
@@ -83,7 +86,7 @@ export PATH=`go env GOPATH`/bin:$PATH
 ##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
 
 ```
-wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.0/slogen_0.5.1_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.2/slogen_0.5.2_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool

@@ -56,7 +56,7 @@ QUERY
             ]
             subject         = "SLO breach alert: {{$.Service}} - {{$.Name}}"
             time_zone       = "PST"
-            message_body    = "{{`{{Description}} \n Result : {{ResultJson}}\n Alert: {{AlertResponseURL}}`}}"
+            message_body    = "{{`{{Description}} \n Result : {{ResultsJson}}\n Alert: {{AlertResponseURL}}`}}"
             {{else}}
             connection_id   = "{{$n.ConnectionID}}"
             {{end}}
