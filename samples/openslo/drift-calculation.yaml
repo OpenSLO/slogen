@@ -18,7 +18,7 @@ spec:
           source: sumologic
           queryType: Logs
           query: '_sourceCategory=tsat-batcher | where msg="DriftGen query completed"'
-      displayName: delay less than 350
+      displayName: delay less than 100 seconds
       target: 0.80
 createView: true
 fields:
