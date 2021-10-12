@@ -116,6 +116,7 @@ const FlagMonitorFolderShort = "m"
 const FlagViewPrefixLong = "viewPrefix"
 const FlagViewPrefixShort = "v"
 const FlagViewDestroy = "viewDestroy"
+const FlagDestroy = "destroy"
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -153,9 +154,9 @@ func init() {
 	rootCmd.Flags().BoolP(FlagApplyLong, FlagApplyShort, false,
 		"apply the generated terraform config as well",
 	)
-	rootCmd.Flags().Bool(FlagViewDestroy, false,
-		"whether to destroy old view on change of attributes like query, start_time & parsing mode",
-	)
+	//rootCmd.Flags().Bool(FlagViewDestroy, false,
+	//	"whether to destroy old view on change of attributes like query, start_time & parsing mode",
+	//)
 	rootCmd.Flags().BoolP(FlagCleanLong, FlagCleanShort, false,
 		"clean the old tf files for which openslo config were not found in the path args",
 	)

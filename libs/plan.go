@@ -17,8 +17,10 @@ const (
 type TFAction string
 
 const (
-	TFPlan  TFAction = "PLAN"
-	TFApply TFAction = "APPLY"
+	TFPlan        TFAction = "PLAN"
+	TFApply       TFAction = "APPLY"
+	TFPlanDestroy TFAction = "PlanDestroy"
+	TFDestroy     TFAction = "DESTROY"
 )
 
 func TFExec(wdPath string, action TFAction) error {
@@ -49,23 +51,22 @@ func TFExec(wdPath string, action TFAction) error {
 		return err
 	}
 
-	log.Infow("env used", "env", env)
-	tf.SetStdout(os.Stdout)
-	tf.SetStderr(os.Stderr)
-	if err != nil {
-		log.Errorf("error running NewTerraform: %s", err)
-		return err
-	}
-
 	err = tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
 		log.Errorf("error running Init: %s", err)
 		return err
 	}
 
-	_, err = tf.Show(context.Background())
+	//_, err = tf.Show(context.Background())
+	//if err != nil {
+	//	log.Errorf("error running Show: %s", err)
+	//	return err
+	//}
+	tf.SetStdout(os.Stdout)
+	tf.SetLogger(InfoLogger{})
+	tf.SetStderr(os.Stderr)
 	if err != nil {
-		log.Errorf("error running Show: %s", err)
+		log.Errorf("error running NewTerraform: %s", err)
 		return err
 	}
 
@@ -84,18 +85,24 @@ func TFExec(wdPath string, action TFAction) error {
 			log.Error(err)
 			return err
 		}
-
 	}
 
-	//output, err := tf.Output(context.Background())
-	//
-	//if err != nil {
-	//	log.Error(err)
-	//	return err
-	//}
+	if action == TFPlanDestroy {
+		WarnUInfo("\nresource that will be destroyed\n\n")
+		ok, err = tf.Plan(context.Background(), tfexec.Destroy(true))
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+	}
 
-	//log.Infof("tf action '%s' done", action)
-	//log.Infow("output given", LookupTableIdKey, output[LookupTableIdKey].Value)
+	if action == TFDestroy {
+		err = tf.Destroy(context.Background())
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+	}
 
 	return nil
 }

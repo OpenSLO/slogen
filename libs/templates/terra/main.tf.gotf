@@ -37,38 +37,3 @@ module "monitors" {
     source                 = "./monitors"
     slo_mon_root_folder_id = sumologic_monitor_folder.slo_mon_root_folder.id
 }
-
-
-resource "sumologic_lookup_table" "slogenLookupTable" {
-    name = "slogen-lookup-table"
-    fields {
-        field_name = "service"
-        field_type = "string"
-    }
-    fields {
-        field_name = "sloName"
-        field_type = "string"
-    }
-    fields {
-        field_name = "goal"
-        field_type = "double"
-    }
-    fields {
-        field_name = "window"
-        field_type = "string"
-    }
-    fields {
-        field_name = "budgeting"
-        field_type = "string"
-    }
-
-    ttl               = 0
-    primary_keys      = ["service", "sloName"]
-    parent_folder_id  = "${sumologic_folder.slo_dash_root_folder.id}"
-    size_limit_action = "DeleteOldData"
-    description       = "important params in of SLO's created by slogen"
-}
-
-output "lookupTableId" {
-    value = sumologic_lookup_table.slogenLookupTable
-}

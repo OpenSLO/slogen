@@ -76,7 +76,7 @@ func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 			if err != nil {
 				return path, err
 			}
-			log.Debugf("completed stage %s", t)
+			log.Infof("completed stage %s", t)
 		}
 	}
 

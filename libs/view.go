@@ -96,7 +96,7 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 		Query:          buf.String(),
 		StartTime:      start.UTC().Format(time.RFC3339),
 		Retention:      31,
-		PreventDestroy: true,
+		PreventDestroy: false,
 	}
 
 	return conf, nil

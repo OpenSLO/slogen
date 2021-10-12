@@ -30,26 +30,27 @@ fields:
 labels:
   team: analytics
   tier: 1
-burnRateAlerts:
-  - shortWindow: '10m'
-    shortLimit: 14
-    longWindow: '1h'
-    longLimit: 14
-    notifications:
-      - connectionType: 'Email'
-        recipients:
-          - 'agaurav@sumologic.com'
-        triggerFor:
-          - Warning
-          - ResolvedWarning
-  - shortWindow: '1h'
-    shortLimit: 14
-    longWindow: '6h'
-    longLimit: 4
-    notifications:
-      - connectionType: 'Email'
-        recipients:
-          - 'agaurav@sumologic.com'
-        triggerFor:
-          - Warning
-          - ResolvedWarning
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 14
+      longWindow: '1h'
+      longLimit: 14
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+    - shortWindow: '1h'
+      shortLimit: 14
+      longWindow: '6h'
+      longLimit: 4
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning

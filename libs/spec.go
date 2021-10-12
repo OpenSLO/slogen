@@ -8,10 +8,15 @@ import (
 
 type SLO struct {
 	*v1alpha.SLO   `yaml:",inline"`
-	BurnRateAlerts []BurnRate        `yaml:"burnRateAlerts,omitempty"`
 	Labels         map[string]string `yaml:"labels,omitempty"`
 	Fields         map[string]string `yaml:"fields,omitempty"`
+	Alerts         Alerts            `yaml:"alerts,omitempty"`
 	ViewName       string            `yaml:"viewName"`
+	BurnRateAlerts []BurnRate        `yaml:"burnRateAlerts,omitempty"` // deprecated
+}
+
+type Alerts struct {
+	BurnRate []BurnRate `yaml:"burnRate,omitempty"`
 }
 
 func Parse(filename string) (*SLO, error) {

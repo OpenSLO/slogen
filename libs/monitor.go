@@ -2,7 +2,6 @@ package libs
 
 import (
 	"bytes"
-	"github.com/kr/pretty"
 	"text/template"
 )
 
@@ -74,7 +73,6 @@ const MultiWindowMultiBurnTmpl = `_view={{.View}}
 
 func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
-	pretty.Println(sloConf)
 	tmpl, err := template.New("monitor").Parse(MultiWindowMultiBurnTmpl)
 
 	if err != nil {
@@ -87,8 +85,11 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 		Service: sloConf.Spec.Service,
 	}
 
-	objs := []SLOObjective{}
-	for _, alert := range sloConf.BurnRateAlerts {
+	var objectives []SLOObjective
+
+	alerts := append(sloConf.BurnRateAlerts, sloConf.Alerts.BurnRate...)
+
+	for _, alert := range alerts {
 
 		alert.View = sloConf.ViewName
 		buf := bytes.Buffer{}
@@ -105,9 +106,9 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 			ValueCritical: 2,
 			Notifications: alert.Notifications,
 		}
-		objs = append(objs, obj)
+		objectives = append(objectives, obj)
 	}
-	mConf.Objectives = objs
+	mConf.Objectives = objectives
 	return mConf, nil
 }
 
