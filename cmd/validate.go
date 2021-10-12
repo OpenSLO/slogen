@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/agaurav/slogen/libs"
+	"github.com/SumoLogic-Incubator/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"strings"

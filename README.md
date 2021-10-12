@@ -49,22 +49,23 @@ fields: # fields from log to retain
   deployment: 'if(isNull(deployment),"dev",deployment)' # using an expression
 labels:
   tier: 0                 # static labels to include in SLI view, that are not present in the log messages
-burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sre.google/workbook/alerting-on-slos/ 
-  - shortWindow: '10m' # the smaller window
-    shortLimit: 14  # limit for the burn rate ratio, 14 denotes the error consumed in the window were 14 times the allowed number  
-    longWindow: '1h'
-    longLimit: 14
-    notifications: # one or more notification channels
-      - connetionType: 'Email'
-        recipients: 'youremailid@email.com'
-        triggerFor:
-          - Warning
-          - ResolvedWarning
-      - connetionType: 'PagerDuty'
-        connectionID: '1234abcd'  # id of pagerduty connection created in sumo
-        triggerFor:
-          - Critical
-          - ResolvedCritical
+alerts:
+  burnRate: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sre.google/workbook/alerting-on-slos/ 
+    - shortWindow: '10m' # the smaller window
+      shortLimit: 14  # limit for the burn rate ratio, 14 denotes the error consumed in the window were 14 times the allowed number  
+      longWindow: '1h'
+      longLimit: 14
+      notifications: # one or more notification channels
+        - connetionType: 'Email'
+          recipients: 'youremailid@email.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+        - connetionType: 'PagerDuty'
+          connectionID: '1234abcd'  # id of pagerduty connection created in sumo
+          triggerFor:
+            - Critical
+            - ResolvedCritical
 
 
 
@@ -72,7 +73,7 @@ burnRateAlerts: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sr
 
 #### Getting the tool
 
-##### install with go1.17 as `go install github.com/agaurav/slogen@latest`
+##### install with go1.17 as `go install github.com/SumoLogic-Incubator/slogen@latest`
 
 latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
 Add `$GOPATH/bin` to your `$PATH`.
@@ -83,10 +84,18 @@ It can be done with
 export PATH=`go env GOPATH`/bin:$PATH
 ```
 
-##### Get the latest binary from [release page](https://github.com/agaurav/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
+##### Get the latest binary from [release page](https://github.com/SumoLogic-Incubator/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
 
+###### For Linux
+
+``` shell
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.0/slogen_0.6.0_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
-wget -O - https://github.com/agaurav/slogen/releases/download/v0.5.2/slogen_0.5.2_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+
+###### For Mac
+
+``` shell
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.0/slogen_0.6.0_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
@@ -165,5 +174,10 @@ various fields
 - Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
   31 days.
 
+#### deleting resources created
 
+run the below command
 
+`slogen destroy [path ot out dir (default to './tf')]`
+
+It will show the resources that deleted and ask for confirmation before deleting them. 

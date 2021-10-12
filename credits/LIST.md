@@ -1,7 +1,7 @@
 ### List of OSS projects used along with thier licesning for the given version
 
 ``` 
-github.com/agaurav/slogen,Unknown,Apache-2.0
+github.com/SumoLogic-Incubator/slogen,Unknown,Apache-2.0
 github.com/hashicorp/go-uuid,https://github.com/hashicorp/go-uuid/blob/master/LICENSE,MPL-2.0
 github.com/bgentry/go-netrc/netrc,https://github.com/bgentry/go-netrc/blob/master/netrc/LICENSE,MIT
 github.com/klauspost/compress/internal/snapref,https://github.com/klauspost/compress/blob/master/internal/snapref/LICENSE,BSD-3-Clause

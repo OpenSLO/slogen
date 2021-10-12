@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/agaurav/slogen/libs"
+	"github.com/SumoLogic-Incubator/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
