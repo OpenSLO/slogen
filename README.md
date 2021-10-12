@@ -180,4 +180,4 @@ run the below command
 
 `slogen destroy [path ot out dir (default to './tf')]`
 
-It will show the resources that deleted and ask for confirmation before deleting them. 
+It will show the resources that will be deleted and ask for confirmation before deleting them. 
