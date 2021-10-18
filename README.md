@@ -178,6 +178,6 @@ various fields
 
 run the below command
 
-`slogen destroy [path ot out dir (default to './tf')]`
+`slogen destroy [path to out dir (default to './tf')]`
 
 It will show the resources that will be deleted and ask for confirmation before deleting them. 
