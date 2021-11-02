@@ -100,28 +100,30 @@ wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.1
 
 ### Using the tool
 
-###### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
+##### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
+
+##### _Note_ : Terraform installtion is not required as the tool binary has it embedded as [terraform-exec](https://github.com/hashicorp/terraform-exec)
 
 --- 
 
-###### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
+##### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
 
 --- 
 
-###### validate the configs as (you can also pass the path to the entire dir to validate the files in it.)
+##### validate the configs as (you can also pass the path to the entire dir to validate the files in it.)
 
 `slogen validate path/to/config`
 
 --- 
 
-###### run the tool to generate the terraform files and apply them (you can remove the `--apply` to just generate the files)
+##### run the tool to generate the terraform files and apply them (you can remove the `--apply` to just generate the files)
 
 `slogen path/to/config --apply`
 
 
 --- 
 
-###### for further details run `slogen help`
+##### for further details run `slogen help`
 
 ```
 Usage:
