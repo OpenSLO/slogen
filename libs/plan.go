@@ -12,6 +12,8 @@ const (
 	EnvKeySumoAccessID    = "SUMOLOGIC_ACCESSID"
 	EnvKeySumoAccessKey   = "SUMOLOGIC_ACCESSKEY"
 	EnvKeySumoEnvironment = "SUMOLOGIC_ENVIRONMENT"
+	EnvKeyHTTPProxy       = "HTTP_PROXY"
+	EnvKeyHTTPSProxy      = "HTTPS_PROXY"
 )
 
 type TFAction string
@@ -39,6 +41,8 @@ func TFExec(wdPath string, action TFAction) error {
 
 	tf, err := tfexec.NewTerraform(wdPath, execPath)
 	env := map[string]string{
+		EnvKeyHTTPProxy: os.Getenv(EnvKeyHTTPProxy),
+		EnvKeyHTTPSProxy: os.Getenv(EnvKeyHTTPSProxy),
 		EnvKeySumoAccessID:    os.Getenv(EnvKeySumoAccessID),
 		EnvKeySumoAccessKey:   os.Getenv(EnvKeySumoAccessKey),
 		EnvKeySumoEnvironment: os.Getenv(EnvKeySumoEnvironment),
