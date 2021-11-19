@@ -58,6 +58,29 @@ type BurnRate struct {
 const MultiWindowMultiBurnTmpl = `_view={{.View}}
 | timeslice {{.ShortWindow}} 
 | sum(sliceGoodCount) as tmGood, sum(sliceTotalCount) as tmCount  group by _timeslice
+| fillmissing timeslice(1m)
+| tmGood/tmCount as tmSLO 
+| (tmCount-tmGood) as tmBad 
+| total tmCount as totalCount  
+| totalCount*(1-{{.Budget}}) as errorBudget
+| ((tmBad/tmCount)/(1-{{.Budget}})) as sliceBurnRate
+| if(queryEndTime() - _timeslice <= {{.ShortWindow}},sliceBurnRate, 0  )  as latestBurnRate 
+| sum(tmGood) as totalGood, max(totalCount) as totalCount, max(latestBurnRate) as latestBurnRate 
+| (1-(totalGood/totalCount))/(1-{{.Budget}}) as longBurnRate
+| if (longBurnRate > {{.LongLimit}} , 1,0) as long_burn_exceeded
+| if ( latestBurnRate > {{.ShortLimit}}, 1,0) as short_burn_exceeded
+| long_burn_exceeded + short_burn_exceeded as combined_burn
+`
+
+const TimeSliceMultiWindowMultiBurnTmpl = `_view={{.View}}
+| timeslice 1m
+| fillmissing timeslice(1m)
+| sum(sliceGoodCount) as timesliceGoodCount, sum(sliceTotalCount) as timesliceTotalCount by _timeslice
+| if(timesliceTotalCount ==0, 1,(timesliceGoodCount/timesliceTotalCount))  as timesliceRatio
+| if(timesliceRatio >= 0.9, 1,0) as sliceHealthy | _timeslice as _messagetime
+| 1 as timesliceOne
+| timeslice {{.ShortWindow}} 
+| sum(sliceHealthy) as tmGood, sum(timesliceOne) as tmCount  group by _timeslice
 | tmGood/tmCount as tmSLO 
 | (tmCount-tmGood) as tmBad 
 | total tmCount as totalCount  
@@ -73,7 +96,13 @@ const MultiWindowMultiBurnTmpl = `_view={{.View}}
 
 func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
-	tmpl, err := template.New("monitor").Parse(MultiWindowMultiBurnTmpl)
+	var tmpl *template.Template
+	var err error
+	if sloConf.Spec.BudgetingMethod == BudgetingMethodNameTimeSlices {
+		tmpl, err = template.New("monitor").Parse(TimeSliceMultiWindowMultiBurnTmpl)
+	} else {
+		tmpl, err = template.New("monitor").Parse(MultiWindowMultiBurnTmpl)
+	}
 
 	if err != nil {
 		return nil, err
@@ -89,7 +118,9 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
 	alerts := append(sloConf.BurnRateAlerts, sloConf.Alerts.BurnRate...)
 
-	for _, alert := range alerts {
+	alertTmplParams := ConvertToBurnRateTmplParams(alerts,sloConf.TimesliceTarget())
+
+	for _, alert := range alertTmplParams {
 
 		alert.View = sloConf.ViewName
 		buf := bytes.Buffer{}
@@ -141,3 +172,22 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 //	}
 //	return m, err
 //}
+
+type BurnAlertTmplParams struct {
+	BurnRate
+	TimesliceRatioTarget float64
+}
+
+
+func ConvertToBurnRateTmplParams(alerts []BurnRate,timesliceTarget float64) []BurnAlertTmplParams {
+	var tmplAlertsParams []BurnAlertTmplParams
+
+	for _,alert := range alerts {
+		tmplAlertsParams = append(tmplAlertsParams, BurnAlertTmplParams{
+            BurnRate: alert,
+            TimesliceRatioTarget: timesliceTarget,
+        })
+	}
+
+	return tmplAlertsParams
+}

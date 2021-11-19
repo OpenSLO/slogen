@@ -12,7 +12,7 @@ spec:
         good:
           source: sumologic
           queryType: Logs
-          query: '!isNull(duration) and duration < 10000'
+          query: '!isNull(duration) and duration < 4400'
         incremental: true
         total:
           source: sumologic

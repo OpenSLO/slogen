@@ -1,0 +1,48 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: CloudCollector Ingest Lag
+  name: cc-ingest-lag-v2
+spec:
+  service: cloudcollector
+  description: Track number of seconds a message is delayed in the ingest pipeline
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: SLI to track ingest job is completed within 5 seconds for cloudcollector
+      target: 0.95
+      timeSliceTarget: 0.9
+      ratioMetrics:
+        total:
+          source: sumologic
+          queryType: Logs
+          query: |
+            _sourcecategory=cloudcollector DefaultPerCustomerLagTracker !CustomerLagQueryDisablingStrategy "current lag"
+              | parse "current lag: Some(*) ms," as lag
+              | where lag != "*"
+              | parse "customer: *," as customer_id
+              | where customer_id matches "*"
+              | lag / 1000 as lag_seconds
+        good:
+          source: sumologic
+          queryType: Logs
+          query: lag_seconds <= 20
+        incremental: true
+createView: true
+fields:
+  customer_id: "customer_id"
+labels:
+  team: collection
+  tier: 0
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 14
+      longWindow: '1h'
+      longLimit: 14
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning

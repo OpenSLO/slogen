@@ -55,6 +55,7 @@ const ScheduledViewQueryTemp = `{{.TotalQuery}}
 {{- end }}
 `
 
+
 func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 	sloName := sloConf.Metadata.Name
 	tmpl, err := template.New("view-" + sloName).Parse(ScheduledViewQueryTemp)

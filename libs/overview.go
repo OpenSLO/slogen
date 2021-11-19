@@ -9,7 +9,7 @@ import (
 
 func giveOverviewListQuery(dashVars []string) string {
 
-	clauses := []string{}
+	var clauses []string
 	for _, v := range dashVars {
 		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
 	}
@@ -30,7 +30,7 @@ func giveOverviewListQuery(dashVars []string) string {
 
 func giveOverviewWeeksQuery(dashVars []string) string {
 
-	clauses := []string{}
+	var clauses []string
 	for _, v := range dashVars {
 		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
 	}
@@ -86,7 +86,7 @@ func giveMostCommonVars(slos SLOMap, n int) []string {
 		}
 	}
 
-	varList := []string{}
+	var varList []string
 	for k := range vCount {
 		varList = append(varList, k)
 	}
