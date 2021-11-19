@@ -7,6 +7,7 @@ import (
 	"text/template"
 )
 
+
 type SLODashboard struct {
 	Service       string
 	SLOName       string
@@ -21,6 +22,7 @@ type SLODashboard struct {
 	StrYAMLConfig string
 	Labels        map[string]string
 }
+
 
 type SearchPanel struct {
 	Key                 PanelKey
@@ -280,11 +282,21 @@ var vizSettingBudgetLeft string
 var vizSettingHourlyBurn string
 
 func givePanelQuery(s SLO, key PanelKey) (string, error) {
-	queryStr := givePanelQueryStr(key, s.ViewName)
+	//queryStr := givePanelQueryStr(key, s.ViewName)
+	queryStr := ""
+	if s.Spec.BudgetingMethod == BudgetingMethodNameTimeSlices {
+		queryStr = givePanelQueryTimesliceStr(key, s.ViewName)
+	} else {
+		queryStr = givePanelQueryStr(key, s.ViewName)
+	}
 
 	tmplParams := struct {
 		Target float64
-	}{Target: s.Target()}
+		TimesliceRatioTarget float64
+	}{
+		Target: s.Target(),
+		TimesliceRatioTarget: s.TimesliceTarget(),
+	}
 
 	return GiveStrFromTmpl(queryStr, tmplParams)
 }
@@ -294,13 +306,32 @@ func givePanelQueryStr(Key PanelKey, view string) string {
 	var qPart string
 	switch Key {
 	case KeyGaugeToday, KeyGaugeWeek, KeyGaugeMonth:
-		qPart = gaugeQueryPart
+		qPart = gaugeQueryPartForOccurrences
 	case KeyPanelHourlyBurn:
-		qPart = hourlyBurnQueryPart
+		qPart = hourlyBurnQueryPartForOccurrences
 	case KeyPanelBurnTrend:
-		qPart = burnTrendQueryPart
+		qPart = burnTrendQueryPartForOccurrences
 	case KeyPanelBudgetLeft:
 		qPart = budgetLeftQueryPart
+	default:
+		return ""
+	}
+
+	return "_view=" + view + qPart
+}
+
+func givePanelQueryTimesliceStr(Key PanelKey, view string) string {
+
+	var qPart string
+	switch Key {
+	case KeyGaugeToday, KeyGaugeWeek, KeyGaugeMonth:
+		qPart = gaugeQueryPartForTimeslice
+	case KeyPanelHourlyBurn:
+		qPart = hourlyBurnQueryPartForTimeslice
+	case KeyPanelBurnTrend:
+		qPart = burnTrendQueryPartForTimeslice
+	case KeyPanelBudgetLeft:
+		qPart = budgetLeftQueryTimeSlicesPart
 	default:
 		return ""
 	}

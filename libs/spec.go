@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+const (
+    BudgetingMethodNameTimeSlices = "Timeslices"
+	BudgetingMethodNameOccurrences = "Occurrences"
+)
 type SLO struct {
 	*v1alpha.SLO   `yaml:",inline"`
 	Labels         map[string]string `yaml:"labels,omitempty"`
@@ -32,5 +36,21 @@ func Parse(filename string) (*SLO, error) {
 }
 
 func (s SLO) Target() float64 {
-	return *(s.Spec.Objectives[0].BudgetTarget)
+	target := s.Spec.Objectives[0].BudgetTarget
+
+	if target  == nil {
+		return 0.99
+	}
+
+	return  *target
+}
+
+func (s SLO) TimesliceTarget() float64 {
+	target := s.Spec.Objectives[0].TimeSliceTarget
+
+	if target  == nil {
+        return s.Target()
+    }
+
+	return  *target
 }
