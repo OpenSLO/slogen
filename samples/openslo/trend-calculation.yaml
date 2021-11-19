@@ -25,8 +25,6 @@ spec:
       isRolling: true
       unit: Day
 createView: true
-fields:
-  aws_region: "Region"
 labels:
   team: analytics
   tier: 1

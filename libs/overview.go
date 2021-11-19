@@ -9,14 +9,9 @@ import (
 
 func giveOverviewListQuery(dashVars []string) string {
 
-	var clauses []string
-	for _, v := range dashVars {
-		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
-	}
+	wherePart := giveWhereClause(dashVars)
 
-	wherePart := strings.Join(clauses, " and ")
-
-	query := "_view=slogen_tf_* | where " + wherePart + `
+	query := "_view=slogen_tf_* " + wherePart + `
 | sum(sliceGoodCount) as GoodCount, sum(sliceTotalCount) as TotalCount by Service, SLOName
 | (GoodCount/TotalCount)*100 as SLAVal
 | order by SLAVal asc
@@ -26,6 +21,22 @@ func giveOverviewListQuery(dashVars []string) string {
 `
 
 	return query
+}
+
+func giveWhereClause(dashVars []string) string {
+
+	if len(dashVars) == 0 {
+		return ""
+	}
+
+	var clauses []string
+	for _, v := range dashVars {
+        clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
+    }
+
+    wherePart := "| where " +  strings.Join(clauses, " and ")
+   
+    return wherePart
 }
 
 func giveOverviewWeeksQuery(dashVars []string) string {

@@ -147,4 +147,22 @@ EOF
             {{end}}
         }
     }
+
+    {{ range .Fields }}
+    ## variables
+    variable {
+        name               = "{{ . }}"
+        display_name       = "{{ . }}"
+        default_value      = "*"
+        source_definition {
+            log_query_variable_source_definition {
+                query = "_view={{ $.ViewName }}"
+                field = "{{ . }}"
+            }
+        }
+        allow_multi_select = true
+        include_all_option = true
+        hide_from_ui       = false
+    }
+    {{ end }}
 }

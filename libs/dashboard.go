@@ -3,10 +3,10 @@ package libs
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"text/template"
 )
-
 
 type SLODashboard struct {
 	Service       string
@@ -21,8 +21,9 @@ type SLODashboard struct {
 	Viz           VisualSetting
 	StrYAMLConfig string
 	Labels        map[string]string
+	Fields        []string
+	ViewName      string
 }
-
 
 type SearchPanel struct {
 	Key                 PanelKey
@@ -77,6 +78,8 @@ func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 		SearchPanels:  panels,
 		StrYAMLConfig: string(configYamlBytes),
 		Labels:        sloConf.Labels,
+		Fields:        giveMapKeys(sloConf.Fields),
+		ViewName:      sloConf.ViewName,
 	}
 
 	return conf, nil
@@ -283,22 +286,26 @@ var vizSettingHourlyBurn string
 
 func givePanelQuery(s SLO, key PanelKey) (string, error) {
 	//queryStr := givePanelQueryStr(key, s.ViewName)
-	queryStr := ""
+	queryTmplStr := ""
 	if s.Spec.BudgetingMethod == BudgetingMethodNameTimeSlices {
-		queryStr = givePanelQueryTimesliceStr(key, s.ViewName)
+		queryTmplStr = givePanelQueryTimesliceStr(key, s.ViewName)
 	} else {
-		queryStr = givePanelQueryStr(key, s.ViewName)
+		queryTmplStr = givePanelQueryStr(key, s.ViewName)
 	}
 
+	wherePart := giveWhereClause(giveMapKeys(s.Fields))
+
 	tmplParams := struct {
-		Target float64
+		Target               float64
 		TimesliceRatioTarget float64
 	}{
-		Target: s.Target(),
+		Target:               s.Target(),
 		TimesliceRatioTarget: s.TimesliceTarget(),
 	}
 
-	return GiveStrFromTmpl(queryStr, tmplParams)
+	queryPart, err :=  GiveStrFromTmpl(queryTmplStr, tmplParams)
+	return fmt.Sprintf("_view=%s %s %s", s.ViewName, wherePart, queryPart),err
+
 }
 
 func givePanelQueryStr(Key PanelKey, view string) string {
@@ -317,7 +324,7 @@ func givePanelQueryStr(Key PanelKey, view string) string {
 		return ""
 	}
 
-	return "_view=" + view + qPart
+	return qPart
 }
 
 func givePanelQueryTimesliceStr(Key PanelKey, view string) string {
@@ -336,7 +343,7 @@ func givePanelQueryTimesliceStr(Key PanelKey, view string) string {
 		return ""
 	}
 
-	return "_view=" + view + qPart
+	return qPart
 }
 
 func GiveStrFromTmpl(tmplStr string, data interface{}) (string, error) {
