@@ -66,6 +66,11 @@ alerts:
           triggerFor:
             - Critical
             - ResolvedCritical
+        - connetionType: 'Webhook'
+          connectionID: '0000000000ABC123'  # id of pagerduty connection created in sumo
+          triggerFor:
+            - Critical
+            - ResolvedCritical
 
 
 
