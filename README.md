@@ -107,7 +107,7 @@ wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.2
 
 ##### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
 
-##### _Note_ : Terraform installtion is not required as the tool binary has it embedded as [terraform-exec](https://github.com/hashicorp/terraform-exec)
+##### _Note_ : Terraform installation is not required as the tool binary has it embedded as [terraform-exec](https://github.com/hashicorp/terraform-exec)
 
 --- 
 
