@@ -3,6 +3,7 @@ package libs
 import (
 	"errors"
 	"os"
+	"strings"
 )
 
 func DeDupe(strSlice []string) []string {
@@ -83,4 +84,10 @@ func giveMapKeys(m map[string]string) []string {
 	}
 
 	return keys
+}
+
+func giveFieldsGroupByStr(m  map[string]string) string {
+	k := giveMapKeys(m)
+
+	return strings.Join(k, ",")
 }

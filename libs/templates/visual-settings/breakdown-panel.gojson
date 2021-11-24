@@ -1,0 +1,27 @@
+{
+  "axes": {
+    "axisX": {
+      "titleFontSize": 12,
+      "labelFontSize": 12
+    },
+    "axisY": {
+      "titleFontSize": 12,
+      "labelFontSize": 12
+    }
+  },
+  "series": {},
+  "legend": {
+    "enabled": false
+  },
+  "general": {
+    "type": "table",
+    "displayType": "default",
+    "paginationPageSize": 100,
+    "fontSize": 16,
+    "mode": "distribution",
+    "decimals": 2
+  },
+  "title": {
+    "fontSize": 24
+  }
+}

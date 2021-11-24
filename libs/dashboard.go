@@ -111,6 +111,14 @@ func giveSLOPanels(s SLO) ([]SearchPanel, error) {
 
 	panels = append(gauge, burnPanel, trendPanel, budgetPanel)
 
+	if len(s.Fields) > 0 {
+		breakdownPanel, err := giveBreakdownPanel(s)
+		if err != nil {
+			return nil, err
+		}
+		panels = append(panels, breakdownPanel)
+	}
+
 	return panels, nil
 }
 
@@ -226,6 +234,21 @@ func giveBudgetDepletionPanel(s SLO) (SearchPanel, error) {
 	return panel, nil
 }
 
+func giveBreakdownPanel(s SLO) (SearchPanel, error) {
+	query, err := givePanelQuery(s, KeyPanelBreakDown)
+
+	panel := SearchPanel{
+		Key:            KeyPanelBreakDown,
+		Title:          "SLO Breakdown",
+		Desc:           "reliability stats by fields specified in the config",
+		VisualSettings: vizSettingBreakdownPanel,
+		Query:          query,
+		TimeRange:      "month",
+	}
+
+	return panel, err
+}
+
 type PanelKey string
 
 const (
@@ -235,6 +258,7 @@ const (
 	KeyPanelHourlyBurn PanelKey = "hourly-burn-rate"
 	KeyPanelBurnTrend  PanelKey = "burn-trend"
 	KeyPanelBudgetLeft PanelKey = "budget-left"
+	KeyPanelBreakDown  PanelKey = "breakdown"
 )
 
 var sloLayout = []LayoutItem{
@@ -270,6 +294,10 @@ var sloLayout = []LayoutItem{
 		Key:       "text-panel-details",
 		Structure: `{\"height\":6,\"width\":12,\"x\":12,\"y\":18}`,
 	},
+	{
+		Key:       KeyPanelBreakDown,
+		Structure: `{\"height\":10,\"width\":24,\"x\":0,\"y\":24}`,
+	},
 }
 
 //go:embed templates/visual-settings/gauge-viz-settings.gojson
@@ -283,6 +311,9 @@ var vizSettingBudgetLeft string
 
 //go:embed templates/visual-settings/hourly-burn-rate.gojson
 var vizSettingHourlyBurn string
+
+//go:embed templates/visual-settings/breakdown-panel.gojson
+var vizSettingBreakdownPanel string
 
 func givePanelQuery(s SLO, key PanelKey) (string, error) {
 	//queryStr := givePanelQueryStr(key, s.ViewName)
@@ -298,13 +329,15 @@ func givePanelQuery(s SLO, key PanelKey) (string, error) {
 	tmplParams := struct {
 		Target               float64
 		TimesliceRatioTarget float64
+		GroupByStr string
 	}{
 		Target:               s.Target(),
 		TimesliceRatioTarget: s.TimesliceTarget(),
+		GroupByStr : giveFieldsGroupByStr(s.Fields),
 	}
 
-	queryPart, err :=  GiveStrFromTmpl(queryTmplStr, tmplParams)
-	return fmt.Sprintf("_view=%s %s %s", s.ViewName, wherePart, queryPart),err
+	queryPart, err := GiveStrFromTmpl(queryTmplStr, tmplParams)
+	return fmt.Sprintf("_view=%s %s %s", s.ViewName, wherePart, queryPart), err
 
 }
 
@@ -320,6 +353,8 @@ func givePanelQueryStr(Key PanelKey, view string) string {
 		qPart = burnTrendQueryPartForOccurrences
 	case KeyPanelBudgetLeft:
 		qPart = budgetLeftQueryPart
+	case KeyPanelBreakDown:
+		qPart = breakDownPanelQueryOccurrences
 	default:
 		return ""
 	}
@@ -339,6 +374,8 @@ func givePanelQueryTimesliceStr(Key PanelKey, view string) string {
 		qPart = burnTrendQueryPartForTimeslice
 	case KeyPanelBudgetLeft:
 		qPart = budgetLeftQueryTimeSlicesPart
+	case KeyPanelBreakDown:
+		qPart = breakDownPanelQueryTimeslices
 	default:
 		return ""
 	}
