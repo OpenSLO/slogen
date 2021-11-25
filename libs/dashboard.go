@@ -315,6 +315,10 @@ var vizSettingHourlyBurn string
 //go:embed templates/visual-settings/breakdown-panel.gojson
 var vizSettingBreakdownPanel string
 
+
+//go:embed templates/visual-settings/forecasted-panel.json
+var vizSettingBudgetForecastPanel string
+
 func givePanelQuery(s SLO, key PanelKey) (string, error) {
 	//queryStr := givePanelQueryStr(key, s.ViewName)
 	queryTmplStr := ""

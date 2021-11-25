@@ -73,6 +73,11 @@ const budgetLeftQueryPart = `
 | totalCount*(1-{{.Target}}) as errorBudget
 | (1-runningBad/errorBudget) as budgetRemaining 
 | fields _timeslice, budgetRemaining
+| predict budgetRemaining by 1h model=ar, forecast=800
+| toLong(formatDate(_timeslice, "M")) as tmIndex 
+| toLong(formatDate(now(), "M")) as monthIndex
+| where  tmIndex = monthIndex | if(isNull(budgetRemaining),budgetRemaining_predicted,budgetRemaining) as budgetRemaining_predicted 
+| fields _timeslice,budgetRemaining, budgetRemaining_predicted 
 `
 
 const budgetLeftQueryTimeSlicesPart = `
@@ -97,6 +102,11 @@ const budgetLeftQueryTimeSlicesPart = `
 | (dayCount*24*60)*(1-{{.Target}}) as errorBudget
 | (1-runningBad/errorBudget) as budgetRemaining 
 | fields _timeslice, budgetRemaining
+| predict budgetRemaining by 1h model=ar, forecast=800
+| toLong(formatDate(_timeslice, "M")) as tmIndex 
+| toLong(formatDate(now(), "M")) as monthIndex
+| where  tmIndex = monthIndex | if(isNull(budgetRemaining),budgetRemaining_predicted,budgetRemaining) as budgetRemaining_predicted 
+| fields _timeslice,budgetRemaining, budgetRemaining_predicted 
 `
 
 const breakDownPanelQueryOccurrences = `
@@ -106,6 +116,7 @@ const breakDownPanelQueryOccurrences = `
 | totalCount*(1-{{.Target}}) as errorBudget
 | (1-totalBad/errorBudget) as BudgetRemaining 
 | BudgetRemaining*100 as %"Budget Remaining (%)"
+| order by BudgetRemaining asc
 | Availability_Percentage as %"Availability (%)" 
 | fields {{if ne .GroupByStr ""}} {{.GroupByStr}}, {{end}} %"Availability (%)", %"Budget Remaining (%)"
 `
@@ -133,6 +144,7 @@ const breakDownPanelQueryTimeslices = `
 | DowntimeRemainingInMinutes%60 as DowntimeRemainingMinuteModulo 
 | format("%2.0fh%2.0fm",DowntimeRemainingInHours,DowntimeRemainingMinuteModulo) as %"Budget Remaining (Time)"
 | BudgetRemaining*100 as %"Budget Remaining (%)"
+| order by BudgetRemaining asc
 | Availability_Percentage as %"Availability (%)" 
 | fields customer_id, %"Availability (%)", %"Budget Remaining (%)", %"Budget Remaining (Time)"
 `

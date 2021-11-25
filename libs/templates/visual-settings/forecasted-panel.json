@@ -1,0 +1,70 @@
+ {
+    "title": {
+      "fontSize": 14
+    },
+    "axes": {
+      "axisX": {
+        "title": "",
+        "titleFontSize": 12,
+        "labelFontSize": 12
+      },
+      "axisY": {
+        "title": "",
+        "titleFontSize": 12,
+        "labelFontSize": 12,
+        "logarithmic": false,
+        "unit": {
+          "value": "%",
+          "isCustom": false
+        }
+      }
+    },
+    "legend": {
+      "enabled": true,
+      "verticalAlign": "bottom",
+      "fontSize": 12,
+      "maxHeight": 50,
+      "showAsTable": false,
+      "wrap": true
+    },
+    "series": {},
+    "general": {
+      "type": "line",
+      "displayType": "default",
+      "markerSize": 5,
+      "lineDashType": "solid",
+      "markerType": "none",
+      "lineThickness": 1,
+      "mode": "timeSeries"
+    },
+    "color": {
+      "family": "Categorical Default"
+    },
+    "overrides": [
+      {
+        "series": [
+          "budgetRemaining_predicted"
+        ],
+        "queries": [],
+        "properties": {
+          "type": "line",
+          "lineDashType": "dash",
+          "lineThickness": 1.5,
+          "color": "#50caf2",
+          "name": "Forecasted Budget Remaining"
+        }
+      },
+      {
+        "series": [
+          "budgetRemaining"
+        ],
+        "queries": [],
+        "properties": {
+          "type": "area",
+          "lineThickness": 0,
+          "color": "#f7995b",
+          "name": "Budget Remaining"
+        }
+      }
+    ]
+  }
