@@ -1,74 +1,70 @@
 {
-    "legend": {
-        "enabled": false,
-        "fontSize": 12,
-        "maxHeight": 50,
-        "showAsTable": false,
-        "verticalAlign": "bottom",
-        "wrap": true
+  "title": {
+    "fontSize": 14
+  },
+  "axes": {
+    "axisX": {
+      "title": "",
+      "titleFontSize": 12,
+      "labelFontSize": 12
     },
-    "title": {
-        "fontSize": 14
-    },
-    "series": {
-        "A_totalGood": {
-            "visible": false
-        },
-        "A_totalCount": {
-            "visible": false
-        },
-        "A_SLO": {
-            "visible": true
-        },
-        "A_budgetRemaining": {
-            "visible": true
-        },
-        "A_burnRate": {
-            "visible": true
-        },
-        "A_budgetRemaining_1d": {
-            "visible": false
-        }
-    },
-    "axes": {
-        "axisY": {
-            "unit": {
-                "value": "%",
-                "isCustom": false
-            }
-        }
-    },
-    "overrides": [
-        {
-            "series": [
-                "budgetRemaining"
-            ],
-            "queries": [],
-            "properties": {
-                "name": "last 24 hr"
-            }
-        },
-        {
-            "series": [
-                "budgetRemaining_1d"
-            ],
-            "queries": [],
-            "properties": {
-                "name": "Previous 24h"
-            }
-        }
-    ],
-    "general": {
-        "type": "area",
-        "displayType": "default",
-        "markerSize": 5,
-        "lineDashType": "solid",
-        "markerType": "none",
-        "lineThickness": 1,
-        "fillOpacity": 0.25,
-        "mode": "timeSeries"
-    },
-    "color": {
-        "family": "Categorical Dark"
+    "axisY": {
+      "title": "",
+      "titleFontSize": 12,
+      "labelFontSize": 12,
+      "logarithmic": false,
+      "unit": {
+        "value": "%",
+        "isCustom": false
+      }
     }
+  },
+  "legend": {
+    "enabled": true,
+    "verticalAlign": "bottom",
+    "fontSize": 12,
+    "maxHeight": 50,
+    "showAsTable": false,
+    "wrap": true
+  },
+  "series": {},
+  "general": {
+    "type": "line",
+    "displayType": "default",
+    "markerSize": 5,
+    "lineDashType": "solid",
+    "markerType": "none",
+    "lineThickness": 1,
+    "mode": "timeSeries"
+  },
+  "color": {
+    "family": "Categorical Default"
+  },
+  "overrides": [
+    {
+      "series": [
+        "budgetRemaining_predicted"
+      ],
+      "queries": [],
+      "properties": {
+        "type": "line",
+        "lineDashType": "dash",
+        "lineThickness": 1.5,
+        "color": "#50caf2",
+        "name": "Forecasted Budget Remaining"
+      }
+    },
+    {
+      "series": [
+        "budgetRemaining"
+      ],
+      "queries": [],
+      "properties": {
+        "type": "area",
+        "lineThickness": 0,
+        "color": "#f7995b",
+        "name": "Budget Remaining"
+      }
+    }
+  ]
 }
