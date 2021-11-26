@@ -204,5 +204,4 @@ _view=slogen_tf_cloudcollector_cc_ingest_lag_v2
 | parseDate(format("2021-%d-01",toLong(monthIndex+addToMonth)), "yyyy-MM-dd") as ymNext
 | toLong(if(monthIndex == 12,31,(ymNext - ym)/(24*3600*1000))) as dayCount
 | if(isNull(healthySlices) ,healthySlices_predicted,healthySlices) as forecasted_slices | formatDate(_timeslice,"dd") as m | where m = dayCount
-
 */
