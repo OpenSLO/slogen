@@ -94,39 +94,41 @@ export PATH=`go env GOPATH`/bin:$PATH
 ###### For Linux
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.1/slogen_0.6.1_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.2/slogen_0.6.2_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ###### For Mac
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.1/slogen_0.6.1_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.6.2/slogen_0.6.2_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
 
-###### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
+##### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):
+
+##### _Note_ : Terraform installation is not required as the tool binary has it embedded as [terraform-exec](https://github.com/hashicorp/terraform-exec)
 
 --- 
 
-###### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
+##### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
 
 --- 
 
-###### validate the configs as (you can also pass the path to the entire dir to validate the files in it.)
+##### validate the configs as (you can also pass the path to the entire dir to validate the files in it.)
 
 `slogen validate path/to/config`
 
 --- 
 
-###### run the tool to generate the terraform files and apply them (you can remove the `--apply` to just generate the files)
+##### run the tool to generate the terraform files and apply them (you can remove the `--apply` to just generate the files)
 
 `slogen path/to/config --apply`
 
 
 --- 
 
-###### for further details run `slogen help`
+##### for further details run `slogen help`
 
 ```
 Usage:
