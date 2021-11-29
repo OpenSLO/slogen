@@ -1,4 +1,4 @@
-### v0.7
+### [v0.7](https://github.com/SumoLogic-Incubator/slogen/milestone/2?closed=1)
 
 - **Feature** : Timeslice based budgeting (availability calculated based w.r.t. good time windows)  
   - [Sample config](samples/openslo/ingest-lag-timeslice-budgeting.yaml)
