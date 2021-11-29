@@ -4,7 +4,7 @@ metadata:
   displayName: Trend prediction delay
   name: trend-compute-delay
 spec:
-  service: forecasting
+  service: ts-analytics
   description: checks trending values are being calculated with acceptable delays
   budgetingMethod: Occurrences
   objectives:
