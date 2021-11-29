@@ -125,8 +125,21 @@ wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.7.0
 
 `slogen path/to/config --apply`
 
+If you remove any of the OpenSLO configs, then you should use
+
+`slogen path/to/config --apply --clean`
+
+the `--clean` option will remove the generated terraform files for which the yaml config no longer exists.
 
 --- 
+
+##### running the tool behind a http/https proxy
+set the following env variables in the bash session before running the tool
+
+```shell
+export HTTP_PROXY="http://proxyIp:proxyPort"
+export HTTPS_PROXY="http://proxyIp:proxyPort"
+```
 
 ##### for further details run `slogen help`
 
@@ -139,10 +152,12 @@ Examples:
 slogen service/search.yaml 
 slogen ~/team-a/slo/ ~/team-b/slo ~/core/slo/login.yaml 
 slogen ~/team-a/slo/ -o team-a/tf
-slogen ~/team-a/slo/ -o team-a/tf --apply 
+slogen ~/team-a/slo/ -o team-a/tf --apply --clean 
 
 Available sub-commands:
 help          Help about any command 
+list          utility command to get additional info about your sumo resources e.g.
+destroy       destroy the content generated from the slogen command, equivalent to 'terraform destroy'
 new           create a sample config from given profile 
 validate      config is as per OpesSLO standards and has valid values.
 completion    generate the autocompletion script for the specified shell 
@@ -177,7 +192,6 @@ various fields
 #### Limitations
 
 - as of now only supports Sumologic Logs as data source and content target.
-- Only `Occurrences` based `budgetingMethod` is handled. support for `Timeslices` is work in progress.
 - Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
   31 days.
 
@@ -188,3 +202,21 @@ run the below command
 `slogen destroy [path to out dir (default to './tf')]`
 
 It will show the resources that will be deleted and ask for confirmation before deleting them. 
+
+
+### sample configs
+- For `Timeslice` based budgeting : [ingest-lag-timeslice-budgeting.yaml](samples/openslo/ingest-lag-timeslice-budgeting.yaml) 
+- For `Occurrences` based budgeting : [trend-calculation.yaml](samples/openslo/trend-calculation.yaml) 
+
+
+##### Change Log
+- [New feature and fixes in v0.7](https://github.com/SumoLogic-Incubator/slogen/milestone/2)
+
+
+##### Getting connection ID's for alert notification
+Currently, the sumo UI doesn't provide a way to get the connection id's for alert notification.
+As a workaround, you can use the following command to get the id list.
+
+```shell
+slogen list -c
+```
