@@ -1,6 +1,6 @@
-resource "sumologic_dashboard" "{{.Service}}_{{.SLOName}}" {
-    title            = "SLO-{{.Title}}"
-    description      = "Tracks {{.Target}} objective: {{.Desc}}"
+resource "sumologic_dashboard" "{{.Service}}-Overview" {
+    title            = "Service Overview - {{.Service}}"
+    description      = "Tracks all SLO's for service {{.Service}}"
     folder_id        = sumologic_folder.{{.Service}}.id
     refresh_interval = 300
     theme            = "Light"
@@ -23,8 +23,9 @@ resource "sumologic_dashboard" "{{.Service}}_{{.SLOName}}" {
     }
 
 
-    {{range $panel := .SearchPanels}}
-    ## search panel - log query
+    {{range $rows := .Rows}}
+    {{range $panel := $rows.Panels}}
+## search panel - log query
     panel {
         sumo_search_panel {
             key                                         = "{{$panel.Key}}"
@@ -64,8 +65,8 @@ QUERY
     panel {
 
         text_panel {
-            key                                         = "text-panel-details"
-            title                                       = "Details"
+            key                                         = "{{$rows.SLOName}}-text-overview"
+            title                                       = "SLO Details"
             visual_settings                             = jsonencode({
                 "general" : {
                     "mode" : "TextPanel",
@@ -90,51 +91,13 @@ QUERY
             })
             keep_visual_settings_consistent_with_parent = true
             text                                        = <<-EOF
-# Target
-**{{printf "%.2f" .Target}} %**
+##  {{$rows.SLOName}}
 
-## {{.Desc}}
-
-#### {{ range $key, $val := .Labels }}**`{{$key}}`**:*`{{$val}}`*  {{ end }}
+#### {{ range $key, $val := $rows.SLOConf.Labels }}**`{{$key}}`**:*`{{$val}}`*  {{ end }}
 EOF
         }
     }
-
-    panel {
-
-        text_panel {
-            key                                         = "text-panel-config"
-            title                                       = "OpenSLO config"
-            visual_settings                             = jsonencode({
-                "general" : {
-                    "mode" : "TextPanel",
-                    "type" : "text",
-                    "displayType" : "default"
-                },
-                "title" : {
-                    "fontSize" : 14
-                },
-                "text" : {
-                    "format" : "markdownV2",
-                    "verticalAlignment" : "top",
-                    "horizontalAlignment" : "left",
-                    "textColor" : "#170546",
-                    "fontSize" : 20,
-                    "backgroundColor" : "#e4f5fa"
-                },
-                "series" : {},
-                "legend" : {
-                    "enabled" : false
-                }
-            })
-            keep_visual_settings_consistent_with_parent = true
-            text                                        = <<-EOF
-``` yaml
-{{.StrYAMLConfig}}
-```
-            EOF
-        }
-    }
+    {{end}}
 
     ## layout
     layout {
@@ -148,7 +111,7 @@ EOF
         }
     }
 
-    {{ range .Fields }}
+    {{ range .Vars}}
     ## variables
     variable {
         name               = "{{ . }}"
@@ -156,7 +119,7 @@ EOF
         default_value      = "*"
         source_definition {
             log_query_variable_source_definition {
-                query = "_view={{ $.ViewName }}"
+                query = "_view=slogen_tf_* | where service= \"{{ $.Service }}\""
                 field = "{{ . }}"
             }
         }

@@ -46,7 +46,7 @@ type VisualSetting struct {
 }
 
 type LayoutItem struct {
-	Key       PanelKey
+	Key       string
 	Structure string
 }
 
@@ -263,27 +263,27 @@ const (
 
 var sloLayout = []LayoutItem{
 	{
-		Key:       KeyGaugeToday,
+		Key:       string(KeyGaugeToday),
 		Structure: `{\"height\":6,\"width\":6,\"x\":0,\"y\":0}`,
 	},
 	{
-		Key:       KeyGaugeWeek,
+		Key:       string(KeyGaugeWeek),
 		Structure: `{\"height\":6,\"width\":6,\"x\":0,\"y\":6}`,
 	},
 	{
-		Key:       KeyGaugeMonth,
+		Key:       string(KeyGaugeMonth),
 		Structure: `{\"height\":6,\"width\":6,\"x\":0,\"y\":12}`,
 	},
 	{
-		Key:       KeyPanelHourlyBurn,
+		Key:       string(KeyPanelHourlyBurn),
 		Structure: `{\"height\":6,\"width\":18,\"x\":6,\"y\":0}`,
 	},
 	{
-		Key:       KeyPanelBurnTrend,
+		Key:       string(KeyPanelBurnTrend),
 		Structure: `{\"height\":6,\"width\":18,\"x\":6,\"y\":6}`,
 	},
 	{
-		Key:       KeyPanelBudgetLeft,
+		Key:       string(KeyPanelBudgetLeft),
 		Structure: `{\"height\":6,\"width\":18,\"x\":6,\"y\":12}`,
 	},
 	{
@@ -295,7 +295,7 @@ var sloLayout = []LayoutItem{
 		Structure: `{\"height\":6,\"width\":12,\"x\":12,\"y\":18}`,
 	},
 	{
-		Key:       KeyPanelBreakDown,
+		Key:       string(KeyPanelBreakDown),
 		Structure: `{\"height\":10,\"width\":24,\"x\":0,\"y\":24}`,
 	},
 }
@@ -342,7 +342,6 @@ func givePanelQuery(s SLO, key PanelKey) (string, error) {
 
 	queryPart, err := GiveStrFromTmpl(queryTmplStr, tmplParams)
 	return fmt.Sprintf("_view=%s %s %s", s.ViewName, wherePart, queryPart), err
-
 }
 
 func givePanelQueryStr(Key PanelKey, view string) string {

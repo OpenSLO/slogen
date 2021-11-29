@@ -30,6 +30,8 @@ spec:
 createView: true
 fields:
   customer_id: "customer_id"
+  deployment: 'if(isNull(deployment),"dev",deployment)' # using an expression
+  cluster: 'if(isNull(cluster),"-",cluster)'
 labels:
   team: collection
   tier: 0

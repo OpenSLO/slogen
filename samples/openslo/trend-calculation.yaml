@@ -25,6 +25,8 @@ spec:
       isRolling: true
       unit: Day
 createView: true
+fields:
+  region: 'if(isNull(Region),"-",Region)' # using an expression
 labels:
   team: analytics
   tier: 1

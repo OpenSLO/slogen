@@ -1,5 +1,5 @@
 {{range $Obj := .Objectives }}
-resource "sumologic_monitor" "slo_monitor_{{$.Name}}-{{.Suffix}}" {
+resource "sumologic_monitor" "{{$.Service}}_{{$.Name}}-{{.Suffix}}" {
     name             = "slo-{{$.Name}}-{{.Suffix}}"
     description      = "{{$.Desc}}"
     parent_id        = sumologic_monitor_folder.{{$.Service}}.id

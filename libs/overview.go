@@ -31,12 +31,12 @@ func giveWhereClause(dashVars []string) string {
 
 	var clauses []string
 	for _, v := range dashVars {
-        clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
-    }
+		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
+	}
 
-    wherePart := "| where " +  strings.Join(clauses, " and ")
-   
-    return wherePart
+	wherePart := "| where " + strings.Join(clauses, " and ")
+
+	return wherePart
 }
 
 func giveOverviewWeeksQuery(dashVars []string) string {
@@ -66,6 +66,17 @@ type SLOOverviewDashConf struct {
 }
 
 func GenOverviewTF(s map[string]*SLO, c GenConf) error {
+	err := GenGlobalOverviewTF(s, c)
+	if err != nil {
+		return err
+	}
+
+	err = GenServiceOverviewDashboard(s, c.OutDir)
+
+	return err
+}
+
+func GenGlobalOverviewTF(s map[string]*SLO, c GenConf) error {
 
 	dashVars := giveMostCommonVars(s, 3)
 	query := giveOverviewListQuery(dashVars)
@@ -82,9 +93,7 @@ func GenOverviewTF(s map[string]*SLO, c GenConf) error {
 
 type SLOMap map[string]*SLO
 
-// giveMostCommonVars top n most common label or fields found
-func giveMostCommonVars(slos SLOMap, n int) []string {
-
+func giveMostCommonVarsFromSLOSLice(slos []SLO, n int) []string {
 	vCount := map[string]int{}
 
 	for _, s := range slos {
@@ -113,4 +122,134 @@ func giveMostCommonVars(slos SLOMap, n int) []string {
 	})
 
 	return varList[:n]
+}
+
+// giveMostCommonVars top n most common label or fields found
+func giveMostCommonVars(slos SLOMap, n int) []string {
+
+	slc := giveSLOMapToSlice(slos)
+	return giveMostCommonVarsFromSLOSLice(slc, n)
+}
+
+func giveSLOMapToSlice(s SLOMap) []SLO {
+	var slc []SLO
+	for _, slo := range s {
+		slc = append(slc, *slo)
+	}
+
+	return slc
+}
+
+func giveServiceToSLOMap(slos map[string]*SLO) map[string][]SLO {
+	srvMap := map[string][]SLO{}
+
+	for _, s := range slos {
+		srvMap[s.Spec.Service] = append(srvMap[s.Spec.Service], *s)
+	}
+
+	return srvMap
+}
+
+func GenServiceOverviewDashboard(sloPathMap map[string]*SLO, outDir string) error {
+	srvMap := giveServiceToSLOMap(sloPathMap)
+
+	for srv, slos := range srvMap {
+		rows, err := getOverviewRows(slos)
+		if err != nil {
+			return err
+		}
+
+		layout := getOverviewLayout(rows)
+
+		conf := ServiceOverviewDashboard{
+			Service: srv,
+			Rows:    rows,
+			Layout:  layout,
+			Vars: giveMostCommonVarsFromSLOSLice(slos,4),
+		}
+
+		path := filepath.Join(outDir, DashboardsFolder, "overview-" +srv +".tf")
+		err = FileFromTmpl(NameServiceTrackerTmpl, path, conf)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type ServiceOverviewDashboard struct {
+	Service string
+	Rows    []ServiceOverviewRow
+	Layout  []LayoutItem
+	Vars    []string
+}
+
+type ServiceOverviewRow struct {
+	SLOName string
+	Panels  []SearchPanel
+	SLOConf SLO
+}
+
+func getOverviewRows(s []SLO) ([]ServiceOverviewRow, error) {
+
+	var rows []ServiceOverviewRow
+	for _, slo := range s {
+		r, err := getOverviewRow(slo)
+
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, r)
+	}
+
+	return rows, nil
+}
+
+func getOverviewRow(s SLO) (ServiceOverviewRow, error) {
+	name := s.Metadata.Name
+
+	row := ServiceOverviewRow{
+		SLOName: name,
+		Panels:  nil,
+		SLOConf: s,
+	}
+
+	panels, err := giveSLOGaugePanels(s)
+	if err != nil {
+		return row, err
+	}
+
+	for i, p := range panels {
+		panels[i].Key = PanelKey(name + "-" + string(p.Key))
+	}
+
+	row.Panels = panels
+
+	return row, err
+}
+
+func getOverviewLayout(rows []ServiceOverviewRow) []LayoutItem {
+	var layout []LayoutItem
+
+	h, w, x, y := 6, 6, 0, 0
+	for _, r := range rows {
+
+		layout = append(layout, LayoutItem{
+			Key:       r.SLOName + "-text-overview",
+			Structure: fmt.Sprintf(`{\"height\":%d,\"width\":%d,\"x\":%d,\"y\":%d}`, h, w, x, y),
+		})
+
+		for _, p := range r.Panels {
+			x = x + w
+			layout = append(layout, LayoutItem{
+				Key:       string(p.Key),
+				Structure: fmt.Sprintf(`{\"height\":%d,\"width\":%d,\"x\":%d,\"y\":%d}`, h, w, x, y),
+			})
+		}
+
+		x = 0
+		y = y + h
+	}
+
+	return layout
 }

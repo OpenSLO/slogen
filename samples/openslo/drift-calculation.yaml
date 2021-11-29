@@ -4,7 +4,7 @@ metadata:
   displayName: Drift Computation Time
   name: anomaly-compute-delay
 spec:
-  service: tsat
+  service: forecasting
   description: checks anomalies are being calculated and with acceptable delays
   budgetingMethod: Occurrences
   objectives:
@@ -22,7 +22,7 @@ spec:
       target: 0.80
 createView: true
 fields:
-  aws_region: "Region"
+  region: 'if(isNull(Region),"-",Region)' # using an expression
 labels:
   team: metrics
   tier: 0

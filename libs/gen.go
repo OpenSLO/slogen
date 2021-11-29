@@ -18,6 +18,7 @@ const NameModuleTmpl = "module_interface.tf.gotf"
 const NameDashFolderTmpl = "dash-folders.tf.gotf"
 const NameMonitorFolderTmpl = "monitor-folders.tf.gotf"
 const NameGlobalTrackerTmpl = "global-tracker.tf.gotf"
+const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 
 //go:embed templates/**
 var tmplFiles embed.FS
@@ -118,6 +119,13 @@ func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
 		tfFilePath = filepath.Join(outDir, MonitorsFolder, "slo-"+slo.Metadata.Name+".tf")
 		return FileFromTmpl(NameMonitorTmpl, tfFilePath, mc)
 	}
+
+	return nil
+}
+
+func ExecServiceOverview(slos map[string]SLO , outDir string) error {
+
+
 
 	return nil
 }
