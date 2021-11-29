@@ -209,9 +209,6 @@ It will show the resources that will be deleted and ask for confirmation before 
 - For `Occurrences` based budgeting : [trend-calculation.yaml](samples/openslo/trend-calculation.yaml) 
 
 
-##### Change Log
-- [New feature and fixes in v0.7](https://github.com/SumoLogic-Incubator/slogen/milestone/2)
-
 
 ##### Getting connection ID's for alert notification
 Currently, the sumo UI doesn't provide a way to get the connection id's for alert notification.
@@ -220,3 +217,7 @@ As a workaround, you can use the following command to get the id list.
 ```shell
 slogen list -c
 ```
+
+### Change Log
+- [New feature and fixes in v0.7](CHANGELOG.md)
+
