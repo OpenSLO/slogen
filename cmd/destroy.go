@@ -25,7 +25,7 @@ import (
 // destroyCmd represents the destroy command
 var destroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "A brief description of your command",
+	Short: "destroy the content generated from the slogen command, equivalent to 'terraform destroy'",
 	Long: `
 `,
 	Run: func(cmd *cobra.Command, args []string) {
