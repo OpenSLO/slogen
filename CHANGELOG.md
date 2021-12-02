@@ -37,10 +37,10 @@ Similarly, if you have a few minutes of downtime, but those minutes served a lar
 ##### How is SLO tracking by fields done ?
 For e.g. if we specify `customerID` as a field for SubSLI breakdown, 
 then if `customerA` has 10 messages and `customerB` has 20 messages in the compliance window, `customerA` has 4 slow messages 
-and `customerB` has 2 slow messages, the `SLI_A` = 60% and `SLI_B` = 90% and `SLI_overall` = 80%. 
+and `customerB` has 2 slow messages, then the `SLI_A` = 60% and `SLI_B` = 90% and `SLI_overall` = 80%. 
 
 The same is true for timeslice where the goodness/uptime for that timeslice for a given customer is based on 
-requests for that customer only but overall goodness for a given is calculated by looking at the requests for all customers. 
+requests for that customer only but overall goodness for a given timeslice is calculated by looking at the requests for all customers. 
 For e.g. if we specify a `timesliceTraget` as 0.75 (or that 75% of requests in a timeslice should be good) 
 then for the same distribution of requests in a single timeslice window, service was up for `customerB` but down for `customerA` but up overall.
 
