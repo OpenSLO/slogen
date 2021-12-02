@@ -29,7 +29,7 @@ The advantage of `Timeslices` is that it aligns well with the concept of `uptime
 i.e. instead of “how many shopping cart failures did we have',' we track “for how many minutes were shopping carts offline?“.
 This better correlates to business outcomes where customers are very likely to retry an event after some time when they encounter failure / slowness or for async jobs that will be reattempted again and can afford to have some delay.  
 
-`Occurrences` based are budgeting on the other hand are more accurate, since it automatically weights your traffic based on throughput.  
+`Occurrences` based budgeting on the other hand are more accurate, since it automatically weights your traffic based on throughput.  
 If you have more traffic in the middle of the day, that’s more likely to influence your SLO performance than your low-traffic hours in the middle of the night.  
 Similarly, if you have a few minutes of downtime, but those minutes served a large percentage of your traffic for the day, your burn rate will spike accordingly.
 
