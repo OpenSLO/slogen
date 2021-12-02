@@ -27,7 +27,7 @@ In timeslice budgeting instead of using the good vs bad request in the entire co
 
 The advantage of `Timeslices` is that it aligns well with the concept of `uptime` which is easier to track on a regular basis 
 i.e. instead of “how many shopping cart failures did we have',' we track “for how many minutes were shopping carts offline?“.
-This better correlates to business outcomes where customers are very likely to retry an event after some time when they encounter failure / slowness or the for async jobs that will be reattempted again and can afford to have some delay.  
+This better correlates to business outcomes where customers are very likely to retry an event after some time when they encounter failure / slowness or for async jobs that will be reattempted again and can afford to have some delay.  
 
 `Occurrences` based are budgeting on the other hand are more accurate, since it automatically weights your traffic based on throughput.  
 If you have more traffic in the middle of the day, that’s more likely to influence your SLO performance than your low-traffic hours in the middle of the night.  
