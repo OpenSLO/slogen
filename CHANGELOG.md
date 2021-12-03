@@ -33,6 +33,8 @@ This better correlates to business outcomes where customers are very likely to r
 If you have more traffic in the middle of the day, that’s more likely to influence your SLO performance than your low-traffic hours in the middle of the night.  
 Similarly, if you have a few minutes of downtime, but those minutes served a large percentage of your traffic for the day, your burn rate will spike accordingly.
 
+A detailed comparison with actual computation involved can be found [here](https://gist.github.com/nobl9-mikec/a1a55d97d77f10216be775eaad7221ac)
+
 (Examples taken from [discussion](https://openslo.slack.com/archives/C0202J83M3R/p1637255459106800?thread_ts=1637242125.103900&cid=C0202J83M3R) in OpenSLO slack forum)
 ##### How is SLO tracking by fields done ?
 For e.g. if we specify `customerID` as a field for SubSLI breakdown, 
