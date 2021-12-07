@@ -10,7 +10,7 @@ spec:
   objectives:
     - displayName: SLI to track ingest job is completed within 5 seconds for cloudcollector
       target: 0.95
-      timeSliceTarget: 0.9
+      timeSliceTarget: 0.9 # ratio of good to total msgs, so as to consider that time window healthy, only applicable for Timeslices budgeting
       ratioMetrics:
         total:
           source: sumologic
