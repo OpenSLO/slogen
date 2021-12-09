@@ -10,6 +10,8 @@ import "text/template"
 
 // todo create a lookup for name to display name and other metadata
 
+const DefaultScheduledViewRetention = 100
+
 // ScheduledView implicit
 type ScheduledView struct {
 	SLOName        string `yaml:"sloName"`
@@ -96,7 +98,7 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 		Index:          sloConf.ViewName,
 		Query:          buf.String(),
 		StartTime:      start.UTC().Format(time.RFC3339),
-		Retention:      31,
+		Retention:      DefaultScheduledViewRetention,
 		PreventDestroy: false,
 	}
 

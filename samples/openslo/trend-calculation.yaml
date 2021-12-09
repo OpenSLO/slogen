@@ -33,9 +33,9 @@ labels:
 alerts:
   burnRate:
     - shortWindow: '10m'
-      shortLimit: 14
+      shortLimit: 2
       longWindow: '1h'
-      longLimit: 14
+      longLimit: 4
       notifications:
         - connectionType: 'Email'
           recipients:
@@ -43,10 +43,10 @@ alerts:
           triggerFor:
             - Warning
             - ResolvedWarning
-    - shortWindow: '1h'
-      shortLimit: 14
-      longWindow: '6h'
-      longLimit: 4
+    - shortWindow: '2h'
+      shortLimit: 4
+      longWindow: '24h'
+      longLimit: 1
       notifications:
         - connectionType: 'Email'
           recipients:
