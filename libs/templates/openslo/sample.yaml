@@ -35,12 +35,12 @@ burnRateAlerts: #
     longWindow: '1h'
     longLimit: 14
     notifications: # one or more notification channels
-      - connetionType: 'Email'
+      - connectionType: 'Email'
         recipients: 'youremailid@email.com'
         triggerFor:
           - Warning
           - ResolvedWarning
-      - connetionType: 'PagerDuty'
+      - connectionType: 'PagerDuty'
         connectionID: '1234abcd'  # id of pagerduty connection created in sumo
         triggerFor:
           - Critical

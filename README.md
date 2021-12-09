@@ -56,17 +56,17 @@ alerts:
       longWindow: '1h'
       longLimit: 14
       notifications: # one or more notification channels
-        - connetionType: 'Email'
+        - connectionType: 'Email'
           recipients: 'youremailid@email.com'
           triggerFor:
             - Warning
             - ResolvedWarning
-        - connetionType: 'PagerDuty'
+        - connectionType: 'PagerDuty'
           connectionID: '1234abcd'  # id of pagerduty connection created in sumo
           triggerFor:
             - Critical
             - ResolvedCritical
-        - connetionType: 'Webhook'
+        - connectionType: 'Webhook'
           connectionID: '0000000000ABC123'  # id of pagerduty connection created in sumo
           triggerFor:
             - Critical
