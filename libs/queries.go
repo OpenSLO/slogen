@@ -40,7 +40,7 @@ const hourlyBurnQueryPartForTimeslice = `
 | timeslice 60m 
 | sum(sliceHealthy) as healthySlices, sum(timesliceOne) as totalSlices by _timeslice
 | order by _timeslice asc
-| ((healthySlices/totalSlices)/(1-{{.Target}})) as hourlyBurnRate
+| ((1 - healthySlices/totalSlices)/(1-{{.Target}})) as hourlyBurnRate
 | fields _timeslice, hourlyBurnRate | compare timeshift 1d
 `
 
@@ -166,6 +166,7 @@ _view=slogen_tf_cloudcollector_cc_ingest_lag_v2
 | sum(sliceHealthy) as healthySlices, sum(timesliceOne) as totalSlices by _timeslice | predict healthySlices by 1d forecast=30 
 | if(isNull(healthySlices) ,healthySlices_predicted,healthySlices) as forecasted_slices | fields _timeslice,healthySlices,forecasted_slices
 `
+
 /*
 _view=slogen_tf_tsat_v2_anomaly_compute_delay_v2
 | timeslice 1m
