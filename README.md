@@ -94,13 +94,13 @@ export PATH=`go env GOPATH`/bin:$PATH
 ###### For Linux
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.7.1/slogen_0.7.3_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.7.3/slogen_0.7.3_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ###### For Mac
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.7.1/slogen_0.7.3_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Incubator/slogen/releases/download/v0.7.3/slogen_0.7.3_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
