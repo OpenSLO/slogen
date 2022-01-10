@@ -123,9 +123,7 @@ func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
 	return nil
 }
 
-func ExecServiceOverview(slos map[string]SLO , outDir string) error {
-
-
+func ExecServiceOverview(slos map[string]SLO, outDir string) error {
 
 	return nil
 }
