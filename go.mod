@@ -1,4 +1,4 @@
-module github.com/SumoLogic-Incubator/slogen
+module github.com/SumoLogic-Labs/slogen
 
 go 1.17
 
