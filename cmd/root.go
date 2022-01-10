@@ -160,6 +160,7 @@ func init() {
 	rootCmd.Flags().BoolP(FlagCleanLong, FlagCleanShort, false,
 		"clean the old tf files for which openslo config were not found in the path args",
 	)
+
 	rootCmd.Flags().SortFlags = false
 }
 
