@@ -39,6 +39,7 @@ type GenConf struct {
 	DoApply       bool
 	IgnoreError   bool
 	Clean         bool
+	AsModule      bool
 }
 
 func init() {

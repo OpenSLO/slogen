@@ -6,17 +6,25 @@ terraform {
     }
 }
 
-resource "sumologic_monitor_folder" "slo_mon_root_folder" {
-    name        = "{{.MonitorFolder}}"
-    description = "Root folder for SLO monitors created with slogen"
-}
-
+{{- if not .AsModule }}
 data "sumologic_personal_folder" "personalFolder" {}
+{{- end}}
+
+variable "slogen_dashboards_parent_folder" {
+    {{- if not .AsModule}}
+    default = data.sumologic_personal_folder.personalFolder.id
+    {{- end}}
+}
 
 resource "sumologic_folder" "slo_dash_root_folder" {
     name        = "{{.DashFolder}}"
     description = "Your SLO dashboards created with slogen"
-    parent_id   = data.sumologic_personal_folder.personalFolder.id
+    parent_id   = var.slogen_dashboards_parent_folder
+}
+
+resource "sumologic_monitor_folder" "slo_mon_root_folder" {
+    name        = "{{.MonitorFolder}}"
+    description = "Root folder for SLO monitors created with slogen"
 }
 
 module "views" {
@@ -25,7 +33,7 @@ module "views" {
 
 module "dashboards" {
     source                  = "./dashboards"
-    slo_dash_root_folder_id = sumologic_folder.slo_dash_root_folder.id
+    slo_dash_root_folder_id = var.slogen_dashboards_parent_folder
 }
 
 module "monitors" {

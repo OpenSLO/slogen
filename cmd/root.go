@@ -117,6 +117,7 @@ const FlagViewPrefixLong = "viewPrefix"
 const FlagViewPrefixShort = "v"
 const FlagViewDestroy = "viewDestroy"
 const FlagDestroy = "destroy"
+const FlagAsModule = "asModule"
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -159,6 +160,10 @@ func init() {
 	//)
 	rootCmd.Flags().BoolP(FlagCleanLong, FlagCleanShort, false,
 		"clean the old tf files for which openslo config were not found in the path args",
+	)
+
+	rootCmd.Flags().Bool(FlagAsModule, false,
+		"whether to generate the terraform config as a module",
 	)
 
 	rootCmd.Flags().SortFlags = false
@@ -224,6 +229,11 @@ func GetGenConf(cmd *cobra.Command) (*libs.GenConf, error) {
 		return nil, err
 	}
 
+	asModule, err := cmd.Flags().GetBool(FlagAsModule)
+	if err != nil {
+		return nil, err
+	}
+
 	conf := &libs.GenConf{
 		IgnoreError:   ie,
 		OutDir:        outDir,
@@ -232,6 +242,7 @@ func GetGenConf(cmd *cobra.Command) (*libs.GenConf, error) {
 		MonitorFolder: monDir,
 		DoPlan:        doPlan,
 		DoApply:       doApply,
+		AsModule:      asModule,
 	}
 
 	return conf, nil
