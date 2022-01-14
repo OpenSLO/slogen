@@ -1,5 +1,5 @@
 {{range $folder := .}}
-resource "sumologic_folder" "{{$folder}}" {
+resource "sumologic_folder" "slg_tf_{{$folder}}" {
     name        = "{{$folder}}"
     description = "SLO dashboards for service {{$folder}}"
     parent_id   = var.slo_dash_root_folder_id

@@ -1,8 +1,8 @@
 {{range $Obj := .Objectives }}
-resource "sumologic_monitor" "{{$.Service}}_{{$.Name}}-{{.Suffix}}" {
+resource "sumologic_monitor" "slg_tf_{{$.Service}}_{{$.Name}}-{{.Suffix}}" {
     name             = "slo-{{$.Name}}-{{.Suffix}}"
     description      = "{{$.Desc}}"
-    parent_id        = sumologic_monitor_folder.{{$.Service}}.id
+    parent_id        = sumologic_monitor_folder.slg_tf_{{$.Service}}.id
     type             = "MonitorsLibraryMonitor"
     is_disabled      = false
     content_type     = "Monitor"

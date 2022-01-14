@@ -1,7 +1,7 @@
-resource "sumologic_dashboard" "{{.Service}}-Overview" {
+resource "sumologic_dashboard" "slg_tf_{{.Service}}-Overview" {
     title            = "Service Overview - {{.Service}}"
     description      = "Tracks all SLO's for service {{.Service}}"
-    folder_id        = sumologic_folder.{{.Service}}.id
+    folder_id        = sumologic_folder.slg_tf_{{.Service}}.id
     refresh_interval = 300
     theme            = "Light"
 

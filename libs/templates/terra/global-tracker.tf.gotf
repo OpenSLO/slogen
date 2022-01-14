@@ -1,4 +1,4 @@
-resource "sumologic_dashboard" "global-dashboard" {
+resource "sumologic_dashboard" "slg_tf_global-dashboard" {
     title            = "SLO overview"
     description      = "Panels for health of SLO configured across services"
     folder_id        = var.slo_dash_root_folder_id

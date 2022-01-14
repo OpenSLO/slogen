@@ -1,4 +1,4 @@
-resource "sumologic_scheduled_view" "{{.Index}}" {
+resource "sumologic_scheduled_view" "slg_tf_{{.Index}}" {
     index_name       = "{{.Index}}"
     query            = <<QUERY
 {{.Query}}
