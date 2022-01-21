@@ -146,8 +146,9 @@ const breakDownPanelQueryTimeslices = `
 | BudgetRemaining*100 as %"Budget Remaining (%)"
 | order by BudgetRemaining asc
 | Availability_Percentage as %"Availability (%)" 
-| fields customer_id, %"Availability (%)", %"Budget Remaining (%)", %"Budget Remaining (Time)"
+| fields {{if ne .GroupByStr ""}} {{.GroupByStr}}, {{end}} %"Availability (%)", %"Budget Remaining (%)", %"Budget Remaining (Time)"
 `
+
 const pd = `
 _view=slogen_tf_cloudcollector_cc_ingest_lag_v2 
 | timeslice 1m 
