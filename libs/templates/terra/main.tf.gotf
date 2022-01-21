@@ -35,9 +35,11 @@ module "slg_tf_views" {
 module "slg_tf_dashboards" {
     source                  = "./dashboards"
     slo_dash_root_folder_id = sumologic_folder.slo_dash_root_folder.id
+    depends_on              = [module.slg_tf_views]
 }
 
 module "slg_tf_monitors" {
     source                 = "./monitors"
     slo_mon_root_folder_id = sumologic_monitor_folder.slo_mon_root_folder.id
+    depends_on              = [module.slg_tf_views]
 }
