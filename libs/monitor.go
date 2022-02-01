@@ -47,7 +47,6 @@ type SLOObjective struct {
 // BurnRate only supports 2 window with first one having
 type BurnRate struct {
 	View          string         `yaml:"view,omitempty"`
-	Budget        float64        `yaml:"budget,omitempty"`
 	ShortWindow   string         `yaml:"shortWindow"`
 	ShortLimit    float64        `yaml:"shortLimit"`
 	LongWindow    string         `yaml:"longWindow"`
@@ -61,12 +60,14 @@ const MultiWindowMultiBurnTmpl = `_view={{.View}}
 | fillmissing timeslice(1m)
 | tmGood/tmCount as tmSLO 
 | (tmCount-tmGood) as tmBad 
-| total tmCount as totalCount  
-| totalCount*(1-{{.Budget}}) as errorBudget
-| ((tmBad/tmCount)/(1-{{.Budget}})) as sliceBurnRate
+| total tmCount as totalCount
+| totalCount*(1-{{.Target}}) as errorBudget
+| if(tmCount>0,tmBad/tmCount,0) as errorRate
+| (errorRate/(1-{{.Target}})) as sliceBurnRate
 | if(queryEndTime() - _timeslice <= {{.ShortWindow}},sliceBurnRate, 0  )  as latestBurnRate 
 | sum(tmGood) as totalGood, max(totalCount) as totalCount, max(latestBurnRate) as latestBurnRate 
-| (1-(totalGood/totalCount))/(1-{{.Budget}}) as longBurnRate
+| if(totalCount>0,totalGood/totalCount,0) as longErrorRate
+| (1-longErrorRate)/(1-{{.Target}}) as longBurnRate
 | if (longBurnRate > {{.LongLimit}} , 1,0) as long_burn_exceeded
 | if ( latestBurnRate > {{.ShortLimit}}, 1,0) as short_burn_exceeded
 | long_burn_exceeded + short_burn_exceeded as combined_burn
@@ -76,7 +77,7 @@ const TimeSliceMultiWindowMultiBurnTmpl = `_view={{.View}}
 | timeslice 1m
 | fillmissing timeslice(1m)
 | sum(sliceGoodCount) as timesliceGoodCount, sum(sliceTotalCount) as timesliceTotalCount by _timeslice
-| if(timesliceTotalCount ==0, 1,(timesliceGoodCount/timesliceTotalCount))  as timesliceRatio
+| if(timesliceTotalCount >0, (timesliceGoodCount/timesliceTotalCount), 1)  as timesliceRatio
 | if(timesliceRatio >= 0.9, 1,0) as sliceHealthy | _timeslice as _messagetime
 | 1 as timesliceOne
 | timeslice {{.ShortWindow}} 
@@ -84,11 +85,11 @@ const TimeSliceMultiWindowMultiBurnTmpl = `_view={{.View}}
 | tmGood/tmCount as tmSLO 
 | (tmCount-tmGood) as tmBad 
 | total tmCount as totalCount  
-| totalCount*(1-{{.Budget}}) as errorBudget
-| ((tmBad/tmCount)/(1-{{.Budget}})) as sliceBurnRate
+| totalCount*(1-{{.Target}}) as errorBudget
+| ((tmBad/tmCount)/(1-{{.Target}})) as sliceBurnRate
 | if(queryEndTime() - _timeslice <= {{.ShortWindow}},sliceBurnRate, 0  )  as latestBurnRate 
 | sum(tmGood) as totalGood, max(totalCount) as totalCount, max(latestBurnRate) as latestBurnRate 
-| (1-(totalGood/totalCount))/(1-{{.Budget}}) as longBurnRate
+| (1-(totalGood/totalCount))/(1-{{.Target}}) as longBurnRate
 | if (longBurnRate > {{.LongLimit}} , 1,0) as long_burn_exceeded
 | if ( latestBurnRate > {{.ShortLimit}}, 1,0) as short_burn_exceeded
 | long_burn_exceeded + short_burn_exceeded as combined_burn
@@ -118,7 +119,7 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
 	alerts := append(sloConf.BurnRateAlerts, sloConf.Alerts.BurnRate...)
 
-	alertTmplParams := ConvertToBurnRateTmplParams(alerts,sloConf.TimesliceTarget())
+	alertTmplParams := ConvertToBurnRateTmplParams(alerts, sloConf.Target(), sloConf.TimesliceTarget())
 
 	for _, alert := range alertTmplParams {
 
@@ -175,18 +176,19 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
 type BurnAlertTmplParams struct {
 	BurnRate
-	TimesliceRatioTarget float64
+	Target               float64 // SLO goal i.e. the slo percent age in [0.0,1.0] decimal form
+	TimesliceRatioTarget float64 // only applicable for timeslice based budgeting
 }
 
-
-func ConvertToBurnRateTmplParams(alerts []BurnRate,timesliceTarget float64) []BurnAlertTmplParams {
+func ConvertToBurnRateTmplParams(alerts []BurnRate, target, timesliceTarget float64) []BurnAlertTmplParams {
 	var tmplAlertsParams []BurnAlertTmplParams
 
-	for _,alert := range alerts {
+	for _, alert := range alerts {
 		tmplAlertsParams = append(tmplAlertsParams, BurnAlertTmplParams{
-            BurnRate: alert,
-            TimesliceRatioTarget: timesliceTarget,
-        })
+			BurnRate:             alert,
+			Target:               target,
+			TimesliceRatioTarget: timesliceTarget,
+		})
 	}
 
 	return tmplAlertsParams
