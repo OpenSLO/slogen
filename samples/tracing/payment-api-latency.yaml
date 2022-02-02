@@ -1,0 +1,55 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: Transacation API Latency
+  name: pay-latency
+spec:
+  service: payments
+  description: Track the response time of Transacation API
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: SLI to track api latency
+      target: 0.98
+      timeSliceTarget: 0.9
+      ratioMetrics:
+        total:
+          source: sumologic
+          queryType: Logs
+          query: |
+            _index=_trace_spans | (endtimestamp - starttimestamp) / 1000000 as duration_ms
+              | toLowerCase(tags) as lowerCaseTags 
+              | json field=lowerCaseTags "['target_xpath']" 
+              | where tolowercase(service) = "the-coffee-bar-frontend" and tolowercase(operation) = "click on \"pay\"" 
+                  and tolowercase(%"['target_xpath']") = "//*[@id=\"pay\"]"
+        good:
+          source: sumologic
+          queryType: Logs
+          query: duration_ms < 500
+createView: true
+fields:
+labels:
+  team: platform
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 2
+      longWindow: '1h'
+      longLimit: 4
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+    - shortWindow: '2h'
+      shortLimit: 4
+      longWindow: '24h'
+      longLimit: 1
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning

@@ -1,0 +1,55 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: Order API Errors
+  name: order-errors
+spec:
+  service: cart
+  description: Track the error in Ordering API
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: SLI to track error
+      target: 0.98
+      timeSliceTarget: 0.9
+      ratioMetrics:
+        total:
+          source: sumologic
+          queryType: Logs
+          query: |
+            _index=_trace_spans
+              | json field=tags "['http.url']"
+              | where tolowercase(service) = "the-coffee-bar-frontend" 
+                  and tolowercase(operation) = "http post" 
+                  and tolowercase(%"['http.url']") matches "*/order"
+        good:
+          source: sumologic
+          queryType: Logs
+          query: statuscode = "ok"
+createView: true
+fields:
+labels:
+  tier: 0
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 2
+      longWindow: '1h'
+      longLimit: 4
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+    - shortWindow: '2h'
+      shortLimit: 4
+      longWindow: '24h'
+      longLimit: 1
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
