@@ -1,0 +1,60 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: Home-Page load time
+  name: homepage-loadtime
+spec:
+  service: web-app
+  description: Track the load time of the home page
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: SLI to track load time
+      target: 0.95
+      ratioMetrics:
+        total:
+          source: sumologic
+          queryType: Logs
+          query: |
+            _index=_trace_spans | toLowerCase(tags) as lowerCaseTags
+              | json field=lowerCaseTags "['page_title']", "['http.browser_time_to_page_load_end']"
+              | where tolowercase(service) = "the-coffee-bar-frontend" and tolowercase(operation) = "documentload" and tolowercase(%"['page_title']") = "the sumo logic coffee bar"
+              | json field=lowerCaseTags "['http.user_agent.browser']" as browser nodrop 
+              | json field=lowerCaseTags "['http.client_geolocation.country_code']" as country nodrop 
+              | %"['http.browser_time_to_page_load_end']"/1000 as page_load_time_ms
+              | if(browser == "ie explorer", 5000, 4000) as goal_by_browser
+        good:
+          source: sumologic
+          queryType: Logs
+          query: page_load_time_ms < goal_by_browser
+        incremental: true
+createView: true
+fields:
+  browser: "browser"
+  country: 'if(isNull(country),"-",country)'
+labels:
+  team: user-experience
+  app: coffer-bar
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 2
+      longWindow: '1h'
+      longLimit: 4
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+    - shortWindow: '2h'
+      shortLimit: 4
+      longWindow: '24h'
+      longLimit: 1
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
