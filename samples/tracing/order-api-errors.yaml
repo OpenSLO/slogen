@@ -2,9 +2,9 @@ apiVersion: openslo/v1alpha
 kind: SLO
 metadata:
   displayName: Order API Errors
-  name: order-errors
+  name: order-api-errors
 spec:
-  service: cart
+  service: order
   description: Track the error in Ordering API
   budgetingMethod: Timeslices
   objectives:
@@ -24,7 +24,7 @@ spec:
         good:
           source: sumologic
           queryType: Logs
-          query: statuscode = "ok"
+          query: tolowercase(statuscode) = "ok"
 createView: true
 fields:
 labels:

@@ -4,7 +4,7 @@ metadata:
   displayName: Home-Page load time
   name: homepage-loadtime
 spec:
-  service: web-app
+  service: frontend
   description: Track the load time of the home page
   budgetingMethod: Occurrences
   objectives:
@@ -32,7 +32,7 @@ fields:
   browser: "browser"
   country: 'if(isNull(country),"-",country)'
 labels:
-  team: user-experience
+  team: frontend
   app: coffer-bar
 alerts:
   burnRate:
