@@ -1,30 +1,30 @@
 apiVersion: openslo/v1alpha
 kind: SLO
 metadata:
-  displayName: Order API Errors
-  name: order-api-errors
+  displayName: Checkout action delay
+  name: checkout-delay
 spec:
-  service: order
-  description: Track the error in Ordering API
+  service: checkout
+  description: Track the latency in Ordering API
   budgetingMethod: Timeslices
   objectives:
-    - displayName: SLI to track error
-      target: 0.98
+    - displayName: SLI to track latency
+      target: 0.99
       timeSliceTarget: 0.9
       ratioMetrics:
         total:
           source: sumologic
           queryType: Logs
           query: |
-            _index=_trace_spans
-              | json field=tags "['http.url']"
-              | where tolowercase(service) = "the-coffee-bar-frontend" 
-                  and tolowercase(operation) = "http post" 
-                  and tolowercase(%"['http.url']") matches "*/order"
+            _index=_trace_spans | (endtimestamp - starttimestamp) / 1000000 as duration 
+            | json field=tags "['target_xpath']" 
+            | where tolowercase(service) = "the-coffee-bar-frontend"
+              and tolowercase(operation) = tolowercase("click on \"Checkout\"") 
+              and tolowercase(%"['target_xpath']") = "//*[@id=\"checkout\"]"
         good:
           source: sumologic
           queryType: Logs
-          query: tolowercase(statuscode) = "ok"
+          query: duration_ms < 400
 createView: true
 fields:
 labels:

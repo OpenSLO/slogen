@@ -4,7 +4,7 @@ metadata:
   displayName: Order API latency
   name: order-latency
 spec:
-  service: cart
+  service: order
   description: Track the latency in Ordering API
   budgetingMethod: Timeslices
   objectives:

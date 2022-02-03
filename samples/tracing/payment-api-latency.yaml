@@ -2,9 +2,9 @@ apiVersion: openslo/v1alpha
 kind: SLO
 metadata:
   displayName: Transacation API Latency
-  name: pay-latency
+  name: payments-latency
 spec:
-  service: payments
+  service: payment
   description: Track the response time of Transacation API
   budgetingMethod: Timeslices
   objectives:
@@ -24,7 +24,7 @@ spec:
         good:
           source: sumologic
           queryType: Logs
-          query: duration_ms < 500
+          query: duration_ms < 200
 createView: true
 fields:
 labels:
