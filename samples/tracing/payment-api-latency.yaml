@@ -24,7 +24,7 @@ spec:
         good:
           source: sumologic
           queryType: Logs
-          query: duration_ms < 500
+          query: duration_ms < 200
 createView: true
 fields:
 labels:
