@@ -1,0 +1,64 @@
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: User Journey time
+  name: load-time
+spec:
+  service: user-journey
+  description: Total time spent by the user per session
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: SLI to track latency
+      target: 0.99
+      ratioMetrics:
+        total:
+          source: sumologic
+          queryType: Logs
+          query: |
+            _index=_trace_spans
+              | (endtimestamp - starttimestamp) / 1000000 as duration
+              | where tolowercase(service) = tolowercase("the-coffee-bar-frontend")
+              | json field=tags "['page_title']", "['http.browser_time_to_page_load_end']" nodrop
+              | json field=tags "['http.url']" as url nodrop
+              | json field=tags "['target_xpath']" as xpath nodrop
+              | json field=tags "['rum.session_id']" as rum_session_id nodrop
+              | if ((tolowercase(operation) = "documentload" and tolowercase(%"['page_title']") = "the sumo logic coffee bar"), 1, 0) as isHomePage
+              | if ((tolowercase(operation) = tolowercase("http post") and tolowercase(url) matches tolowercase("*/order")), 1, 0) as isOrder
+              | if ((tolowercase(operation) = tolowercase("click on \"Checkout\"") and tolowercase(xpath) = "//*[@id=\"checkout\"]"), 1, 0) as isCheckOut
+              | if ((tolowercase(operation) = tolowercase("click on \"Pay\"") and tolowercase(xpath) = "//*[@id=\"pay\"]"), 1, 0) as isPay
+              | if (isHomePage = 1, (%"['http.browser_time_to_page_load_end']"), if(isOrder =1 or isCheckOut = 1 or isPay = 1, duration,0)) as Transaction_time_ms
+              | timeslice 1m
+              | sum(Transaction_time_ms) as total_tx_ms by rum_session_id, _timeslice
+              | _timeslice as _messagetime
+        good:
+          source: sumologic
+          queryType: Logs
+          query: total_tx_ms < 4500
+createView: true
+fields:
+labels:
+  app: coffee-bar
+alerts:
+  burnRate:
+    - shortWindow: '10m'
+      shortLimit: 2
+      longWindow: '1h'
+      longLimit: 4
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+    - shortWindow: '2h'
+      shortLimit: 4
+      longWindow: '24h'
+      longLimit: 1
+      notifications:
+        - connectionType: 'Email'
+          recipients:
+            - 'agaurav@sumologic.com'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
