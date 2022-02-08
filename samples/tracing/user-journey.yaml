@@ -27,7 +27,7 @@ spec:
               | if ((tolowercase(operation) = tolowercase("click on \"Checkout\"") and tolowercase(xpath) = "//*[@id=\"checkout\"]"), 1, 0) as isCheckOut
               | if ((tolowercase(operation) = tolowercase("click on \"Pay\"") and tolowercase(xpath) = "//*[@id=\"pay\"]"), 1, 0) as isPay
               | if (isHomePage = 1, (%"['http.browser_time_to_page_load_end']"), if(isOrder =1 or isCheckOut = 1 or isPay = 1, duration,0)) as Transaction_time_ms
-              | timeslice 1m
+              | timeslice 60m
               | sum(Transaction_time_ms) as total_tx_ms by rum_session_id, _timeslice
               | _timeslice as _messagetime
         good:
