@@ -5,6 +5,7 @@ import (
 	"embed"
 	"os"
 	"path/filepath"
+	"sort"
 	"text/template"
 )
 
@@ -40,13 +41,13 @@ type GenConf struct {
 	IgnoreError   bool
 	Clean         bool
 	AsModule      bool
+	UseViewHash   bool
 }
 
 func init() {
 	var err error
 
 	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terra/**")
-
 	if err != nil {
 		panic(err)
 	}
@@ -58,6 +59,8 @@ const ViewPrefix = "slogen_tf"
 func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 
 	err := SetupOutDir(c)
+	useViewID = c.UseViewHash
+
 	if err != nil {
 		BadResult("error setting up path : %s", err)
 		return "", err
@@ -66,7 +69,6 @@ func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 	srvMap := map[string]bool{}
 
 	for path, s := range slos {
-		s.ViewName = GiveScheduleViewName(*s)
 		srvMap[s.Spec.Service] = true
 
 		tmplToDo := []string{NameViewTmpl, NameDashboardTmpl, NameMonitorTmpl}
@@ -83,6 +85,7 @@ func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 	}
 
 	srvList := GiveKeys(srvMap)
+	sort.Strings(srvList)
 
 	err = GenFoldersTF(srvList, c.OutDir)
 	if err != nil {
@@ -120,11 +123,6 @@ func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
 		tfFilePath = filepath.Join(outDir, MonitorsFolder, "slo-"+slo.Metadata.Name+".tf")
 		return FileFromTmpl(NameMonitorTmpl, tfFilePath, mc)
 	}
-
-	return nil
-}
-
-func ExecServiceOverview(slos map[string]SLO, outDir string) error {
 
 	return nil
 }

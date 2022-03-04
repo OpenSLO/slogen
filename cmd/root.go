@@ -118,6 +118,7 @@ const FlagViewPrefixShort = "v"
 const FlagViewDestroy = "viewDestroy"
 const FlagDestroy = "destroy"
 const FlagAsModule = "asModule"
+const FlagUseViewHash = "useViewHash"
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -164,6 +165,11 @@ func init() {
 
 	rootCmd.Flags().Bool(FlagAsModule, false,
 		"whether to generate the terraform config as a module",
+	)
+
+	rootCmd.Flags().Bool(FlagUseViewHash, false,
+		"whether to use descriptive or hashed name for the scheduled views, hashed names ensure data for "+
+			"old view is not used when the query for it changes",
 	)
 
 	rootCmd.Flags().SortFlags = false
@@ -233,6 +239,10 @@ func GetGenConf(cmd *cobra.Command) (*libs.GenConf, error) {
 	if err != nil {
 		return nil, err
 	}
+	useViewHash, err := cmd.Flags().GetBool(FlagUseViewHash)
+	if err != nil {
+		return nil, err
+	}
 
 	conf := &libs.GenConf{
 		IgnoreError:   ie,
@@ -243,6 +253,7 @@ func GetGenConf(cmd *cobra.Command) (*libs.GenConf, error) {
 		DoPlan:        doPlan,
 		DoApply:       doApply,
 		AsModule:      asModule,
+		UseViewHash:   useViewHash,
 	}
 
 	return conf, nil

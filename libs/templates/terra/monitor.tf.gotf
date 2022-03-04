@@ -21,22 +21,22 @@ QUERY
                 time_range = "{{$Obj.TimeRange}}"
                 alert {
                     threshold      = "{{$Obj.ValueCritical}}"
-                    threshold_type = "GreaterThan"
+                    threshold_type = "GreaterThanOrEqual"
                 }
                 resolution {
                     threshold      = "{{$Obj.ValueCritical}}"
-                    threshold_type = "LessThanOrEqual"
+                    threshold_type = "LessThan"
                 }
             }
             warning {
                 time_range = "{{$Obj.TimeRange}}"
                 alert {
                     threshold      = "{{$Obj.ValueWarning}}"
-                    threshold_type = "GreaterThan"
+                    threshold_type = "GreaterThanOrEqual"
                 }
                 resolution {
                     threshold      = "{{$Obj.ValueWarning}}"
-                    threshold_type = "LessThanOrEqual"
+                    threshold_type = "LessThan"
                 }
             }
         }
