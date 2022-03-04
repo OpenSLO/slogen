@@ -2,7 +2,9 @@ package libs
 
 import (
 	"errors"
+	"github.com/mitchellh/hashstructure/v2"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -73,7 +75,6 @@ func dirExists(path string) (bool, error) {
 	return false, err
 }
 
-
 func giveMapKeys(m map[string]string) []string {
 	keys := make([]string, len(m))
 
@@ -82,12 +83,26 @@ func giveMapKeys(m map[string]string) []string {
 		keys[i] = k
 		i++
 	}
+	sort.Strings(keys)
 
 	return keys
 }
 
-func giveFieldsGroupByStr(m  map[string]string) string {
+func giveFieldsGroupByStr(m map[string]string) string {
 	k := giveMapKeys(m)
 
 	return strings.Join(k, ",")
+}
+
+func GiveStructCompare(a, b interface{}) bool {
+	aHash, err := hashstructure.Hash(a, hashstructure.FormatV2, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bHash, err := hashstructure.Hash(b, hashstructure.FormatV2, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return aHash == bHash
 }

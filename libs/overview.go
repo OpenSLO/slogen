@@ -111,6 +111,7 @@ func giveMostCommonVarsFromSLOSLice(slos []SLO, n int) []string {
 		varList = append(varList, k)
 	}
 
+	sort.Strings(varList)
 	if len(varList) <= n {
 		return varList
 	}
@@ -121,7 +122,10 @@ func giveMostCommonVarsFromSLOSLice(slos []SLO, n int) []string {
 		return vCount[ki] > vCount[kj]
 	})
 
-	return varList[:n]
+	trimmedList := varList[:n]
+
+	sort.Strings(trimmedList)
+	return trimmedList
 }
 
 // giveMostCommonVars top n most common label or fields found
@@ -155,6 +159,7 @@ func GenServiceOverviewDashboard(sloPathMap map[string]*SLO, outDir string) erro
 
 	for srv, slos := range srvMap {
 		rows, err := getOverviewRows(slos)
+
 		if err != nil {
 			return err
 		}
@@ -165,10 +170,10 @@ func GenServiceOverviewDashboard(sloPathMap map[string]*SLO, outDir string) erro
 			Service: srv,
 			Rows:    rows,
 			Layout:  layout,
-			Vars: giveMostCommonVarsFromSLOSLice(slos,4),
+			Vars:    giveMostCommonVarsFromSLOSLice(slos, 4),
 		}
 
-		path := filepath.Join(outDir, DashboardsFolder, "overview-" +srv +".tf")
+		path := filepath.Join(outDir, DashboardsFolder, "overview-"+srv+".tf")
 		err = FileFromTmpl(NameServiceTrackerTmpl, path, conf)
 		if err != nil {
 			return err
@@ -201,6 +206,10 @@ func getOverviewRows(s []SLO) ([]ServiceOverviewRow, error) {
 		}
 		rows = append(rows, r)
 	}
+
+	sort.Slice(rows, func(i, j int) bool {
+		return rows[i].SLOName < rows[j].SLOName
+	})
 
 	return rows, nil
 }
