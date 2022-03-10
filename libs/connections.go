@@ -41,7 +41,6 @@ func GiveConnectionIDS(token string) ([]MonitorConnections, error) {
 		return nil, fmt.Errorf("Error: %s", resp.Status())
 	}
 
-
 	respBody := struct {
 		Data  []MonitorConnections `json:"data,omitempty"`
 		Token string               `json:"token,omitempty"`
@@ -50,7 +49,6 @@ func GiveConnectionIDS(token string) ([]MonitorConnections, error) {
 	}
 
 	json.Unmarshal(resp.Body(), &respBody)
-
 
 	return respBody.Data, nil
 }

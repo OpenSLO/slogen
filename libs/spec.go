@@ -7,16 +7,20 @@ import (
 )
 
 const (
-    BudgetingMethodNameTimeSlices = "Timeslices"
+	BudgetingMethodNameTimeSlices  = "Timeslices"
 	BudgetingMethodNameOccurrences = "Occurrences"
 )
+
 type SLO struct {
 	*v1alpha.SLO   `yaml:",inline"`
 	Labels         map[string]string `yaml:"labels,omitempty"`
 	Fields         map[string]string `yaml:"fields,omitempty"`
 	Alerts         Alerts            `yaml:"alerts,omitempty"`
-	ViewName       string            `yaml:"viewName"`
 	BurnRateAlerts []BurnRate        `yaml:"burnRateAlerts,omitempty"` // deprecated
+}
+
+func (s SLO) Name() string {
+	return s.Metadata.Name
 }
 
 type Alerts struct {
@@ -38,19 +42,19 @@ func Parse(filename string) (*SLO, error) {
 func (s SLO) Target() float64 {
 	target := s.Spec.Objectives[0].BudgetTarget
 
-	if target  == nil {
+	if target == nil {
 		return 0.99
 	}
 
-	return  *target
+	return *target
 }
 
 func (s SLO) TimesliceTarget() float64 {
 	target := s.Spec.Objectives[0].TimeSliceTarget
 
-	if target  == nil {
-        return s.Target()
-    }
+	if target == nil {
+		return s.Target()
+	}
 
-	return  *target
+	return *target
 }

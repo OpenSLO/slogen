@@ -41,8 +41,8 @@ func TFExec(wdPath string, action TFAction) error {
 
 	tf, err := tfexec.NewTerraform(wdPath, execPath)
 	env := map[string]string{
-		EnvKeyHTTPProxy: os.Getenv(EnvKeyHTTPProxy),
-		EnvKeyHTTPSProxy: os.Getenv(EnvKeyHTTPSProxy),
+		EnvKeyHTTPProxy:       os.Getenv(EnvKeyHTTPProxy),
+		EnvKeyHTTPSProxy:      os.Getenv(EnvKeyHTTPSProxy),
 		EnvKeySumoAccessID:    os.Getenv(EnvKeySumoAccessID),
 		EnvKeySumoAccessKey:   os.Getenv(EnvKeySumoAccessKey),
 		EnvKeySumoEnvironment: os.Getenv(EnvKeySumoEnvironment),

@@ -9,6 +9,7 @@ require (
 	github.com/hashicorp/terraform-exec v0.14.0
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-colorable v0.1.11
+	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
 	go.uber.org/zap v1.19.1

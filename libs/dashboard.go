@@ -51,7 +51,7 @@ type LayoutItem struct {
 }
 
 func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
-	sloName := sloConf.Metadata.Name
+	sloName := sloConf.Name()
 	target := sloConf.Target()
 
 	configYamlBytes, err := yaml.Marshal(sloConf)
@@ -79,7 +79,7 @@ func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 		StrYAMLConfig: string(configYamlBytes),
 		Labels:        sloConf.Labels,
 		Fields:        giveMapKeys(sloConf.Fields),
-		ViewName:      sloConf.ViewName,
+		ViewName:      sloConf.ViewName(),
 	}
 
 	return conf, nil
@@ -315,17 +315,16 @@ var vizSettingHourlyBurn string
 //go:embed templates/visual-settings/breakdown-panel.gojson
 var vizSettingBreakdownPanel string
 
-
 //go:embed templates/visual-settings/forecasted-panel.json
 var vizSettingBudgetForecastPanel string
 
 func givePanelQuery(s SLO, key PanelKey) (string, error) {
-	//queryStr := givePanelQueryStr(key, s.ViewName)
+	//queryStr := givePanelQueryStr(key, s.ViewName())
 	queryTmplStr := ""
 	if s.Spec.BudgetingMethod == BudgetingMethodNameTimeSlices {
-		queryTmplStr = givePanelQueryTimesliceStr(key, s.ViewName)
+		queryTmplStr = givePanelQueryTimesliceStr(key, s.ViewName())
 	} else {
-		queryTmplStr = givePanelQueryStr(key, s.ViewName)
+		queryTmplStr = givePanelQueryStr(key, s.ViewName())
 	}
 
 	wherePart := giveWhereClause(giveMapKeys(s.Fields))
@@ -333,15 +332,15 @@ func givePanelQuery(s SLO, key PanelKey) (string, error) {
 	tmplParams := struct {
 		Target               float64
 		TimesliceRatioTarget float64
-		GroupByStr string
+		GroupByStr           string
 	}{
 		Target:               s.Target(),
 		TimesliceRatioTarget: s.TimesliceTarget(),
-		GroupByStr : giveFieldsGroupByStr(s.Fields),
+		GroupByStr:           giveFieldsGroupByStr(s.Fields),
 	}
 
 	queryPart, err := GiveStrFromTmpl(queryTmplStr, tmplParams)
-	return fmt.Sprintf("_view=%s %s %s", s.ViewName, wherePart, queryPart), err
+	return fmt.Sprintf("_view=%s %s %s", s.ViewName(), wherePart, queryPart), err
 }
 
 func givePanelQueryStr(Key PanelKey, view string) string {

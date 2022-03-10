@@ -2,6 +2,7 @@ package libs
 
 import (
 	"bytes"
+	"sort"
 	"text/template"
 )
 
@@ -123,7 +124,13 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 
 	for _, alert := range alertTmplParams {
 
-		alert.View = sloConf.ViewName
+		sortedNotifs := make([]Notification, len(alert.Notifications))
+		copy(sortedNotifs, alert.Notifications)
+		sort.Slice(sortedNotifs, func(i, j int) bool {
+			return GiveStructCompare(sortedNotifs[i], sortedNotifs[j])
+		})
+
+		alert.View = sloConf.ViewName()
 		buf := bytes.Buffer{}
 		err = tmpl.Execute(&buf, alert)
 		if err != nil {
@@ -140,39 +147,14 @@ func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
 		}
 		objectives = append(objectives, obj)
 	}
+
+	sort.Slice(objectives, func(i, j int) bool {
+		return objectives[i].Suffix < objectives[j].Suffix
+	})
+
 	mConf.Objectives = objectives
 	return mConf, nil
 }
-
-//func GiveBurnMonitorConf(sloConf SLO) (*SLOMonitorConfig, error) {
-//
-//	tmpl, err := template.New("monitor").Parse(GoodByTotalQueryTmpl)
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	buf := bytes.Buffer{}
-//	err = tmpl.Execute(&buf, sloConf.Spec.Objectives[0].RatioMetrics)
-//	if err != nil {
-//		return nil, err
-//	}
-//	m := &SLOMonitorConfig{
-//		Name:    sloConf.ObjectHeader.Metadata.Name,
-//		Desc:    sloConf.Spec.Description,
-//		Service: sloConf.Spec.Service,
-//		Objectives: []SLOObjective{
-//			{
-//				Field:         "SLO",
-//				Query:         buf.String(),
-//				TimeRange:     "24h",
-//				ValueWarning:  (*sloConf.Spec.Objectives[0].BudgetTarget + 1.0) / 2,
-//				ValueCritical: *sloConf.Spec.Objectives[0].BudgetTarget,
-//			},
-//		},
-//	}
-//	return m, err
-//}
 
 type BurnAlertTmplParams struct {
 	BurnRate

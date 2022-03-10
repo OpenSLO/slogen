@@ -2,6 +2,7 @@ package libs
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"fmt"
 	"strings"
 	"time"
@@ -11,6 +12,35 @@ import "text/template"
 // todo create a lookup for name to display name and other metadata
 
 const DefaultScheduledViewRetention = 100
+
+var useViewID = false
+
+func (s SLO) ViewName() string {
+	sloName := s.Metadata.Name
+	srvName := s.Spec.Service
+	srvName = strings.Replace(srvName, "-", "_", -1)
+	sloName = strings.Replace(sloName, "-", "_", -1)
+
+	viewName := fmt.Sprintf("%s_%s_%s", ViewPrefix, srvName, sloName)
+
+	if useViewID {
+		return fmt.Sprintf("%s_%s", viewName, s.ViewID())
+	}
+
+	return viewName
+}
+
+// ViewID return the short sha1 hash for view query to ensure old view data is not reused
+func (s SLO) ViewID() string {
+	viewQuery, err := s.ViewQuery()
+
+	if err != nil {
+		log.Fatal("error creating view query", err)
+	}
+
+	viewHash := sha1.Sum([]byte(viewQuery))
+	return fmt.Sprintf("%x", viewHash)[:8]
+}
 
 // ScheduledView implicit
 type ScheduledView struct {
@@ -57,29 +87,38 @@ const ScheduledViewQueryTemp = `{{.TotalQuery}}
 {{- end }}
 `
 
-
-func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
-	sloName := sloConf.Metadata.Name
+func (s SLO) ViewQuery() (string, error) {
+	sloName := s.Metadata.Name
 	tmpl, err := template.New("view-" + sloName).Parse(ScheduledViewQueryTemp)
-
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	goal := *(sloConf.Spec.Objectives[0].BudgetTarget) * 100.0
+	goal := *(s.Spec.Objectives[0].BudgetTarget) * 100.0
 	buf := bytes.Buffer{}
-	ratio := sloConf.Spec.Objectives[0].RatioMetrics
+	ratio := s.Spec.Objectives[0].RatioMetrics
 
 	viewVals := ViewTemplateValues{
 		Name:       sloName,
-		Service:    sloConf.Spec.Service,
+		Service:    s.Spec.Service,
 		TotalQuery: ratio.Total.Query,
 		GoodQuery:  ratio.Good.Query,
-		Fields:     sloConf.Fields,
-		Labels:     sloConf.Labels,
+		Fields:     s.Fields,
+		Labels:     s.Labels,
 		Goal:       goal,
 	}
 
 	err = tmpl.Execute(&buf, viewVals)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+
+}
+
+func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
+
+	viewQuery, err := sloConf.ViewQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -93,10 +132,10 @@ func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
 	}
 
 	conf := &ScheduledView{
-		SLOName:        sloName,
+		SLOName:        sloConf.Name(),
 		Service:        sloConf.Spec.Service,
-		Index:          sloConf.ViewName,
-		Query:          buf.String(),
+		Index:          sloConf.ViewName(),
+		Query:          viewQuery,
 		StartTime:      start.UTC().Format(time.RFC3339),
 		Retention:      DefaultScheduledViewRetention,
 		PreventDestroy: false,
