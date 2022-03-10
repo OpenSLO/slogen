@@ -76,6 +76,8 @@ alerts:
 
 ```
 
+**Note** : _the service and slo name should combine have at max 240 chars_
+
 #### Getting the tool
 
 ##### install with go1.17 as `go install github.com/SumoLogic-Labs/slogen@latest`
@@ -94,13 +96,13 @@ export PATH=`go env GOPATH`/bin:$PATH
 ###### For Linux
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.10/slogen_0.7.10_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.11/slogen_0.7.11_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ###### For Mac
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.10/slogen_0.7.10_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.11/slogen_0.7.11_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
@@ -172,7 +174,8 @@ Flags:
 -a, --apply             :   apply the generated terraform config as well 
 -c, --clean             :   clean the old tf files for which openslo config were not found in the path args 
 -h, --help              :   help for slogen
-
+    --asModule          :   whether to generate the terraform config as a module
+    --useViewHash      :   whether to use descriptive or hashed name for the scheduled views, hashed names ensure data for old view is not used when the query for it changes
 
 Use "slogen [command] --help" for more information about a command. Example config with inline comment explaining the
 various fields
