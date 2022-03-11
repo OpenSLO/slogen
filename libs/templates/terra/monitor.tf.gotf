@@ -55,7 +55,7 @@ QUERY
                 {{end}}
             ]
             subject         = "SLO breach alert: {{$.Service}} - {{$.Name}}"
-            time_zone       = {{if neq $n.TimeZone "" }}"{{$n.TimeZone}}"{{else}}"PST"{{end}}
+            time_zone       = {{if ne $n.TimeZone "" }}"{{$n.TimeZone}}"{{else}}"PST"{{end}}
             message_body    = "{{`{{Description}} \n Result : {{ResultsJson}}\n Alert: {{AlertResponseURL}}`}}"
             {{else}}
             connection_id   = "{{$n.ConnectionID}}"
