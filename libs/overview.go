@@ -31,7 +31,7 @@ func giveWhereClause(dashVars []string) string {
 
 	var clauses []string
 	for _, v := range dashVars {
-		clauses = append(clauses, fmt.Sprintf("(\"{{%s}}\"=\"*\" or %s=\"{{%s}}\")", v, v, v))
+		clauses = append(clauses, fmt.Sprintf(`( %s matches "{{%s}}" )`, v, v))
 	}
 
 	wherePart := "| where " + strings.Join(clauses, " and ")
