@@ -113,7 +113,7 @@ wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.11/slo
 
 --- 
 
-##### create the yaml config for the SLO. more [samples](samples/openslo) based on real data.
+##### create the yaml config for the SLO. more [samples](samples/logs) based on real data.
 
 --- 
 
