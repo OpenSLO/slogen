@@ -4,7 +4,7 @@ CLI tool to generate SLO dashboards, monitors & scheduled views
 from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. Currently only supports sumo as data source
 and target.
 
-For a given config it will create the following content via sumo terraform provider
+For a given config it will create the following content via [Sumo Logic](https://www.sumologic.com/) terraform provider
 
 - [Scheduled view](https://help.sumologic.com/Manage/Scheduled-Views) to generate the aggregated SLI data
 - [Dashboards](https://help.sumologic.com/Visualizations-and-Alerts/Dashboard_(New)) to track availability, burn rate
@@ -62,12 +62,12 @@ alerts:
             - Warning
             - ResolvedWarning
         - connectionType: 'PagerDuty'
-          connectionID: '1234abcd'  # id of pagerduty connection created in sumo
+          connectionID: '1234abcd'  # id of pagerduty connection created in Sumo Logic
           triggerFor:
             - Critical
             - ResolvedCritical
         - connectionType: 'Webhook'
-          connectionID: '0000000000ABC123'  # id of pagerduty connection created in sumo
+          connectionID: '0000000000ABC123'  # id of pagerduty connection created in Sumo Logic
           triggerFor:
             - Critical
             - ResolvedCritical
@@ -80,7 +80,7 @@ alerts:
 
 #### Getting the tool
 
-##### install with go1.17 as `go install github.com/SumoLogic-Labs/slogen@latest`
+##### install with go1.17 as `go install github.com/OpenSLO/slogen@latest`
 
 latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
 Add `$GOPATH/bin` to your `$PATH`.
@@ -91,18 +91,18 @@ It can be done with
 export PATH=`go env GOPATH`/bin:$PATH
 ```
 
-##### Get the latest binary from [release page](https://github.com/SumoLogic-Labs/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
+##### Get the latest binary from [release page](https://github.com/OpenSLO/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
 
 ###### For Linux
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.11/slogen_0.7.11_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/OpenSLO/slogen/releases/download/v0.7.11/slogen_0.7.11_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ###### For Mac
 
 ``` shell
-wget -O - https://github.com/SumoLogic-Labs/slogen/releases/download/v0.7.11/slogen_0.7.11_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
+wget -O - https://github.com/OpenSLO/slogen/releases/download/v0.7.11/slogen_0.7.11_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
