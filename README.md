@@ -58,6 +58,7 @@ alerts:
       notifications: # one or more notification channels
         - connectionType: 'Email'
           recipients: 'youremailid@email.com'
+          timeZone: 'PST'
           triggerFor:
             - Warning
             - ResolvedWarning
