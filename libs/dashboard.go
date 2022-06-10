@@ -50,7 +50,7 @@ type LayoutItem struct {
 	Structure string
 }
 
-func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
+func DashConfigFromSLO(sloConf SLOv1Alpha) (*SLODashboard, error) {
 	sloName := sloConf.Name()
 	target := sloConf.Target()
 
@@ -85,7 +85,7 @@ func DashConfigFromSLO(sloConf SLO) (*SLODashboard, error) {
 	return conf, nil
 }
 
-func giveSLOPanels(s SLO) ([]SearchPanel, error) {
+func giveSLOPanels(s SLOv1Alpha) ([]SearchPanel, error) {
 	var panels []SearchPanel
 	gauge, err := giveSLOGaugePanels(s)
 	if err != nil {
@@ -127,7 +127,7 @@ type gaugeVizSettingParams struct {
 	TargetBad    float64
 }
 
-func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
+func giveSLOGaugePanels(s SLOv1Alpha) ([]SearchPanel, error) {
 
 	target := *(s.Spec.Objectives[0].BudgetTarget)
 
@@ -178,7 +178,7 @@ func giveSLOGaugePanels(s SLO) ([]SearchPanel, error) {
 	return panels, nil
 }
 
-func giveHourlyBurnRatePanel(s SLO) (SearchPanel, error) {
+func giveHourlyBurnRatePanel(s SLOv1Alpha) (SearchPanel, error) {
 	query, err := givePanelQuery(s, KeyPanelHourlyBurn)
 
 	if err != nil {
@@ -197,7 +197,7 @@ func giveHourlyBurnRatePanel(s SLO) (SearchPanel, error) {
 	return panel, nil
 }
 
-func giveTrendOfBurnRatePanel(s SLO) (SearchPanel, error) {
+func giveTrendOfBurnRatePanel(s SLOv1Alpha) (SearchPanel, error) {
 
 	query, err := givePanelQuery(s, KeyPanelBurnTrend)
 
@@ -216,7 +216,7 @@ func giveTrendOfBurnRatePanel(s SLO) (SearchPanel, error) {
 	return panel, nil
 }
 
-func giveBudgetDepletionPanel(s SLO) (SearchPanel, error) {
+func giveBudgetDepletionPanel(s SLOv1Alpha) (SearchPanel, error) {
 	query, err := givePanelQuery(s, KeyPanelBudgetLeft)
 
 	if err != nil {
@@ -234,7 +234,7 @@ func giveBudgetDepletionPanel(s SLO) (SearchPanel, error) {
 	return panel, nil
 }
 
-func giveBreakdownPanel(s SLO) (SearchPanel, error) {
+func giveBreakdownPanel(s SLOv1Alpha) (SearchPanel, error) {
 	query, err := givePanelQuery(s, KeyPanelBreakDown)
 
 	panel := SearchPanel{
@@ -318,7 +318,7 @@ var vizSettingBreakdownPanel string
 //go:embed templates/visual-settings/forecasted-panel.json
 var vizSettingBudgetForecastPanel string
 
-func givePanelQuery(s SLO, key PanelKey) (string, error) {
+func givePanelQuery(s SLOv1Alpha, key PanelKey) (string, error) {
 	//queryStr := givePanelQueryStr(key, s.ViewName())
 	queryTmplStr := ""
 	if s.Spec.BudgetingMethod == BudgetingMethodNameTimeSlices {

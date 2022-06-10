@@ -96,7 +96,7 @@ const TimeSliceMultiWindowMultiBurnTmpl = `_view={{.View}}
 | long_burn_exceeded + short_burn_exceeded as combined_burn
 `
 
-func MonitorConfigFromOpenSLO(sloConf SLO) (*SLOMonitorConfig, error) {
+func MonitorConfigFromOpenSLO(sloConf SLOv1Alpha) (*SLOMonitorConfig, error) {
 
 	var tmpl *template.Template
 	var err error

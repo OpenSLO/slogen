@@ -1,0 +1,9 @@
+resource "sumologic_slo_folder" "{{.Name}}" {
+  name        = "slo-tf-folder"
+  description = "folder for SLO created for testing"
+  {{ if ne .ParentID  "" }}
+  parent_id = "{{.ParentID}}"
+  {{ end }}
+}
+
+

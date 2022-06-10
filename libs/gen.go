@@ -3,6 +3,10 @@ package libs
 import (
 	"bytes"
 	"embed"
+	"fmt"
+	"github.com/OpenSLO/slogen/libs/specs"
+	"github.com/OpenSLO/slogen/libs/sumologic"
+	"github.com/kr/pretty"
 	"os"
 	"path/filepath"
 	"sort"
@@ -21,7 +25,7 @@ const NameMonitorFolderTmpl = "monitor-folders.tf.gotf"
 const NameGlobalTrackerTmpl = "global-tracker.tf.gotf"
 const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 
-//go:embed templates/**
+//go:embed templates/terraform/**/*.tf.gotf
 var tmplFiles embed.FS
 
 const (
@@ -47,7 +51,7 @@ type GenConf struct {
 func init() {
 	var err error
 
-	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terra/**")
+	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terraform/sumologic/**")
 	if err != nil {
 		panic(err)
 	}
@@ -56,19 +60,29 @@ func init() {
 const ViewPrefix = "slogen_tf"
 
 // GenTerraform for all openslo files in the path
-func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
+func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 
+	slosAlpha, slosV1 := splitMultiVerse(slosMv)
 	err := SetupOutDir(c)
-	useViewID = c.UseViewHash
-
 	if err != nil {
 		BadResult("error setting up path : %s", err)
 		return "", err
 	}
 
+	//pretty.Println(slosV1)
+
+	genTerraformForV1(slosV1, c)
+	return genTerraformForAlpha(slosAlpha, c)
+}
+
+func genTerraformForAlpha(slosAlpha map[string]*SLOv1Alpha, c GenConf) (string, error) {
+	var err error
+
+	useViewID = c.UseViewHash
 	srvMap := map[string]bool{}
 
-	for path, s := range slos {
+	for path, s := range slosAlpha {
+
 		srvMap[s.Spec.Service] = true
 
 		tmplToDo := []string{NameViewTmpl, NameDashboardTmpl, NameMonitorTmpl}
@@ -92,12 +106,55 @@ func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 		return "", err
 	}
 
-	err = GenOverviewTF(slos, c)
-
+	err = GenOverviewTF(slosAlpha, c)
 	return "", err
 }
 
-func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
+func genTerraformForV1(slos map[string]*specs.OpenSLOSpec, c GenConf) error {
+
+	v1Path := filepath.Join(c.OutDir, "sumologic")
+	err := EnsureDir(v1Path, c.Clean)
+
+	if err != nil {
+		return err
+	}
+
+	for _, slo := range slos {
+		sumoSLO, err := sumologic.GiveSLOTerraform(*slo)
+
+		if err != nil {
+			BadUResult(err.Error())
+			return err
+		}
+
+		pretty.Println(sumoSLO)
+		err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_%s.tf", slo.Metadata.Name)), []byte(sumoSLO), 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func splitMultiVerse(slos map[string]*SLOMultiVerse) (map[string]*SLOv1Alpha, map[string]*specs.OpenSLOSpec) {
+
+	alpha := map[string]*SLOv1Alpha{}
+	v1 := map[string]*specs.OpenSLOSpec{}
+
+	for path, sloMv := range slos {
+		if sloMv.Alpha != nil {
+			alpha[path] = sloMv.Alpha
+		}
+		if sloMv.V1 != nil {
+			v1[path] = sloMv.V1
+		}
+	}
+
+	return alpha, v1
+}
+
+func ExecSLOTmpl(tmplName string, slo SLOv1Alpha, outDir string) error {
 
 	var tfFilePath string
 	switch tmplName {

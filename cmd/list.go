@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/SumoLogic-Labs/slogen/libs"
+	"github.com/OpenSLO/slogen/libs"
 
 	"github.com/spf13/cobra"
 )

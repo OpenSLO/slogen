@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/SumoLogic-Labs/slogen/libs"
+	"github.com/OpenSLO/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
@@ -62,9 +62,13 @@ One or more config or directory containing configs can be given as arg. Doesn't 
 			color.HiCyan("\nignoring errors\n")
 		}
 
-		var slos map[string]*libs.SLO
+		slos := make(map[string]*libs.SLOMultiVerse)
+
 		for _, path := range args {
-			slos, _ = libs.ParseDir(path, c.IgnoreError)
+			err = libs.ParseDir(path, c.IgnoreError, slos)
+			if err != nil {
+				libs.BadResult("\nerror parsing out dir : %s\n", err.Error())
+			}
 		}
 
 		path, err := libs.GenTerraform(slos, *c)

@@ -65,7 +65,7 @@ type SLOOverviewDashConf struct {
 	DashVars   []string
 }
 
-func GenOverviewTF(s map[string]*SLO, c GenConf) error {
+func GenOverviewTF(s map[string]*SLOv1Alpha, c GenConf) error {
 	err := GenGlobalOverviewTF(s, c)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func GenOverviewTF(s map[string]*SLO, c GenConf) error {
 	return err
 }
 
-func GenGlobalOverviewTF(s map[string]*SLO, c GenConf) error {
+func GenGlobalOverviewTF(s map[string]*SLOv1Alpha, c GenConf) error {
 
 	dashVars := giveMostCommonVars(s, 3)
 	query := giveOverviewListQuery(dashVars)
@@ -91,9 +91,9 @@ func GenGlobalOverviewTF(s map[string]*SLO, c GenConf) error {
 	return FileFromTmpl(NameGlobalTrackerTmpl, path, conf)
 }
 
-type SLOMap map[string]*SLO
+type SLOMap map[string]*SLOv1Alpha
 
-func giveMostCommonVarsFromSLOSLice(slos []SLO, n int) []string {
+func giveMostCommonVarsFromSLOSLice(slos []SLOv1Alpha, n int) []string {
 	vCount := map[string]int{}
 
 	for _, s := range slos {
@@ -135,8 +135,8 @@ func giveMostCommonVars(slos SLOMap, n int) []string {
 	return giveMostCommonVarsFromSLOSLice(slc, n)
 }
 
-func giveSLOMapToSlice(s SLOMap) []SLO {
-	var slc []SLO
+func giveSLOMapToSlice(s SLOMap) []SLOv1Alpha {
+	var slc []SLOv1Alpha
 	for _, slo := range s {
 		slc = append(slc, *slo)
 	}
@@ -144,8 +144,8 @@ func giveSLOMapToSlice(s SLOMap) []SLO {
 	return slc
 }
 
-func giveServiceToSLOMap(slos map[string]*SLO) map[string][]SLO {
-	srvMap := map[string][]SLO{}
+func giveServiceToSLOMap(slos map[string]*SLOv1Alpha) map[string][]SLOv1Alpha {
+	srvMap := map[string][]SLOv1Alpha{}
 
 	for _, s := range slos {
 		srvMap[s.Spec.Service] = append(srvMap[s.Spec.Service], *s)
@@ -154,7 +154,7 @@ func giveServiceToSLOMap(slos map[string]*SLO) map[string][]SLO {
 	return srvMap
 }
 
-func GenServiceOverviewDashboard(sloPathMap map[string]*SLO, outDir string) error {
+func GenServiceOverviewDashboard(sloPathMap map[string]*SLOv1Alpha, outDir string) error {
 	srvMap := giveServiceToSLOMap(sloPathMap)
 
 	for srv, slos := range srvMap {
@@ -192,10 +192,10 @@ type ServiceOverviewDashboard struct {
 type ServiceOverviewRow struct {
 	SLOName string
 	Panels  []SearchPanel
-	SLOConf SLO
+	SLOConf SLOv1Alpha
 }
 
-func getOverviewRows(s []SLO) ([]ServiceOverviewRow, error) {
+func getOverviewRows(s []SLOv1Alpha) ([]ServiceOverviewRow, error) {
 
 	var rows []ServiceOverviewRow
 	for _, slo := range s {
@@ -214,7 +214,7 @@ func getOverviewRows(s []SLO) ([]ServiceOverviewRow, error) {
 	return rows, nil
 }
 
-func getOverviewRow(s SLO) (ServiceOverviewRow, error) {
+func getOverviewRow(s SLOv1Alpha) (ServiceOverviewRow, error) {
 	name := s.Metadata.Name
 
 	row := ServiceOverviewRow{

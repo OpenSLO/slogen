@@ -15,7 +15,7 @@ const DefaultScheduledViewRetention = 100
 
 var useViewID = false
 
-func (s SLO) ViewName() string {
+func (s SLOv1Alpha) ViewName() string {
 	sloName := s.Metadata.Name
 	srvName := s.Spec.Service
 	srvName = strings.Replace(srvName, "-", "_", -1)
@@ -31,7 +31,7 @@ func (s SLO) ViewName() string {
 }
 
 // ViewID return the short sha1 hash for view query to ensure old view data is not reused
-func (s SLO) ViewID() string {
+func (s SLOv1Alpha) ViewID() string {
 	viewQuery, err := s.ViewQuery()
 
 	if err != nil {
@@ -87,7 +87,7 @@ const ScheduledViewQueryTemp = `{{.TotalQuery}}
 {{- end }}
 `
 
-func (s SLO) ViewQuery() (string, error) {
+func (s SLOv1Alpha) ViewQuery() (string, error) {
 	sloName := s.Metadata.Name
 	tmpl, err := template.New("view-" + sloName).Parse(ScheduledViewQueryTemp)
 	if err != nil {
@@ -116,7 +116,7 @@ func (s SLO) ViewQuery() (string, error) {
 
 }
 
-func ViewConfigFromSLO(sloConf SLO) (*ScheduledView, error) {
+func ViewConfigFromSLO(sloConf SLOv1Alpha) (*ScheduledView, error) {
 
 	viewQuery, err := sloConf.ViewQuery()
 	if err != nil {
@@ -154,7 +154,7 @@ func GetStartOfMonth() time.Time {
 	return firstOfMonth
 }
 
-func GiveScheduleViewName(s SLO) string {
+func GiveScheduleViewName(s SLOv1Alpha) string {
 
 	sloName := s.Metadata.Name
 	srvName := s.Spec.Service

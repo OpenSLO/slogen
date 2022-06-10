@@ -16,11 +16,8 @@ spec:
           source: sumologic
           queryType: Logs
           query: |
-            _index=_trace_spans
-              | (endtimestamp - starttimestamp) / 1000000 as duration_ms
-              | json field=tags "['http.url']" 
-              | where tolowercase(service) = "the-coffee-bar-frontend" and tolowercase(operation) = "http post" 
-                  and tolowercase(%"['http.url']") matches "*/order"
+            _sourceCategory=tsat-batcher 
+              | where msg="DriftGen query completed"
         good:
           source: sumologic
           queryType: Logs

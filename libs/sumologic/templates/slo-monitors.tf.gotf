@@ -1,0 +1,36 @@
+resource "sumologic_monitor" "tf_slo_monitor_2" {
+    name             = "{{.MonitorName}}"
+    type             = "MonitorsLibraryMonitor"
+    is_disabled      = false
+    content_type     = "Monitor"
+    monitor_type     = "Slo"
+    slo_id           = "{{.SloID}}"
+    evaluation_delay = "{{.EvaluationDelay}}"
+
+    trigger_conditions {
+
+        {{if eq .TriggerType "SLI"}}
+        slo_sli_condition {
+            critical {
+                sli_threshold =  "{{.SliThresholdCritical}}"
+            }
+            warning {
+                sli_threshold =  "{{.SliThresholdWarning}}"
+            }
+        }
+        {{end}}
+
+        {{if eq .TriggerType "BurnRate"}}
+        slo_burn_rate_condition {
+            critical {
+                burn_rate_threshold = "{{.BurnRateThresholdCritical}}"
+                time_range          = "{{.TimeRangeCritical}}"
+            }
+            warning {
+                burn_rate_threshold = "{{.BurnRateThresholdWarning}}"
+                time_range          = "{{.TimeRangeWarning}}"
+            }
+        }
+        {{end}}
+    }
+}
