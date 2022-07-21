@@ -4,6 +4,12 @@ slogen support native sumologic slo creation for spec version v1 of OpenSLO.
 
 Samples can be found in the [samples/sumologic/v1](/samples/sumologic/v1) directory. 
 
+They can be tried out as below from the root of the repo.
+
+```shell
+go run main.go samples/sumologic/v1 --clean --onlyNative=true --sloFolder=slogen-v1 --sloMonitorFolder=slogen-v
+```
+
 
 ### OpenSLO SLI to Sumologic SLI fields mapping 
 
