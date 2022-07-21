@@ -36,18 +36,20 @@ func Parse(filename string) (*SLOMultiVerse, error) {
 		return nil, err
 	}
 
-	specVersion := giveOpenSLOVersion(fileContent)
+	sloHeaders := giveOpenSLOVersion(fileContent)
 
-	slo := &SLOMultiVerse{}
+	slo := &SLOMultiVerse{
+		ConfigPath: filename,
+	}
 
-	switch specVersion {
+	switch sloHeaders.APIVersion {
 
 	case oslo.APIVersion:
-		slo.V1, err = parseV1(fileContent)
+		err = parseV1(fileContent, sloHeaders, slo)
 	case v1alpha.APIVersion:
 		slo.Alpha, err = parseV1Alpha(fileContent)
 	default:
-		return nil, fmt.Errorf("unsupported OpenSLO spec version %s", specVersion)
+		return nil, fmt.Errorf("unsupported OpenSLO spec version %s", sloHeaders.APIVersion)
 	}
 
 	return slo, err
@@ -61,20 +63,32 @@ func parseV1Alpha(yamlBody []byte) (*SLOv1Alpha, error) {
 	return &slo, err
 }
 
-func parseV1(yamlBody []byte) (*specs.OpenSLOSpec, error) {
-	var spec specs.OpenSLOSpec
+func parseV1(yamlBody []byte, headers oslo.ObjectGeneric, sloM *SLOMultiVerse) error {
 
-	err := yaml.Unmarshal(yamlBody, &spec)
-
-	if err == nil {
-		//pretty.Println(spec)
-		//pretty.Println(sumologic.ConvertToSumoSLO(&spec))
+	var err error
+	switch headers.Kind {
+	case oslo.KindSLO:
+		var spec specs.OpenSLOSpec
+		err = yaml.Unmarshal(yamlBody, &spec)
+		sloM.V1 = &spec
+	case oslo.KindAlertPolicy:
+		var spec oslo.AlertPolicy
+		err = yaml.Unmarshal(yamlBody, &spec)
+		sloM.AlertPolicy = &spec
+	case oslo.KindAlertCondition:
+		var spec oslo.AlertCondition
+		err = yaml.Unmarshal(yamlBody, &spec)
+		sloM.AlertCondition = &spec
+	case oslo.KindAlertNotificationTarget:
+		var spec oslo.AlertNotificationTarget
+		err = yaml.Unmarshal(yamlBody, &spec)
+		sloM.AlertNotificationTarget = &spec
 	}
 
-	return &spec, err
+	return err
 }
 
-func giveOpenSLOVersion(yamlBody []byte) string {
+func giveOpenSLOVersion(yamlBody []byte) oslo.ObjectGeneric {
 	var m oslo.ObjectGeneric
 
 	err := yaml.Unmarshal(yamlBody, &m)
@@ -83,7 +97,7 @@ func giveOpenSLOVersion(yamlBody []byte) string {
 		panic(err)
 	}
 
-	return m.APIVersion
+	return m
 }
 
 func (s SLOv1Alpha) Target() float64 {
@@ -107,6 +121,10 @@ func (s SLOv1Alpha) TimesliceTarget() float64 {
 }
 
 type SLOMultiVerse struct {
-	Alpha *SLOv1Alpha
-	V1    *specs.OpenSLOSpec
+	ConfigPath              string
+	Alpha                   *SLOv1Alpha
+	V1                      *specs.OpenSLOSpec
+	AlertPolicy             *oslo.AlertPolicy
+	AlertCondition          *oslo.AlertCondition
+	AlertNotificationTarget *oslo.AlertNotificationTarget
 }

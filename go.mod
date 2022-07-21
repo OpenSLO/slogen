@@ -13,7 +13,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-colorable v0.1.12
 	github.com/mitchellh/hashstructure/v2 v2.0.2
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.21.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -51,4 +51,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/OpenSLO/oslo => github.com/agaurav/oslo v0.3.3-0.20220610112509-8297ce344784
+replace github.com/OpenSLO/oslo => github.com/agaurav/oslo v0.3.3-0.20220712184915-bc307d389cf4

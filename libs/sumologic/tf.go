@@ -46,3 +46,17 @@ func GiveSLOTerraform(s specs.OpenSLOSpec) (string, error) {
 
 	return buff.String(), nil
 }
+
+func GiveMonitorTerraform(mons []SLOMonitor) (string, error) {
+
+	tmpl := tfTemplates.Lookup(SLOMonitorTmplName)
+
+	buff := &bytes.Buffer{}
+	err := tmpl.Execute(buff, mons)
+
+	if err != nil {
+		return "", err
+	}
+
+	return buff.String(), nil
+}

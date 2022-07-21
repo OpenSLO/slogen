@@ -2,13 +2,24 @@ package sumologic
 
 import (
 	"fmt"
+	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
 	"github.com/OpenSLO/slogen/libs/specs"
 	"github.com/OpenSLO/slogen/libs/sumologic/sumotf"
 	"log"
 	"strconv"
+	"strings"
+)
+
+const (
+	MonitorKindBurnRate    = "BurnRate"
+	MonitorKindSLI         = "SLI"
+	ComplianceTypeCalendar = "Calendar"
+	ComplianceTypeRolling  = "Rolling"
 )
 
 type SLOMonitor struct {
+	Service                   string
+	SLOName                   string
 	SloID                     string
 	MonitorName               string
 	EvaluationDelay           string
@@ -25,6 +36,14 @@ type SLO struct {
 	*sumotf.SLOLibrarySLO
 }
 
+func (s SLO) TFResourceName() string {
+	return fmt.Sprintf("sumologic_slo_%s_%s", s.Service, s.Name)
+}
+
+func (s SLOMonitor) TFResourceName() string {
+	return fmt.Sprintf("sumologic_monitor_%s", s.MonitorName)
+}
+
 type SLOFolder struct {
 	*sumotf.SLOLibraryFolder
 }
@@ -38,18 +57,18 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 	}
 
 	size := ""
-	timezone := ""
+	timezone := "America/New_York"
 	startFrom := ""
 	windowType := ""
-	complianceType := "Calendar"
+	complianceType := ComplianceTypeCalendar
 
 	if len(slo.Spec.TimeWindow) == 1 {
+		timezone = slo.Spec.TimeWindow[0].Calendar.TimeZone
 		if slo.Spec.TimeWindow[0].IsRolling {
-			complianceType = "Rolling"
+			complianceType = ComplianceTypeRolling
 			size = slo.Spec.TimeWindow[0].Duration
 		} else {
 			windowType = slo.Spec.TimeWindow[0].Duration
-			timezone = slo.Spec.TimeWindow[0].Calendar.TimeZone
 			startFrom = slo.Spec.TimeWindow[0].Calendar.StartTime
 		}
 	} else {
@@ -60,7 +79,7 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 
 	sumoSLO := &SLO{
 		&sumotf.SLOLibrarySLO{
-			Name:        slo.Spec.Indicator.Metadata.Name,
+			Name:        slo.SLO.Metadata.Name,
 			Description: slo.Spec.Description,
 			Service:     slo.Spec.Service,
 			SignalType:  signalType,
@@ -193,4 +212,125 @@ func giveQueryGroup(spec map[string]string) sumotf.SLIQuery {
 		Field:       field,
 		UseRowCount: field == "",
 	}
+}
+
+func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO) ([]SLOMonitor, error) {
+
+	var mons []SLOMonitor
+
+	for _, c := range ap.Spec.Conditions {
+
+		name := fmt.Sprintf("%s_%s_%s", slo.Service, slo.Name, c.Metadata.Name)
+
+		m := SLOMonitor{
+			SLOName:         slo.Name,
+			Service:         slo.Service,
+			MonitorName:     name,
+			EvaluationDelay: c.AlertConditionInline.Spec.Condition.AlertAfter,
+			//TriggerType:               "BurnRate",
+			//SliThresholdWarning:       0,
+			//SliThresholdCritical:      0,
+			//TimeRangeWarning:          "",
+			//TimeRangeCritical:         "",
+			//BurnRateThresholdWarning:  0,
+			//BurnRateThresholdCritical: 0,
+		}
+
+		switch *c.AlertConditionInline.Spec.Condition.Kind {
+		case oslo.AlertConditionTypeBurnRate:
+			FillBurnRateAlert(c.AlertConditionInline.Spec, &m)
+		default:
+			panic(fmt.Sprintf("alert condition of this kind not supported : '%s'", c.Kind))
+		}
+
+		m.SloID = fmt.Sprintf("${sumologic_slo.%s.id}", slo.TFResourceName())
+
+		mons = append(mons, m)
+	}
+
+	return MergeMonitors(mons), nil
+}
+
+func FillBurnRateAlert(c oslo.AlertConditionSpec, m *SLOMonitor) error {
+
+	m.TriggerType = MonitorKindBurnRate
+	m.EvaluationDelay = c.Condition.AlertAfter
+
+	switch strings.ToLower(c.Severity) {
+	case "critical":
+		m.BurnRateThresholdCritical = float64(c.Condition.Threshold)
+		m.TimeRangeCritical = c.Condition.LookbackWindow
+	case "warning":
+		m.BurnRateThresholdWarning = float64(c.Condition.Threshold)
+		m.TimeRangeWarning = c.Condition.LookbackWindow
+	}
+
+	return nil
+}
+
+// MergeMonitors merges multiple OpenSLO monitors critical & warning into one sumo monitor
+// based on the name of the monitor.
+func MergeMonitors(mons []SLOMonitor) []SLOMonitor {
+	burnRateMonitors := make(map[string][]SLOMonitor)
+
+	for _, m := range mons {
+
+		switch m.TriggerType {
+		case MonitorKindBurnRate:
+			burnRateMonitors[m.MonitorName] = append(burnRateMonitors[m.MonitorName], m)
+		default:
+			panic(fmt.Sprintf("trigger type not supported : '%s'", m.TriggerType))
+		}
+	}
+
+	mergedMonitors := mergeBurnRateMonitors(burnRateMonitors)
+
+	return mergedMonitors
+}
+
+func mergeBurnRateMonitors(mons map[string][]SLOMonitor) []SLOMonitor {
+	var mergedMonitors []SLOMonitor
+
+	for _, m := range mons {
+		if len(m) != 2 {
+			panic(fmt.Sprintf("monitor %s has %d monitors, expected 2", m[0].MonitorName, len(m)))
+		}
+
+		iCrit := 0
+		iWarn := 1
+		if m[iCrit].BurnRateThresholdWarning != 0 {
+			iCrit, iWarn = iWarn, iCrit
+		}
+
+		m[iCrit].BurnRateThresholdWarning = m[iWarn].BurnRateThresholdWarning
+		m[iCrit].TimeRangeWarning = m[iWarn].TimeRangeWarning
+
+		mergedMonitors = append(mergedMonitors, m[iCrit])
+	}
+
+	return mergedMonitors
+}
+
+func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, sumoSLO SLO, slo oslo.SLO) (string, error) {
+
+	var sloMonitors []SLOMonitor
+
+	sloAPs := slo.Spec.AlertPolicies
+
+	for _, apName := range sloAPs {
+
+		ap := apMap[apName]
+
+		mons, err := ConvertToSumoMonitor(ap, &sumoSLO)
+		if err != nil {
+			return "", err
+		}
+		sloMonitors = append(sloMonitors, mons...)
+	}
+
+	if len(sloMonitors) == 0 {
+		return "", nil
+	}
+
+	return GiveMonitorTerraform(sloMonitors)
 }

@@ -1,14 +1,12 @@
-resource "sumologic_slo" "sumologic_slo_{{$.Service}}_{{$.Name}}" {
+resource "sumologic_slo" "{{ .TFResourceName }}" {
     name        = "{{.Name}}"
     description = "{{.Description}}"
-    {{- if ne .ParentID ""}}
-    parent_id   = "{{.ParentID}}"
-    {{ end }}
+    parent_id   = sumologic_slo_folder.slg_tf_{{.Service}}.id
     signal_type = "{{.SignalType}}"
     service     = "{{.Service}}"
     application = ""
 
-    {{with .Compliance }}
+    {{with .Compliance -}}
     compliance {
         compliance_type = "{{.ComplianceType}}"
         {{- if eq .ComplianceType "Rolling" }}
@@ -18,16 +16,18 @@ resource "sumologic_slo" "sumologic_slo_{{$.Service}}_{{$.Name}}" {
         size            = "{{.WindowType}}"
         {{- end }}
         target          = "{{.Target}}"
+        {{- if ne .Timezone ""}}
         timezone        = "{{.Timezone}}"
-        {{if eq .ComplianceType "Calendar"}}
+        {{- end}}
+        {{- if eq .ComplianceType "Calendar"}}
         start_from = "{{.StartFrom}}"
-        {{end}}
+        {{- end}}
     }
-    {{end}}
+    {{- end}}
 
-    {{with $ind := .Indicator}}
+    {{with $ind := .Indicator -}}
     indicator {
-        {{ if eq $ind.EvaluationType "Window" }}
+        {{- if eq $ind.EvaluationType "Window" }}
         window_based_evaluation {
             op         = "{{$ind.Op}}"
             query_type = "{{$ind.QueryType}}"
@@ -51,9 +51,9 @@ QUERY
             }
             {{end}}
         }
-        {{ end }}
+        {{- end }}
 
-        {{ if eq .EvaluationType "Request" }}
+        {{- if eq .EvaluationType "Request" }}
         request_based_evaluation {
             op         = "{{.Op}}"
             query_type = "{{.QueryType}}"
@@ -76,7 +76,7 @@ QUERY
             }
             {{end}}
         }
-        {{ end }}
+        {{- end }}
     }
     {{end}}
 }

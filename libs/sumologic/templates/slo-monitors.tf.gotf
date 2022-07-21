@@ -1,36 +1,39 @@
-resource "sumologic_monitor" "tf_slo_monitor_2" {
-    name             = "{{.MonitorName}}"
+{{ range $m := . }}
+
+resource "sumologic_monitor" "{{ $m.TFResourceName }}" {
+    name             = "{{$m.MonitorName}}"
     type             = "MonitorsLibraryMonitor"
     is_disabled      = false
     content_type     = "Monitor"
     monitor_type     = "Slo"
-    slo_id           = "{{.SloID}}"
-    evaluation_delay = "{{.EvaluationDelay}}"
+    slo_id           = "{{$m.SloID}}"
+    evaluation_delay = "{{$m.EvaluationDelay}}"
 
     trigger_conditions {
 
-        {{if eq .TriggerType "SLI"}}
+        {{- if eq $m.TriggerType "SLI"}}
         slo_sli_condition {
             critical {
-                sli_threshold =  "{{.SliThresholdCritical}}"
+                sli_threshold =  "{{$m.SliThresholdCritical}}"
             }
             warning {
-                sli_threshold =  "{{.SliThresholdWarning}}"
+                sli_threshold =  "{{$m.SliThresholdWarning}}"
             }
         }
-        {{end}}
+        {{end -}}
 
-        {{if eq .TriggerType "BurnRate"}}
+        {{- if eq $m.TriggerType "BurnRate"}}
         slo_burn_rate_condition {
             critical {
-                burn_rate_threshold = "{{.BurnRateThresholdCritical}}"
-                time_range          = "{{.TimeRangeCritical}}"
+                burn_rate_threshold = "{{$m.BurnRateThresholdCritical}}"
+                time_range          = "{{$m.TimeRangeCritical}}"
             }
             warning {
-                burn_rate_threshold = "{{.BurnRateThresholdWarning}}"
-                time_range          = "{{.TimeRangeWarning}}"
+                burn_rate_threshold = "{{$m.BurnRateThresholdWarning}}"
+                time_range          = "{{$m.TimeRangeWarning}}"
             }
         }
-        {{end}}
+        {{end -}}
     }
 }
+{{ end }}

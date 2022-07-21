@@ -1,13 +1,13 @@
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: TestSLO_Calendar
+  name: drift_gen_Calendar
   displayName: Test SLO
   annotations:
     sumologic/signal-type: Latency
 spec:
   description: test slo created from slogen
-  service: TheServiceName
+  service: tsat
   indicator:
     metadata:
       name: foo-error
@@ -42,4 +42,4 @@ spec:
     - displayName: Foo Total Errors
       target: 0.98
   alertPolicies:
-    - FooAlertPolicy
+    - DoubleBurnRate

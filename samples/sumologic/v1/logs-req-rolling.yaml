@@ -1,13 +1,13 @@
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: TestSLO_Rolling
+  name: drift_gen_Rolling
   displayName: Test SLO
   annotations:
     sumologic/signal-type: Latency
 spec:
   description: test slo created from slogen
-  service: TheServiceName
+  service: tsat
   indicator:
     metadata:
       name: foo-error
@@ -32,8 +32,10 @@ spec:
                 _sourceCategory=tsat-batcher 
                   | where msg="DriftGen query completed"
   timeWindow:
-    - duration: 1M
+    - duration: 7d
       isRolling: true
+      calendar:
+        timeZone: America/New_York
   budgetingMethod: Occurrences
   objectives:
     - displayName: Foo Total Errors
