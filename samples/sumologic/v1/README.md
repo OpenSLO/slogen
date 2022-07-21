@@ -1,8 +1,8 @@
 # Creating Sumologic native SLO's and monitors from OpenSLO yaml configs
 
-slogen support native sumologic slo creation for spec version v1 for OpenSLO. 
+slogen support native sumologic slo creation for spec version v1 of OpenSLO. 
 
-Samples can be found in the [samples/sumologic/v1/](samples/sumologic/v1/) directory. 
+Samples can be found in the [samples/sumologic/v1](/samples/sumologic/v1) directory. 
 
 
 ### OpenSLO SLI to Sumologic SLI fields mapping 
