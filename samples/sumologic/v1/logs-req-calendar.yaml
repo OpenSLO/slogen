@@ -42,4 +42,4 @@ spec:
     - displayName: Foo Total Errors
       target: 0.98
   alertPolicies:
-    - DoubleBurnRate
+    - High-Burn-Rate
