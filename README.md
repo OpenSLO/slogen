@@ -125,8 +125,8 @@ It will show the resources that will be deleted and ask for confirmation before 
 
 
 ### sample configs
-- For `Timeslice` based budgeting : [ingest-lag-timeslice-budgeting.yaml](samples/openslo/ingest-lag-timeslice-budgeting.yaml) 
-- For `Occurrences` based budgeting : [trend-calculation.yaml](samples/openslo/trend-calculation.yaml) 
+- [`openslo/v1`](samples/sumologic/v1)
+- deprecated [`openslo/v1alpha`](samples/sumologic/logs)
 
 
 
