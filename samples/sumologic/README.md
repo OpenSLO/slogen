@@ -1,6 +1,6 @@
 # Creating Sumologic native SLO's and monitors from OpenSLO yaml configs
 
-slogen supports native sumologic [SLO]() creation from spec version `v1` of OpenSLO. 
+slogen supports native sumologic [SLO](https://help.sumologic.com/Observability_Solution/Reliability_Management) creation from spec version `v1` of OpenSLO. 
 
 Samples can be found in the [samples/sumologic/v1](/samples/sumologic/v1) directory. 
 
