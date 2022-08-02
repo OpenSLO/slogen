@@ -1,0 +1,16 @@
+{{range $folder := .}}
+resource "sumologic_slo_folder" "slg_tf_{{$folder}}" {
+    name        = "{{$folder}}"
+    description = "SLO folder for service {{$folder}}"
+    parent_id   = var.slo_root_folder_id
+}
+{{end}}
+
+{{range $folder := .}}
+resource "sumologic_monitor_folder" "slg_tf_monitor_{{$folder}}" {
+    name        = "{{$folder}}"
+    description = "SLO monitor folder for service {{$folder}}"
+    parent_id   = var.slo_monitor_root_folder_id
+}
+{{end}}
+

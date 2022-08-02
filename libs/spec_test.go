@@ -7,7 +7,7 @@ import (
 
 func TestSLO_ViewID(t *testing.T) {
 
-	var slo SLO
+	var slo SLOv1Alpha
 	err := yaml.Unmarshal([]byte(testYaml1), &slo)
 
 	if err != nil {
@@ -16,7 +16,7 @@ func TestSLO_ViewID(t *testing.T) {
 
 	tests := []struct {
 		name string
-		s    SLO
+		s    SLOv1Alpha
 		want string
 	}{
 		// TODO: Add test cases.

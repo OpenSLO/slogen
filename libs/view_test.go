@@ -14,7 +14,7 @@ func TestViewConfigFromSLO(t *testing.T) {
 		return
 	}
 	type args struct {
-		sloConf SLO
+		sloConf SLOv1Alpha
 	}
 	tests := []struct {
 		name    string

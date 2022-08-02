@@ -2,8 +2,10 @@ package libs
 
 import (
 	"context"
+	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/hc-install/product"
+	tfreleases "github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfinstall"
 	"io/ioutil"
 	"os"
 )
@@ -33,13 +35,21 @@ func TFExec(wdPath string, action TFAction) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion(tmpDir, false))
+	installer := &tfreleases.ExactVersion{
+		Product:    product.Terraform,
+		Version:    version.Must(version.NewVersion("1.2.2")),
+		InstallDir: tmpDir,
+	}
+
+	execPath, err := installer.Install(context.Background())
+
 	if err != nil {
 		log.Errorf("error locating Terraform binary: %s", err)
 		return err
 	}
 
 	tf, err := tfexec.NewTerraform(wdPath, execPath)
+
 	env := map[string]string{
 		EnvKeyHTTPProxy:       os.Getenv(EnvKeyHTTPProxy),
 		EnvKeyHTTPSProxy:      os.Getenv(EnvKeyHTTPSProxy),
@@ -61,14 +71,16 @@ func TFExec(wdPath string, action TFAction) error {
 		return err
 	}
 
-	//_, err = tf.Show(context.Background())
-	//if err != nil {
-	//	log.Errorf("error running Show: %s", err)
+	// 	_, err = tf.Show(context.Background())
+	// 	if err != nil {
+	//		log.Errorf("error running Show: %s", err)
 	//	return err
-	//}
+	//	}
+
 	tf.SetStdout(os.Stdout)
 	tf.SetLogger(InfoLogger{})
 	tf.SetStderr(os.Stderr)
+
 	if err != nil {
 		log.Errorf("error running NewTerraform: %s", err)
 		return err

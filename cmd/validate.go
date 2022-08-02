@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/SumoLogic-Labs/slogen/libs"
+	"github.com/OpenSLO/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"strings"
@@ -53,8 +53,9 @@ to quickly create a Cobra application.`,
 			color.HiCyan("ignoring errors")
 		}
 
+		sloMap := make(map[string]*libs.SLOMultiVerse)
 		for _, path := range args {
-			libs.ParseDir(path, ie)
+			libs.ParseDir(path, ie, sloMap)
 		}
 	},
 }

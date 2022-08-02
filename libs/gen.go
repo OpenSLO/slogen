@@ -3,6 +3,10 @@ package libs
 import (
 	"bytes"
 	"embed"
+	"fmt"
+	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
+	"github.com/OpenSLO/slogen/libs/specs"
+	"github.com/OpenSLO/slogen/libs/sumologic"
 	"os"
 	"path/filepath"
 	"sort"
@@ -18,36 +22,44 @@ const NameMainTmpl = "main.tf.gotf"
 const NameModuleTmpl = "module_interface.tf.gotf"
 const NameDashFolderTmpl = "dash-folders.tf.gotf"
 const NameMonitorFolderTmpl = "monitor-folders.tf.gotf"
+const NameSLOFolderTmpl = "slo-folders.tf.gotf"
 const NameGlobalTrackerTmpl = "global-tracker.tf.gotf"
 const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 
-//go:embed templates/**
+//go:embed templates/terraform/**/*.tf.gotf
 var tmplFiles embed.FS
+
+var alertPolicyMap = map[string]oslo.AlertPolicy{}
+var notificationTargetMap = map[string]oslo.AlertNotificationTarget{}
 
 const (
 	BuildFolder      = "build"
 	ViewsFolder      = "views"
 	MonitorsFolder   = "monitors"
 	DashboardsFolder = "dashboards"
+	NativeSLOFolder  = "slos"
 )
 
 type GenConf struct {
-	OutDir        string
-	DashFolder    string
-	MonitorFolder string
-	ViewPrefix    string
-	DoPlan        bool
-	DoApply       bool
-	IgnoreError   bool
-	Clean         bool
-	AsModule      bool
-	UseViewHash   bool
+	OutDir               string
+	DashFolder           string
+	MonitorFolder        string
+	ViewPrefix           string
+	SLORootFolder        string
+	SLOMonitorRootFolder string
+	DoPlan               bool
+	DoApply              bool
+	IgnoreError          bool
+	Clean                bool
+	AsModule             bool
+	UseViewHash          bool
+	OnlyNative           bool
 }
 
 func init() {
 	var err error
 
-	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terra/**")
+	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terraform/sumologic/**")
 	if err != nil {
 		panic(err)
 	}
@@ -56,19 +68,34 @@ func init() {
 const ViewPrefix = "slogen_tf"
 
 // GenTerraform for all openslo files in the path
-func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
+func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 
+	slosAlpha, _ := splitMultiVerse(slosMv)
 	err := SetupOutDir(c)
-	useViewID = c.UseViewHash
-
 	if err != nil {
 		BadResult("error setting up path : %s", err)
 		return "", err
 	}
 
+	//pretty.Println(slosV1)
+
+	err = genTerraformForV1(slosMv, c)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return genTerraformForAlpha(slosAlpha, c)
+}
+
+func genTerraformForAlpha(slosAlpha map[string]*SLOv1Alpha, c GenConf) (string, error) {
+	var err error
+
+	useViewID = c.UseViewHash
 	srvMap := map[string]bool{}
 
-	for path, s := range slos {
+	for path, s := range slosAlpha {
+
 		srvMap[s.Spec.Service] = true
 
 		tmplToDo := []string{NameViewTmpl, NameDashboardTmpl, NameMonitorTmpl}
@@ -87,17 +114,104 @@ func GenTerraform(slos map[string]*SLO, c GenConf) (string, error) {
 	srvList := GiveKeys(srvMap)
 	sort.Strings(srvList)
 
-	err = GenFoldersTF(srvList, c.OutDir)
-	if err != nil {
-		return "", err
-	}
+	if !c.OnlyNative {
+		err = GenFoldersTF(srvList, c)
+		if err != nil {
+			return "", err
+		}
 
-	err = GenOverviewTF(slos, c)
+		err = GenOverviewTF(slosAlpha, c)
+	}
 
 	return "", err
 }
 
-func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
+func fillAlertPolicyMap(slos map[string]*SLOMultiVerse) {
+	for _, slo := range slos {
+		ap := slo.AlertPolicy
+		if ap != nil {
+			alertPolicyMap[ap.Metadata.Name] = *ap
+		}
+	}
+}
+
+func fillNotificationTargetMap(slos map[string]*SLOMultiVerse) {
+	for _, slo := range slos {
+		nt := slo.AlertNotificationTarget
+		if nt != nil {
+			notificationTargetMap[nt.Metadata.Name] = *nt
+		}
+	}
+}
+
+func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
+
+	v1Path := filepath.Join(c.OutDir, NativeSLOFolder)
+
+	fillAlertPolicyMap(slos)
+	fillNotificationTargetMap(slos)
+
+	srvMap := map[string]bool{}
+
+	for _, sloM := range slos {
+		if sloM.V1 != nil {
+			slo := sloM.V1
+			sumoSLO, err := sumologic.ConvertToSumoSLO(*slo)
+			sumoSLOStr, err := sumologic.GiveSLOTerraform(*slo)
+
+			if err != nil {
+				BadUResult(err.Error() + fmt.Sprintf("| file : %s", sloM.ConfigPath))
+				return err
+			}
+
+			//pretty.Println(sumoSLO)
+
+			err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_%s.tf", slo.Metadata.Name)), []byte(sumoSLOStr), 0755)
+			if err != nil {
+				return err
+			}
+
+			srvMap[slo.Spec.Service] = true
+
+			monitorsStr, err := sumologic.GenSLOMonitorsFromAPNames(alertPolicyMap, notificationTargetMap,
+				*sumoSLO, *slo.SLO)
+
+			if err != nil {
+				return err
+			}
+
+			if monitorsStr != "" {
+				err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_monitors_%s.tf", slo.Metadata.Name)), []byte(monitorsStr), 0755)
+			}
+		}
+	}
+
+	srvList := GiveKeys(srvMap)
+	sort.Strings(srvList)
+
+	GenSLOFoldersTF(srvList, c)
+
+	return nil
+}
+
+func splitMultiVerse(slos map[string]*SLOMultiVerse) (map[string]*SLOv1Alpha, map[string]*specs.OpenSLOSpec) {
+
+	alpha := map[string]*SLOv1Alpha{}
+	v1 := map[string]*specs.OpenSLOSpec{}
+
+	for path, sloMv := range slos {
+		if sloMv.Alpha != nil {
+			alpha[path] = sloMv.Alpha
+		}
+		if sloMv.V1 != nil {
+			v1[path] = sloMv.V1
+		}
+	}
+
+	return alpha, v1
+}
+
+func ExecSLOTmpl(tmplName string, slo SLOv1Alpha, outDir string) error {
 
 	var tfFilePath string
 	switch tmplName {
@@ -128,8 +242,10 @@ func ExecSLOTmpl(tmplName string, slo SLO, outDir string) error {
 }
 
 const (
-	VarNameMonRootFolder  = "slo_mon_root_folder_id"
-	VarNameDashRootFolder = "slo_dash_root_folder_id"
+	VarNameMonRootFolder        = "slo_mon_root_folder_id"
+	VarNameDashRootFolder       = "slo_dash_root_folder_id"
+	VarNameNativeSLORootFolder  = "slo_root_folder_id"
+	VarNameSLOMonitorRootFolder = "slo_monitor_root_folder_id"
 )
 
 type TFModules struct {
@@ -153,10 +269,19 @@ func SetupOutDir(c GenConf) error {
 		return err
 	}
 
-	modules := []TFModules{
-		{Path: filepath.Join(c.OutDir, ViewsFolder), Vars: nil},
-		{Path: filepath.Join(c.OutDir, MonitorsFolder), Vars: []string{VarNameMonRootFolder}},
-		{Path: filepath.Join(c.OutDir, DashboardsFolder), Vars: []string{VarNameDashRootFolder}},
+	var modules []TFModules
+
+	if c.OnlyNative {
+		modules = []TFModules{
+			{Path: filepath.Join(c.OutDir, NativeSLOFolder), Vars: []string{VarNameNativeSLORootFolder, VarNameSLOMonitorRootFolder}},
+		}
+	} else {
+		modules = []TFModules{
+			{Path: filepath.Join(c.OutDir, ViewsFolder), Vars: nil},
+			{Path: filepath.Join(c.OutDir, MonitorsFolder), Vars: []string{VarNameMonRootFolder}},
+			{Path: filepath.Join(c.OutDir, DashboardsFolder), Vars: []string{VarNameDashRootFolder}},
+			{Path: filepath.Join(c.OutDir, NativeSLOFolder), Vars: []string{VarNameNativeSLORootFolder}},
+		}
 	}
 
 	for _, p := range modules {
@@ -186,16 +311,37 @@ func FileFromTmpl(name string, path string, data interface{}) error {
 	return os.WriteFile(path, buff.Bytes(), 0755)
 }
 
-func GenFoldersTF(srvList []string, outDir string) error {
-	path := filepath.Join(outDir, MonitorsFolder, "folders.tf")
-	err := FileFromTmpl(NameMonitorFolderTmpl, path, srvList)
+func GenFoldersTF(srvList []string, conf GenConf) error {
 
-	if err != nil {
-		return err
+	outDir := conf.OutDir
+
+	fmt.Println(srvList, "srvList")
+
+	if !conf.OnlyNative {
+		path := filepath.Join(outDir, MonitorsFolder, "folders.tf")
+		err := FileFromTmpl(NameMonitorFolderTmpl, path, srvList)
+
+		if err != nil {
+			return err
+		}
+
+		path = filepath.Join(outDir, DashboardsFolder, "folders.tf")
+		err = FileFromTmpl(NameDashFolderTmpl, path, srvList)
+
+		if err != nil {
+			return err
+		}
 	}
 
-	path = filepath.Join(outDir, DashboardsFolder, "folders.tf")
-	err = FileFromTmpl(NameDashFolderTmpl, path, srvList)
+	return nil
+}
+
+func GenSLOFoldersTF(srvList []string, conf GenConf) error {
+
+	outDir := conf.OutDir
+
+	path := filepath.Join(outDir, NativeSLOFolder, "folders.tf")
+	err := FileFromTmpl(NameSLOFolderTmpl, path, srvList)
 
 	return err
 }

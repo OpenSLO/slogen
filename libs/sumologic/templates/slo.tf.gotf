@@ -1,0 +1,82 @@
+resource "sumologic_slo" "{{ .TFResourceName }}" {
+    name        = "{{.Name}}"
+    description = "{{.Description}}"
+    parent_id   = sumologic_slo_folder.slg_tf_{{.Service}}.id
+    signal_type = "{{.SignalType}}"
+    service     = "{{.Service}}"
+    application = ""
+
+    {{with .Compliance -}}
+    compliance {
+        compliance_type = "{{.ComplianceType}}"
+        {{- if eq .ComplianceType "Rolling" }}
+        size            = "{{.Size}}"
+        {{- end }}
+        {{- if eq .ComplianceType "Calendar" }}
+        size            = "{{.WindowType}}"
+        {{- end }}
+        target          = "{{.Target}}"
+        {{- if ne .Timezone ""}}
+        timezone        = "{{.Timezone}}"
+        {{- end}}
+        {{- if eq .ComplianceType "Calendar"}}
+        start_from = "{{.StartFrom}}"
+        {{- end}}
+    }
+    {{- end}}
+
+    {{with $ind := .Indicator -}}
+    indicator {
+        {{- if eq $ind.EvaluationType "Window" }}
+        window_based_evaluation {
+            op         = "{{$ind.Op}}"
+            query_type = "{{$ind.QueryType}}"
+            size       = "{{$ind.Size}}"
+            threshold  = "{{$ind.Threshold}}"
+            {{range $qgroup := $ind.Queries}}
+            queries {
+                query_group_type = "{{$qgroup.QueryGroupType}}"
+                {{range $q := $qgroup.QueryGroup}}
+                query_group {
+                    row_id        = "{{$q.RowId}}"
+                    query         = <<QUERY
+{{$q.Query}}
+QUERY
+                    use_row_count = "{{$q.UseRowCount}}"
+                    {{- if ne $q.Field ""}}
+                    field = "{{$q.Field}}"
+                    {{end}}
+                }
+                {{end}}
+            }
+            {{end}}
+        }
+        {{- end }}
+
+        {{- if eq .EvaluationType "Request" }}
+        request_based_evaluation {
+            op         = "{{.Op}}"
+            query_type = "{{.QueryType}}"
+            threshold  = "{{.Threshold}}"
+            {{range $qgroup := .Queries}}
+            queries {
+                query_group_type = "{{$qgroup.QueryGroupType}}"
+                {{range $q := $qgroup.QueryGroup}}
+                query_group {
+                    row_id        = "{{$q.RowId}}"
+                    query         = <<QUERY
+{{$q.Query}}
+QUERY
+                    use_row_count = "{{$q.UseRowCount}}"
+                    {{- if ne $q.Field ""}}
+                    field = "{{$q.Field}}"
+                    {{end}}
+                }
+                {{end}}
+            }
+            {{end}}
+        }
+        {{- end }}
+    }
+    {{end}}
+}

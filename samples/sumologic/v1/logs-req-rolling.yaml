@@ -1,0 +1,42 @@
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: drift_gen_Rolling
+  displayName: DriftGen SLO Rolling
+  annotations:
+    sumologic/signal-type: Latency
+spec:
+  description: test slo created from slogen
+  service: tsat
+  indicator:
+    metadata:
+      name: driftgen-latency-rolling
+      displayName: DriftGen Latency Rolling
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          metricSource:
+            type: sumologic-logs
+            metricSourceRef: sumologic-datasource
+            spec:
+              query: |
+                _sourceCategory=tsat-batcher 
+                  | where msg="DriftGen query completed" and duration_ms < 400
+        total:
+          metricSource:
+            type: sumologic-logs
+            metricSourceRef: sumologic-datasource
+            spec:
+              query: |
+                _sourceCategory=tsat-batcher 
+                  | where msg="DriftGen query completed"
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+      calendar:
+        timeZone: America/New_York
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Foo Total Errors
+      target: 0.98

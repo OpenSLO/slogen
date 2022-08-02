@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/SumoLogic-Labs/slogen/libs"
+	"github.com/OpenSLO/slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
@@ -62,9 +62,13 @@ One or more config or directory containing configs can be given as arg. Doesn't 
 			color.HiCyan("\nignoring errors\n")
 		}
 
-		var slos map[string]*libs.SLO
+		slos := make(map[string]*libs.SLOMultiVerse)
+
 		for _, path := range args {
-			slos, _ = libs.ParseDir(path, c.IgnoreError)
+			err = libs.ParseDir(path, c.IgnoreError, slos)
+			if err != nil {
+				libs.BadResult("\nerror parsing out dir : %s\n", err.Error())
+			}
 		}
 
 		path, err := libs.GenTerraform(slos, *c)
@@ -111,6 +115,8 @@ const FlagCleanLong = "clean"
 const FlagCleanShort = "c"
 const FlagDashboardFolderLong = "dashboardFolder"
 const FlagDashboardFolderShort = "d"
+const FlagSLORootFolder = "sloFolder"
+const FlagSLOMonitorRootFolder = "sloMonitorFolder"
 const FlagMonitorFolderLong = "monitorFolder"
 const FlagMonitorFolderShort = "m"
 const FlagViewPrefixLong = "viewPrefix"
@@ -119,6 +125,7 @@ const FlagViewDestroy = "viewDestroy"
 const FlagDestroy = "destroy"
 const FlagAsModule = "asModule"
 const FlagUseViewHash = "useViewHash"
+const FlagOnlyNative = "onlyNative"
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -136,11 +143,11 @@ func init() {
 	)
 
 	rootCmd.Flags().StringP(FlagDashboardFolderLong, FlagDashboardFolderShort, "slogen-tf-dashboards",
-		"output directory where to create the terraform files",
+		"root dashboard folder where to organise the dashboards per service",
 	)
 
 	rootCmd.Flags().StringP(FlagMonitorFolderLong, FlagMonitorFolderShort, "slogen-tf-monitors",
-		"output directory where to create the terraform files",
+		"root monitor folder where to organise the monitors per service",
 	)
 
 	//rootCmd.Flags().StringP(FlagViewPrefixLong, FlagViewPrefixShort, libs.ViewPrefix,
@@ -171,6 +178,11 @@ func init() {
 		"whether to use descriptive or hashed name for the scheduled views, hashed names ensure data for "+
 			"old view is not used when the query for it changes",
 	)
+
+	rootCmd.Flags().Bool(FlagOnlyNative, false, "whether to generate only the native slo resources")
+
+	rootCmd.Flags().String(FlagSLORootFolder, "slogen", `root slo folder where to organise native slos by service`)
+	rootCmd.Flags().String(FlagSLOMonitorRootFolder, "slogen", `root monitor folder where to organise native slo monitors by service`)
 
 	rootCmd.Flags().SortFlags = false
 }
@@ -239,21 +251,43 @@ func GetGenConf(cmd *cobra.Command) (*libs.GenConf, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	useViewHash, err := cmd.Flags().GetBool(FlagUseViewHash)
 	if err != nil {
 		return nil, err
 	}
 
+	onlyNative, err := cmd.Flags().GetBool(FlagOnlyNative)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sloRootFolder, err := cmd.Flags().GetString(FlagSLORootFolder)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sloMonitorRootFolder, err := cmd.Flags().GetString(FlagSLOMonitorRootFolder)
+
+	if err != nil {
+		return nil, err
+	}
+
 	conf := &libs.GenConf{
-		IgnoreError:   ie,
-		OutDir:        outDir,
-		Clean:         clean,
-		DashFolder:    dashDir,
-		MonitorFolder: monDir,
-		DoPlan:        doPlan,
-		DoApply:       doApply,
-		AsModule:      asModule,
-		UseViewHash:   useViewHash,
+		IgnoreError:          ie,
+		OutDir:               outDir,
+		Clean:                clean,
+		DashFolder:           dashDir,
+		MonitorFolder:        monDir,
+		DoPlan:               doPlan,
+		DoApply:              doApply,
+		AsModule:             asModule,
+		UseViewHash:          useViewHash,
+		SLORootFolder:        sloRootFolder,
+		SLOMonitorRootFolder: sloMonitorRootFolder,
+		OnlyNative:           onlyNative,
 	}
 
 	return conf, nil

@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/SumoLogic-Labs/slogen/cmd"
+	"github.com/OpenSLO/slogen/cmd"
 )
 
 func main() {

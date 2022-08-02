@@ -13,9 +13,7 @@ type Results struct {
 	err  error
 }
 
-func ParseDir(path string, ignoreErrors bool) (map[string]*SLO, error) {
-
-	slos := make(map[string]*SLO)
+func ParseDir(path string, ignoreErrors bool, slos map[string]*SLOMultiVerse) error {
 
 	err := filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -40,19 +38,20 @@ func ParseDir(path string, ignoreErrors bool) (map[string]*SLO, error) {
 
 		if err != nil {
 			if ignoreErrors {
-				return nil
+				BadUResult("\nError parsing file : %s\n", path)
+			} else {
+				return err
 			}
-			return err
 		}
 
 		slos[path] = slo
 		return nil
 	})
 
-	return slos, err
+	return err
 }
 
-func ParseFile(path string) (*SLO, error) {
+func ParseFile(path string) (*SLOMultiVerse, error) {
 
 	slo, err := Parse(path)
 

@@ -1,0 +1,9 @@
+{{ range $m := . }}
+
+resource "sumologic_slo_folder" "slo_folder_{{.}}" {
+    name        = "slo-folder-{{.}}"
+    description = "SLO folder for service {{ . }}"
+    parent_id   = var.slo_root_folder_id
+}
+
+{{ end }}

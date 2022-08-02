@@ -1,10 +1,13 @@
 terraform {
     required_providers {
         sumologic = {
-            source  = "sumologic/sumologic"
+            source = "sumologic/sumologic"
         }
     }
 }
+
+
+{{- if not .OnlyNative }}
 
 {{- if .AsModule }}
 variable "slogen_dashboards_parent_folder" {}
@@ -17,9 +20,9 @@ resource "sumologic_folder" "slo_dash_root_folder" {
     description = "Your SLO dashboards created with slogen"
 
     {{- if .AsModule }}
-    parent_id   = var.slogen_dashboards_parent_folder
+    parent_id = var.slogen_dashboards_parent_folder
     {{else}}
-    parent_id   = data.sumologic_personal_folder.personalFolder.id
+    parent_id = data.sumologic_personal_folder.personalFolder.id
     {{- end}}
 }
 
@@ -38,8 +41,26 @@ module "slg_tf_dashboards" {
     depends_on              = [module.slg_tf_views]
 }
 
+
 module "slg_tf_monitors" {
     source                 = "./monitors"
     slo_mon_root_folder_id = sumologic_monitor_folder.slo_mon_root_folder.id
-    depends_on              = [module.slg_tf_views]
+    depends_on             = [module.slg_tf_views]
+}
+{{- end }}
+
+resource "sumologic_slo_folder" "slo_root_folder" {
+    name        = "{{.SLORootFolder}}"
+    description = "Root folder for native SLOs created with slogen"
+}
+
+resource "sumologic_monitor_folder" "slo_monitor_root_folder" {
+    name        = "{{.SLOMonitorRootFolder}}"
+    description = "Root folder for SLO based monitors created with slogen"
+}
+
+module "slos" {
+    source                    = "./slos"
+    slo_root_folder_id = sumologic_slo_folder.slo_root_folder.id
+    slo_monitor_root_folder_id = sumologic_monitor_folder.slo_monitor_root_folder.id
 }

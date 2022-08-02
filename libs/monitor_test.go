@@ -7,7 +7,7 @@ import (
 
 func TestMonitorConfigFromOpenSLO(t *testing.T) {
 	type args struct {
-		sloConf SLO
+		sloConf SLOv1Alpha
 	}
 	tests := []struct {
 		name    string
