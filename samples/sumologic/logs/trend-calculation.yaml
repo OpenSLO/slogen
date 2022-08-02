@@ -40,6 +40,7 @@ alerts:
         - connectionType: 'Email'
           recipients:
             - 'agaurav@sumologic.com'
+          timeZone: 'PST'
           triggerFor:
             - Warning
             - ResolvedWarning
@@ -51,6 +52,7 @@ alerts:
         - connectionType: 'Email'
           recipients:
             - 'agaurav@sumologic.com'
+          timeZone: 'PST'
           triggerFor:
             - Warning
             - ResolvedWarning
