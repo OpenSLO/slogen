@@ -115,23 +115,7 @@ various fields
 
 ```
 
-#### Where are the content created
-
-- Dashboards by default are created in a folder `slogen-tf-dashboards`. A different folder can be set with the
-  flag `-d or --dashboardFolder` followed by name of the folder. It will take some time for historical data to be
-  calculated for new views for dashboards to be accurate.
-- Monitors by default are created in a folder `slogen-tf-monitors`. A different folder can be set with the
-  flag `-m or --monitorFolder` followed by name of the folder.
-- Scheduled view are created with a prefix `slogen_tf_`, this can't be changed as of now.
-- `SLO Overview` dashboard is created at the root of Dashboard folder specified.
-
-#### Limitations
-
-- as of now only supports Sumologic Logs as data source and content target.
-- Alerting on SLO, burn-rate can be configured only up-to `24h`. Tracking them via dashboard is still possible for up-to
-  31 days.
-
-#### deleting resources created
+### deleting resources created
 
 run the below command
 
