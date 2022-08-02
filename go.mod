@@ -9,7 +9,6 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/hc-install v0.4.0
 	github.com/hashicorp/terraform-exec v0.17.2
-	github.com/kr/pretty v0.3.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-colorable v0.1.12
 	github.com/mitchellh/hashstructure/v2 v2.0.2
@@ -27,7 +26,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/terraform-json v0.14.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
