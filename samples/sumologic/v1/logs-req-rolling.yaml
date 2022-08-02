@@ -2,7 +2,7 @@ apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: drift_gen_Rolling
-  displayName: Test SLO
+  displayName: DriftGen SLO Rolling
   annotations:
     sumologic/signal-type: Latency
 spec:
@@ -10,8 +10,8 @@ spec:
   service: tsat
   indicator:
     metadata:
-      name: foo-error
-      displayName: Foo Error
+      name: driftgen-latency-rolling
+      displayName: DriftGen Latency Rolling
     spec:
       ratioMetric:
         counter: true

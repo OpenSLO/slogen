@@ -1,19 +1,19 @@
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: DoubleBurnRate
+  name: High-Burn-Rate
   displayName: Alert Policy
 spec:
-  description: Alert policy for cpu usage breaches, notifies on-call devops via email
+  description: Alert policy for high burn rate breaches, notifies on-call devops via email & slack
   alertWhenBreaching: true
   alertWhenResolved: false
   conditions:
     - kind: AlertCondition
       metadata:
-        name: cpu-usage-breach
-        displayName: CPU Usage breaching
+        name: High-Burn-Rate
+        displayName: error budget depleting too fast
       spec:
-        description: SLO burn rate for cpu-usage-breach exceeds 2
+        description: SLO burn rate exceeds 2 times the acceptable burn rate
         severity: warning
         condition:
           kind: burnrate
@@ -22,10 +22,10 @@ spec:
           alertAfter: 5m
     - kind: AlertCondition
       metadata:
-        name: cpu-usage-breach
-        displayName: CPU Usage breaching
+        name: High-Burn-Rate
+        displayName: error budget depleting too fast
       spec:
-        description: SLO burn rate for cpu-usage-breach exceeds 2
+        description: SLO burn rate exceeds 4 times the acceptable burn rate
         severity: critical
         condition:
           kind: burnrate

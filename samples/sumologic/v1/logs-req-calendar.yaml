@@ -2,7 +2,7 @@ apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: drift_gen_Calendar
-  displayName: Test SLO
+  displayName: DriftGen SLO Calendar
   annotations:
     sumologic/signal-type: Latency
 spec:
@@ -10,8 +10,8 @@ spec:
   service: tsat
   indicator:
     metadata:
-      name: foo-error
-      displayName: Foo Error
+      name: driftgen-latency-calendar
+      displayName: DriftGen Latency Calendar
     spec:
       ratioMetric:
         counter: true
