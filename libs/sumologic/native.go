@@ -17,6 +17,16 @@ const (
 	ComplianceTypeRolling  = "Rolling"
 )
 
+const (
+	AnnotationEmailRecipients = "recipients"
+	AnnotationEmailSubject    = "subject"
+	AnnotationEmailBody       = "body"
+	AnnotationEmailTimeZone   = "timezone"
+	AnnotationRunForTriggers  = "run_for_triggers"
+	AnnotationConnectionID    = "connection_id"
+	AnnotationConnectionType  = "connection_type"
+)
+
 type SLOMonitor struct {
 	Service                   string
 	SLOName                   string
@@ -30,6 +40,22 @@ type SLOMonitor struct {
 	TimeRangeCritical         string
 	BurnRateThresholdWarning  float64
 	BurnRateThresholdCritical float64
+	NotifyEmails              []NotifyEmail
+	NotifyConnections         []NotifyConnection
+}
+
+type NotifyEmail struct {
+	Recipients     []string
+	Subject        string
+	Body           string
+	TimeZone       string
+	RunForTriggers []string
+}
+
+type NotifyConnection struct {
+	ID             string
+	Type           string
+	RunForTriggers []string
 }
 
 type SLO struct {
@@ -214,26 +240,23 @@ func giveQueryGroup(spec map[string]string) sumotf.SLIQuery {
 	}
 }
 
-func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO) ([]SLOMonitor, error) {
+func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO, notifyMap map[string]oslo.AlertNotificationTarget) ([]SLOMonitor, error) {
 
 	var mons []SLOMonitor
+
+	notifyMails, notifyconns := giveNotifyTargets(ap, notifyMap)
 
 	for _, c := range ap.Spec.Conditions {
 
 		name := fmt.Sprintf("%s_%s_%s", slo.Service, slo.Name, c.Metadata.Name)
 
 		m := SLOMonitor{
-			SLOName:         slo.Name,
-			Service:         slo.Service,
-			MonitorName:     name,
-			EvaluationDelay: c.AlertConditionInline.Spec.Condition.AlertAfter,
-			//TriggerType:               "BurnRate",
-			//SliThresholdWarning:       0,
-			//SliThresholdCritical:      0,
-			//TimeRangeWarning:          "",
-			//TimeRangeCritical:         "",
-			//BurnRateThresholdWarning:  0,
-			//BurnRateThresholdCritical: 0,
+			SLOName:           slo.Name,
+			Service:           slo.Service,
+			MonitorName:       name,
+			EvaluationDelay:   c.AlertConditionInline.Spec.Condition.AlertAfter,
+			NotifyEmails:      notifyMails,
+			NotifyConnections: notifyconns,
 		}
 
 		switch *c.AlertConditionInline.Spec.Condition.Kind {
@@ -249,6 +272,42 @@ func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO) ([]SLOMonitor, error) {
 	}
 
 	return MergeMonitors(mons), nil
+}
+
+func giveNotifyTargets(ap oslo.AlertPolicy, notifyMap map[string]oslo.AlertNotificationTarget) ([]NotifyEmail, []NotifyConnection) {
+	var emailTargets []NotifyEmail
+	var connTargets []NotifyConnection
+
+	for _, n := range ap.Spec.NotificationTargets {
+		target, ok := notifyMap[n.TargetRef]
+		if !ok {
+			log.Fatalln("notification target not found", n.TargetRef)
+		}
+
+		annotations := target.Metadata.Annotations
+
+		if strings.ToLower(target.Spec.Target) == "email" {
+			notifyMail := NotifyEmail{
+				Recipients:     strings.Split(annotations[AnnotationEmailRecipients], ","),
+				Subject:        annotations[AnnotationEmailSubject],
+				Body:           annotations[AnnotationEmailBody],
+				TimeZone:       annotations[AnnotationEmailTimeZone],
+				RunForTriggers: strings.Split(annotations[AnnotationRunForTriggers], ","),
+			}
+
+			emailTargets = append(emailTargets, notifyMail)
+		}
+
+		if strings.ToLower(target.Spec.Target) == "connection" {
+			notifyConn := NotifyConnection{
+				Type:           annotations[AnnotationConnectionType],
+				ID:             annotations[AnnotationConnectionID],
+				RunForTriggers: strings.Split(annotations[AnnotationRunForTriggers], ","),
+			}
+			connTargets = append(connTargets, notifyConn)
+		}
+	}
+	return emailTargets, connTargets
 }
 
 func FillBurnRateAlert(c oslo.AlertConditionSpec, m *SLOMonitor) error {
@@ -311,7 +370,8 @@ func mergeBurnRateMonitors(mons map[string][]SLOMonitor) []SLOMonitor {
 	return mergedMonitors
 }
 
-func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, sumoSLO SLO, slo oslo.SLO) (string, error) {
+func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, ntMap map[string]oslo.AlertNotificationTarget,
+	sumoSLO SLO, slo oslo.SLO) (string, error) {
 
 	var sloMonitors []SLOMonitor
 
@@ -321,7 +381,7 @@ func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, sumoSLO SLO, s
 
 		ap := apMap[apName]
 
-		mons, err := ConvertToSumoMonitor(ap, &sumoSLO)
+		mons, err := ConvertToSumoMonitor(ap, &sumoSLO, ntMap)
 		if err != nil {
 			return "", err
 		}

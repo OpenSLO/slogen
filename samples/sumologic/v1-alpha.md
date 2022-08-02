@@ -1,15 +1,80 @@
-### slogen
+### slogen 
+The slogen versions till v0.7 only support the `v1aplha` spec.
 
-CLI tool to generate SLO dashboards, monitors & SLI data
-from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. 
+For a given config it will create the following content via [Sumo Logic](https://www.sumologic.com/) terraform provider
 
-Currently supported vendors/data sources.
+- [Scheduled view](https://help.sumologic.com/Manage/Scheduled-Views) to generate the aggregated SLI data
+- [Dashboards](https://help.sumologic.com/Visualizations-and-Alerts/Dashboard_(New)) to track availability, burn rate
+  and budget remaining
+- [monitors](https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Monitors) :  [Multi-Window, Multi-BurnRate](https://sre.google/workbook/alerting-on-slos/)
+- Global dashboard, to track availability across all services in a single view
+- The content are grouped into folders of the service they belong to
+- slice & dice SLI data in view to create custom reports by metadata (e.g. availability by customers, region)
 
-- Sumologic - more details [here](samples/sumologic/README.md) 
+![panels](/misc/slo_panel.png )
+![overview](/misc/view_search.png)
+![panels](/misc/overview.png)
+![monitors](/misc/monitors.png)
 
-![list](misc/sumo-sli-list.gif)
-![panels](misc/sumo-slo-dashboard.png)
+#### sample config
 
+```yaml
+apiVersion: openslo/v1alpha
+kind: SLO
+metadata:
+  displayName: SLO descriptive name
+  name: slo-minimal-name   # only '-' is allowed apart from alphanumeric chars, '-' not allowed in start or end
+spec:
+  service: my-service
+  description: slo description to be added in dashboard text panel
+  budgetingMethod: Occurrences
+  objectives:
+    - ratioMetrics:
+        total: # sumo query to filter out all the messages counting requests for this slo
+          source: sumologic
+          queryType: Logs
+          query: '_sourceCategory=my-service | where api_path="/login"'
+        good: # condition to filter out healthy request/events
+          source: sumologic
+          queryType: Logs
+          query: '(responseTime) < 500 and (statusCode matches /[2-3][0-9]{2}/ )'
+        incremental: true
+      displayName: delay less than 350
+      target: 0.98
+fields: # fields from log to retain
+  region: "aws_region"    # log field as it is
+  deployment: 'if(isNull(deployment),"dev",deployment)' # using an expression
+labels:
+  tier: 0                 # static labels to include in SLI view, that are not present in the log messages
+alerts:
+  burnRate: # Multiwindow, Multi-Burn-Rate Alerts, explained here https://sre.google/workbook/alerting-on-slos/ 
+    - shortWindow: '10m' # the smaller window
+      shortLimit: 14  # limit for the burn rate ratio, 14 denotes the error consumed in the window were 14 times the allowed number  
+      longWindow: '1h'
+      longLimit: 14
+      notifications: # one or more notification channels
+        - connectionType: 'Email'
+          recipients: 'youremailid@email.com'
+          timeZone: 'PST'
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+        - connectionType: 'PagerDuty'
+          connectionID: '1234abcd'  # id of pagerduty connection created in Sumo Logic
+          triggerFor:
+            - Critical
+            - ResolvedCritical
+        - connectionType: 'Webhook'
+          connectionID: '0000000000ABC123'  # id of pagerduty connection created in Sumo Logic
+          triggerFor:
+            - Critical
+            - ResolvedCritical
+
+
+
+```
+
+**Note** : _the service and slo name should combine have at max 240 chars_
 
 #### Getting the tool
 
@@ -46,7 +111,7 @@ wget -O - https://github.com/OpenSLO/slogen/releases/download/v0.7.11/slogen_0.7
 
 --- 
 
-##### create the yaml config for the SLO. more [samples](samples/sumologic/logs) based on real data.
+##### create the yaml config for the SLO. more [samples](samples/logs) based on real data.
 
 --- 
 
@@ -137,12 +202,12 @@ run the below command
 
 `slogen destroy [path to out dir (default to './tf')]`
 
-It will show the resources that will be deleted and ask for confirmation before deleting them. 
+It will show the resources that will be deleted and ask for confirmation before deleting them.
 
 
 ### sample configs
-- For `Timeslice` based budgeting : [ingest-lag-timeslice-budgeting.yaml](samples/openslo/ingest-lag-timeslice-budgeting.yaml) 
-- For `Occurrences` based budgeting : [trend-calculation.yaml](samples/openslo/trend-calculation.yaml) 
+- For `Timeslice` based budgeting : [ingest-lag-timeslice-budgeting.yaml](samples/openslo/ingest-lag-timeslice-budgeting.yaml)
+- For `Occurrences` based budgeting : [trend-calculation.yaml](samples/openslo/trend-calculation.yaml)
 
 
 
@@ -156,4 +221,3 @@ slogen list -c
 
 ### Change Log
 - [New feature and fixes in v0.7](CHANGELOG.md)
-

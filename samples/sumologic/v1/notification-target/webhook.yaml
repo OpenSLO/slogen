@@ -1,0 +1,11 @@
+apiVersion: openslo/v1
+kind: AlertNotificationTarget
+spec:
+  description: Notifies by a mail message to the on-call devops mailing group
+  target: connection
+metadata:
+  name: OnCallDevopsSlackNotification
+  annotations:
+    connection_type : "Webhook"
+    connection_id: "0000000000000431"
+    run_for_triggers: "Critical,ResolvedCritical"

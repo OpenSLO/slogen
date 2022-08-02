@@ -30,6 +30,7 @@ const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 var tmplFiles embed.FS
 
 var alertPolicyMap = map[string]oslo.AlertPolicy{}
+var notificationTargetMap = map[string]oslo.AlertNotificationTarget{}
 
 const (
 	BuildFolder      = "build"
@@ -134,11 +135,21 @@ func fillAlertPolicyMap(slos map[string]*SLOMultiVerse) {
 	}
 }
 
+func fillNotificationTargetMap(slos map[string]*SLOMultiVerse) {
+	for _, slo := range slos {
+		nt := slo.AlertNotificationTarget
+		if nt != nil {
+			notificationTargetMap[nt.Metadata.Name] = *nt
+		}
+	}
+}
+
 func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
 
 	v1Path := filepath.Join(c.OutDir, NativeSLOFolder)
 
 	fillAlertPolicyMap(slos)
+	fillNotificationTargetMap(slos)
 
 	srvMap := map[string]bool{}
 
@@ -162,7 +173,8 @@ func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
 
 			srvMap[slo.Spec.Service] = true
 
-			monitorsStr, err := sumologic.GenSLOMonitorsFromAPNames(alertPolicyMap, *sumoSLO, *slo.SLO)
+			monitorsStr, err := sumologic.GenSLOMonitorsFromAPNames(alertPolicyMap, notificationTargetMap,
+				*sumoSLO, *slo.SLO)
 
 			if err != nil {
 				return err

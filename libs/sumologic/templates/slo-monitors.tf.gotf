@@ -33,7 +33,43 @@ resource "sumologic_monitor" "{{ $m.TFResourceName }}" {
                 time_range          = "{{$m.TimeRangeWarning}}"
             }
         }
-        {{end -}}
+        {{end}}
     }
+
+    {{- range $n := $m.NotifyEmails}}
+    notifications {
+        notification {
+            connection_type = "Email"
+            recipients = [
+                {{- range $mailId := $n.Recipients}}
+                "{{$mailId}}"
+                {{- end}}
+            ]
+            subject      = "{{$n.Subject}}"
+            time_zone    = "{{$n.TimeZone}}"
+            message_body = "{{$n.Body}}"
+        }
+        run_for_trigger_types = [
+            {{- range $t := $n.RunForTriggers}}
+            "{{$t}}",
+            {{- end}}
+        ]
+    }
+    {{ end }}
+
+    {{- range $n := $m.NotifyConnections}}
+    notifications {
+        notification {
+            connection_type = "{{$n.Type}}"
+            connection_id   = "{{$n.ID}}"
+        }
+        run_for_trigger_types = [
+            {{- range $t := $n.RunForTriggers}}
+            "{{$t}}",
+            {{- end}}
+        ]
+    }
+    {{ end }}
+
 }
 {{ end }}

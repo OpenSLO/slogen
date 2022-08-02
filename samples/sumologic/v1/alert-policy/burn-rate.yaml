@@ -18,7 +18,7 @@ spec:
         condition:
           kind: burnrate
           threshold: 2
-          lookbackWindow: 1h
+          lookbackWindow: -1h
           alertAfter: 5m
     - kind: AlertCondition
       metadata:
@@ -30,7 +30,10 @@ spec:
         condition:
           kind: burnrate
           threshold: 4
-          lookbackWindow: 1h
+          lookbackWindow: -1h
           alertAfter: 5m
   notificationTargets:
     - targetRef: OnCallDevopsMailNotification
+    - targetRef: OnCallDevopsSlackNotification
+
+
