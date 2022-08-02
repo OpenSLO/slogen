@@ -1,7 +1,7 @@
 apiVersion: openslo/v1
 kind: AlertNotificationTarget
 spec:
-  description: Notifies by a mail message to the on-call devops mailing group
+  description: Notifies by a slack message to the on-call devops channel
   target: connection
 metadata:
   name: OnCallDevopsSlackNotification
