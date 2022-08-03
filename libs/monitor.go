@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"sort"
 	"text/template"
+	"time"
 )
 
 type SLOMonitorConfig struct {
@@ -125,6 +126,7 @@ func MonitorConfigFromOpenSLO(sloConf SLOv1Alpha) (*SLOMonitorConfig, error) {
 	for _, alert := range alertTmplParams {
 
 		sortedNotifs := make([]Notification, len(alert.Notifications))
+
 		copy(sortedNotifs, alert.Notifications)
 		sort.Slice(sortedNotifs, func(i, j int) bool {
 			return GiveStructCompare(sortedNotifs[i], sortedNotifs[j])
@@ -174,4 +176,14 @@ func ConvertToBurnRateTmplParams(alerts []BurnRate, target, timesliceTarget floa
 	}
 
 	return tmplAlertsParams
+}
+
+func giveLocalTimeZone() string {
+	loc, err := time.LoadLocation("Local")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return loc.String()
 }
