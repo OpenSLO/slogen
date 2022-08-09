@@ -8,20 +8,27 @@ before:
     - go generate ./...
 builds:
   - env:
-      - CGO_ENABLED=0
+      - CGO_ENABLED=1
     goos:
-      - linux
       - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+      - goos: linux
+        goarch: arm
 archives:
   - replacements:
       darwin: Darwin
       linux: Linux
-      386: i386
       amd64: x86_64
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  name_template: "{{ incpatch .Version }}"
 changelog:
   sort: asc
   filters:
