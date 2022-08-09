@@ -1,4 +1,14 @@
-### [v1.0]
+### [v1.0](https://github.com/OpenSLO/slogen/releases/tag/v1.0.0)
+
+- **Feature** : Support for OpenSLO v1 spec for `SLO`, `AlertPolicy` and `AlertNotificationTarget`
+- **Feature** : Support for sumologic native SLO & SLO based monitors.
+- **Feature** : Generates flow graph of which `SLO` are using which `AlertPolicy` and `AlertNotificationTarget`
+
+![dep-graph](misc/samples-flowchart.png)
+
+sample configs to try out the above features are available [here](samples/sumologic/v1)
+
+
 
 ### [v0.7](https://github.com/OpenSLO/slogen/milestone/2?closed=1)
 

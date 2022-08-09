@@ -20,7 +20,7 @@ Flow graphs for sample configs [here](samples/sumologic/v1) (only supported for 
 
 #### Getting the tool
 
-##### install with go1.17 as `go install github.com/OpenSLO/slogen@latest`
+##### install with go1.17 or above as `go install github.com/OpenSLO/slogen@v1.0.0`
 
 latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
 Add `$GOPATH/bin` to your `$PATH`.
@@ -29,20 +29,6 @@ It can be done with
 
 ```
 export PATH=`go env GOPATH`/bin:$PATH
-```
-
-##### Get the latest binary from [release page](https://github.com/OpenSLO/slogen/releases) and put it in a directory in your `$PATH` (e.g. `$HOME/.local/bin` )
-
-###### For Linux
-
-``` shell
-wget -O - https://github.com/OpenSLO/slogen/releases/download/v0.7.11/slogen_0.7.11_Linux_x86_64.tar.gz | tar xvz -C /path/to/bin
-```
-
-###### For Mac
-
-``` shell
-wget -O - https://github.com/OpenSLO/slogen/releases/download/v0.7.11/slogen_0.7.11_Darwin_x86_64.tar.gz | tar xvz -C /path/to/bin
 ```
 
 ### Using the tool
@@ -146,5 +132,5 @@ slogen list -c
 ```
 
 ### Change Log
-- [New feature and fixes in v0.7](CHANGELOG.md)
+- [New feature and fixes in v1.0](CHANGELOG.md)
 
