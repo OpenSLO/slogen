@@ -2,9 +2,9 @@ package sumologic
 
 import (
 	"fmt"
-	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
 	"github.com/OpenSLO/slogen/libs/specs"
 	"github.com/OpenSLO/slogen/libs/sumologic/sumotf"
+	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"log"
 	"strconv"
 	"strings"

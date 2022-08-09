@@ -45,8 +45,8 @@ github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 h1:YoJbenK9C6
 github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7/go.mod h1:z4/9nQmJSSwwds7ejkxaJwO37dru3geImFUdJlaLzQo=
 github.com/acomagu/bufpipe v1.0.3 h1:fxAGrHZTgQ9w5QqVItgzwj235/uYZYgbXitB+dLupOk=
 github.com/acomagu/bufpipe v1.0.3/go.mod h1:mxdxdup/WdsKVreO5GpW4+M/1CE2sMG4jeGJ2sYmHc4=
-github.com/agaurav/oslo v0.5.13 h1:rnUZeqAQQfJqKRoZoalBlI/YqePmFF7unKH6CMeMEsA=
-github.com/agaurav/oslo v0.5.13/go.mod h1:QEy6FSCxj2DkXBtjCiCvQz2DG9CRhdGM/pNp+iZ1AcY=
+github.com/agaurav/oslo v0.5.14-0.20220809161632-b86360f4da5b h1:7x/mWECFJe/7sX1vS6WWMQhMF+YDHYTcbDVnt9DC3rs=
+github.com/agaurav/oslo v0.5.14-0.20220809161632-b86360f4da5b/go.mod h1:wzCbY/MYe5WNWj6DkqHs0vUzHf4t07N3TqpNYgw8kmo=
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
 github.com/apparentlymart/go-textseg v1.0.0/go.mod h1:z96Txxhf3xSFMPmb5X/1W05FF/Nj9VFpLOpjS5yuumk=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=

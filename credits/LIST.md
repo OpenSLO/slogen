@@ -54,7 +54,7 @@ golang.org/x/oauth2,Unknown,BSD-3-Clause
 google.golang.org/genproto/googleapis,Unknown,Apache-2.0
 google.golang.org/api/internal/third_party/uritemplates,Unknown,BSD-3-Clause
 github.com/kr/pretty,https://github.com/kr/pretty/blob/master/License,MIT
-github.com/OpenSLO/oslo/pkg/manifest,https://github.com/OpenSLO/oslo/blob/master/pkg/manifest/LICENSE,Apache-2.0
+github.com/agaurav/oslo/pkg/manifest,https://github.com/agaurav/oslo/blob/master/pkg/manifest/LICENSE,Apache-2.0
 github.com/fatih/color,https://github.com/fatih/color/blob/master/LICENSE.md,MIT
 github.com/hashicorp/hcl,https://github.com/hashicorp/hcl/blob/master/LICENSE,MPL-2.0
 github.com/hashicorp/go-cleanhttp,https://github.com/hashicorp/go-cleanhttp/blob/master/LICENSE,MPL-2.0

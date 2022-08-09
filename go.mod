@@ -3,7 +3,7 @@ module github.com/OpenSLO/slogen
 go 1.18
 
 require (
-	//github.com/OpenSLO/oslo v0.5.1
+	//github.com/agaurav/oslo v0.5.1
 	github.com/fatih/color v1.13.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goccy/go-graphviz v0.0.9
@@ -19,7 +19,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/OpenSLO/oslo v0.0.0-00010101000000-000000000000
+require github.com/agaurav/oslo v0.5.14-0.20220809161632-b86360f4da5b
 
 require (
 	github.com/chzyer/readline v1.5.1 // indirect
@@ -55,5 +55,3 @@ require (
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace github.com/OpenSLO/oslo => github.com/agaurav/oslo v0.5.13

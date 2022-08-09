@@ -31,6 +31,8 @@ It can be done with
 export PATH=`go env GOPATH`/bin:$PATH
 ```
 
+The pre-compiled binaries for specific platforms are also available on the [release](https://github.com/OpenSLO/slogen/releases) page.
+
 ### Using the tool
 
 ##### Set the sumologic auth as `ENV` variables as required by the [terraform provider](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#environment-variables):

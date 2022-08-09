@@ -2,9 +2,9 @@ package libs
 
 import (
 	"fmt"
-	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
-	"github.com/OpenSLO/oslo/pkg/manifest/v1alpha"
 	"github.com/OpenSLO/slogen/libs/specs"
+	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
+	"github.com/agaurav/oslo/pkg/manifest/v1alpha"
 	"gopkg.in/yaml.v3"
 	"os"
 )
