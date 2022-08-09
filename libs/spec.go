@@ -47,7 +47,7 @@ func Parse(filename string) (*SLOMultiVerse, error) {
 	case oslo.APIVersion:
 		err = parseV1(fileContent, sloHeaders, slo)
 	case v1alpha.APIVersion:
-		slo.Alpha, err = parseV1Alpha(fileContent)
+		slo.SLOAlpha, err = parseV1Alpha(fileContent)
 	default:
 		return nil, fmt.Errorf("unsupported OpenSLO spec version %s", sloHeaders.APIVersion)
 	}
@@ -70,7 +70,7 @@ func parseV1(yamlBody []byte, headers oslo.ObjectGeneric, sloM *SLOMultiVerse) e
 	case oslo.KindSLO:
 		var spec specs.OpenSLOSpec
 		err = yaml.Unmarshal(yamlBody, &spec)
-		sloM.V1 = &spec
+		sloM.SLO = &spec
 	case oslo.KindAlertPolicy:
 		var spec oslo.AlertPolicy
 		err = yaml.Unmarshal(yamlBody, &spec)
@@ -122,8 +122,8 @@ func (s SLOv1Alpha) TimesliceTarget() float64 {
 
 type SLOMultiVerse struct {
 	ConfigPath              string
-	Alpha                   *SLOv1Alpha
-	V1                      *specs.OpenSLOSpec
+	SLOAlpha                *SLOv1Alpha
+	SLO                     *specs.OpenSLOSpec
 	AlertPolicy             *oslo.AlertPolicy
 	AlertCondition          *oslo.AlertCondition
 	AlertNotificationTarget *oslo.AlertNotificationTarget

@@ -18,13 +18,15 @@ const (
 )
 
 const (
-	AnnotationEmailRecipients = "recipients"
-	AnnotationEmailSubject    = "subject"
-	AnnotationEmailBody       = "body"
-	AnnotationEmailTimeZone   = "timezone"
-	AnnotationRunForTriggers  = "run_for_triggers"
-	AnnotationConnectionID    = "connection_id"
-	AnnotationConnectionType  = "connection_type"
+	AnnotationEmailRecipients  = "recipients"
+	AnnotationEmailSubject     = "subject"
+	AnnotationEmailBody        = "body"
+	AnnotationEmailTimeZone    = "timezone"
+	AnnotationRunForTriggers   = "run_for_triggers"
+	AnnotationConnectionID     = "connection_id"
+	AnnotationConnectionType   = "connection_type"
+	AlertConditionTypeBurnRate = "burnrate"
+	AlertConditionTypeSLI      = "sli"
 )
 
 type SLOMonitor struct {
@@ -259,9 +261,11 @@ func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO, notifyMap map[string]os
 			NotifyConnections: notifyconns,
 		}
 
-		switch *c.AlertConditionInline.Spec.Condition.Kind {
-		case oslo.AlertConditionTypeBurnRate:
+		switch c.AlertConditionInline.Spec.Condition.Kind {
+		case AlertConditionTypeBurnRate:
 			FillBurnRateAlert(c.AlertConditionInline.Spec, &m)
+		case AlertConditionTypeSLI:
+			FillSLIAlert(c.AlertConditionInline.Spec, &m)
 		default:
 			panic(fmt.Sprintf("alert condition of this kind not supported : '%s'", c.Kind))
 		}
@@ -317,10 +321,27 @@ func FillBurnRateAlert(c oslo.AlertConditionSpec, m *SLOMonitor) error {
 
 	switch strings.ToLower(c.Severity) {
 	case "critical":
-		m.BurnRateThresholdCritical = float64(c.Condition.Threshold)
+		m.BurnRateThresholdCritical = c.Condition.Threshold
 		m.TimeRangeCritical = c.Condition.LookbackWindow
 	case "warning":
-		m.BurnRateThresholdWarning = float64(c.Condition.Threshold)
+		m.BurnRateThresholdWarning = c.Condition.Threshold
+		m.TimeRangeWarning = c.Condition.LookbackWindow
+	}
+
+	return nil
+}
+
+func FillSLIAlert(c oslo.AlertConditionSpec, m *SLOMonitor) error {
+
+	m.TriggerType = MonitorKindSLI
+	m.EvaluationDelay = c.Condition.AlertAfter
+
+	switch strings.ToLower(c.Severity) {
+	case "critical":
+		m.SliThresholdCritical = c.Condition.Threshold
+		m.TimeRangeCritical = c.Condition.LookbackWindow
+	case "warning":
+		m.SliThresholdWarning = c.Condition.Threshold
 		m.TimeRangeWarning = c.Condition.LookbackWindow
 	}
 
@@ -331,18 +352,22 @@ func FillBurnRateAlert(c oslo.AlertConditionSpec, m *SLOMonitor) error {
 // based on the name of the monitor.
 func MergeMonitors(mons []SLOMonitor) []SLOMonitor {
 	burnRateMonitors := make(map[string][]SLOMonitor)
+	sliMonitors := make(map[string][]SLOMonitor)
 
 	for _, m := range mons {
 
 		switch m.TriggerType {
 		case MonitorKindBurnRate:
 			burnRateMonitors[m.MonitorName] = append(burnRateMonitors[m.MonitorName], m)
+		case MonitorKindSLI:
+			sliMonitors[m.MonitorName] = append(sliMonitors[m.MonitorName], m)
 		default:
 			panic(fmt.Sprintf("trigger type not supported : '%s'", m.TriggerType))
 		}
 	}
 
 	mergedMonitors := mergeBurnRateMonitors(burnRateMonitors)
+	mergedMonitors = append(mergedMonitors, mergeSLIMonitors(sliMonitors)...)
 
 	return mergedMonitors
 }
@@ -363,6 +388,28 @@ func mergeBurnRateMonitors(mons map[string][]SLOMonitor) []SLOMonitor {
 
 		m[iCrit].BurnRateThresholdWarning = m[iWarn].BurnRateThresholdWarning
 		m[iCrit].TimeRangeWarning = m[iWarn].TimeRangeWarning
+
+		mergedMonitors = append(mergedMonitors, m[iCrit])
+	}
+
+	return mergedMonitors
+}
+
+func mergeSLIMonitors(mons map[string][]SLOMonitor) []SLOMonitor {
+	var mergedMonitors []SLOMonitor
+
+	for _, m := range mons {
+		if len(m) != 2 {
+			panic(fmt.Sprintf("monitor %s has %d monitors, expected 2", m[0].MonitorName, len(m)))
+		}
+
+		iCrit := 0
+		iWarn := 1
+		if m[iCrit].SliThresholdWarning != 0 {
+			iCrit, iWarn = iWarn, iCrit
+		}
+
+		m[iCrit].SliThresholdWarning = m[iWarn].SliThresholdWarning
 
 		mergedMonitors = append(mergedMonitors, m[iCrit])
 	}

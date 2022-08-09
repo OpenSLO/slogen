@@ -1,0 +1,39 @@
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: SLA-breach
+  displayName: Alert Policy
+spec:
+  description: Alert policy when current availability is too low breaches, notifies on-call devops via phone, email & slack
+  alertWhenBreaching: true
+  alertWhenResolved: false
+  conditions:
+    - kind: AlertCondition
+      metadata:
+        name: SLO-breach
+        displayName: availability too low
+      spec:
+        description: availability below 99.75%
+        severity: warning
+        condition:
+          kind: sli
+          threshold: 99.75
+          lookbackWindow: -1h
+          alertAfter: 5m
+    - kind: AlertCondition
+      metadata:
+        name: SLO-breach
+        displayName: availability too low
+      spec:
+        description: availability below 99.5%
+        severity: critical
+        condition:
+          kind: sli
+          threshold: 99.5
+          lookbackWindow: -1h # use ony valid duration value, this is not used
+          alertAfter: 5m # use ony valid duration value, this is not used
+  notificationTargets:
+    - targetRef: OnCallPagerdutyUrgent
+    - targetRef: DevOpsMail
+
+
