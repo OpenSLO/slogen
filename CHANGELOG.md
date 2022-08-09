@@ -1,6 +1,7 @@
 ### [v1.0](https://github.com/OpenSLO/slogen/releases/tag/v1.0.0)
 
 - **Feature** : Support for OpenSLO v1 spec for `SLO`, `AlertPolicy` and `AlertNotificationTarget`
+  - `AlertPolicy` and `AlertNotificationTarget` based approach removes the need for created duplicate alerting configs with each `SLO`
 - **Feature** : Support for sumologic native SLO & SLO based monitors.
 - **Feature** : Generates flow graph of which `SLO` are using which `AlertPolicy` and `AlertNotificationTarget`
 
