@@ -2,6 +2,8 @@
 
 CLI tool to generate SLO dashboards, monitors & SLI data
 from [OpenSLO](https://github.com/OpenSLO/OpenSLO#specification) configs. 
+The resources are generated via terraform which can be consumed on its as as well.
+
 
 Currently supported vendors/data sources.
 
@@ -9,6 +11,11 @@ Currently supported vendors/data sources.
 
 ![list](misc/sumo-sli-list.gif)
 ![panels](misc/sumo-slo-dashboard.png)
+
+A flow graph of `SLO` to `AlertPolicy` to `AlertNotificationTarget` is also generated in the output dir as `slo-dep-graph.png`.
+Flow graphs for sample configs [here](samples/sumologic/v1) (only supported for v1 onward specs).
+
+![dep-graph](misc/samples-flowchart.png)
 
 
 #### Getting the tool

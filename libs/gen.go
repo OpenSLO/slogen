@@ -85,6 +85,8 @@ func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 		panic(err)
 	}
 
+	makeOSLODepGraph(slosMv, c)
+
 	return genTerraformForAlpha(slosAlpha, c)
 }
 
@@ -154,8 +156,8 @@ func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
 	srvMap := map[string]bool{}
 
 	for _, sloM := range slos {
-		if sloM.V1 != nil {
-			slo := sloM.V1
+		if sloM.SLO != nil {
+			slo := sloM.SLO
 			sumoSLO, err := sumologic.ConvertToSumoSLO(*slo)
 			sumoSLOStr, err := sumologic.GiveSLOTerraform(*slo)
 
@@ -200,11 +202,11 @@ func splitMultiVerse(slos map[string]*SLOMultiVerse) (map[string]*SLOv1Alpha, ma
 	v1 := map[string]*specs.OpenSLOSpec{}
 
 	for path, sloMv := range slos {
-		if sloMv.Alpha != nil {
-			alpha[path] = sloMv.Alpha
+		if sloMv.SLOAlpha != nil {
+			alpha[path] = sloMv.SLOAlpha
 		}
-		if sloMv.V1 != nil {
-			v1[path] = sloMv.V1
+		if sloMv.SLO != nil {
+			v1[path] = sloMv.SLO
 		}
 	}
 

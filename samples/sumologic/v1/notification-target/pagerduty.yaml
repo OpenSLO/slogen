@@ -1,0 +1,11 @@
+apiVersion: openslo/v1
+kind: AlertNotificationTarget
+spec:
+  description: Notifies by pager to the current on-calls
+  target: connection
+metadata:
+  name: OnCallPagerdutyUrgent
+  annotations:
+    connection_type : "PagerDuty"
+    connection_id: "0000000000002431"
+    run_for_triggers: "Critical,ResolvedCritical"

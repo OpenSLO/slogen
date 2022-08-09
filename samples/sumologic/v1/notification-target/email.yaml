@@ -1,10 +1,10 @@
 apiVersion: openslo/v1
 kind: AlertNotificationTarget
 spec:
-  description: Notifies by a mail message to the on-call devops mailing group
+  description: Notifies by a mail message to the devops mailing group
   target: email
 metadata:
-  name: OnCallDevopsMailNotification
+  name: DevOpsMail
   annotations:
     recipients: "agaurav@sumologic.com"
     subject: "Monitor Alert: {{TriggerType}} on {{Name}}"

@@ -1,10 +1,10 @@
 apiVersion: openslo/v1
 kind: AlertNotificationTarget
 spec:
-  description: Notifies by a slack message to the on-call devops channel
+  description: Notifies by a slack message to the devops channel
   target: connection
 metadata:
-  name: OnCallDevopsSlackNotification
+  name: DevOpsSlack
   annotations:
     connection_type : "Webhook"
     connection_id: "0000000000000431"

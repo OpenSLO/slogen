@@ -1,3 +1,5 @@
+### [v1.0]
+
 ### [v0.7](https://github.com/OpenSLO/slogen/milestone/2?closed=1)
 
 - **Feature** : Timeslice based budgeting (availability calculated w.r.t. good time windows)  

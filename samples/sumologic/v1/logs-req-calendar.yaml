@@ -43,3 +43,4 @@ spec:
       target: 0.98
   alertPolicies:
     - High-Burn-Rate
+    - SLA-breach

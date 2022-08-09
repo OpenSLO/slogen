@@ -33,7 +33,8 @@ spec:
           lookbackWindow: -1h
           alertAfter: 5m
   notificationTargets:
-    - targetRef: OnCallDevopsMailNotification
-    - targetRef: OnCallDevopsSlackNotification
+    - targetRef: DevOpsMail
+    - targetRef: DevOpsSlack
+
 
 
