@@ -18,7 +18,6 @@ var tfTemplates *template.Template
 const NameDashboardTmpl = "dashboard.tf.gotf"
 const NameViewTmpl = "sched-view.tf.gotf"
 const NameMonitorTmpl = "monitor.tf.gotf"
-const NameMainTmpl = "main.tf.gotf"
 const NameModuleTmpl = "module_interface.tf.gotf"
 const NameDashFolderTmpl = "dash-folders.tf.gotf"
 const NameMonitorFolderTmpl = "monitor-folders.tf.gotf"
@@ -28,6 +27,9 @@ const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 
 //go:embed templates/terraform/**/*.tf.gotf
 var tmplFiles embed.FS
+
+//go:embed templates/terraform/main.tf.gotf
+var tmplMainTFStr string
 
 var alertPolicyMap = map[string]oslo.AlertPolicy{}
 var notificationTargetMap = map[string]oslo.AlertNotificationTarget{}
@@ -257,7 +259,7 @@ func SetupOutDir(c GenConf) error {
 
 	mainPath := filepath.Join(c.OutDir, "main.tf")
 
-	err = FileFromTmpl(NameMainTmpl, mainPath, c)
+	err = GenMainTF(mainPath, c)
 	if err != nil {
 		return err
 	}
@@ -291,6 +293,20 @@ func SetupOutDir(c GenConf) error {
 	}
 
 	return nil
+}
+
+func GenMainTF(path string, conf GenConf) error {
+	mainTFTmpl := template.Must(template.New("main.tf").Parse(tmplMainTFStr))
+
+	buff := &bytes.Buffer{}
+
+	err := mainTFTmpl.Execute(buff, conf)
+
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, buff.Bytes(), 0644)
 }
 
 func FileFromTmpl(name string, path string, data interface{}) error {

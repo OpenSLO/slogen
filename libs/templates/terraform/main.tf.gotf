@@ -24,8 +24,9 @@ module "slos" {
 }
 
 
-/// legacy sumo slo's for sloV1Alpha
 {{- if not .OnlyNative }}
+
+/// legacy sumo slo's for sloV1Alpha
 
 {{- if .AsModule }}
 variable "slogen_dashboards_parent_folder" {}
