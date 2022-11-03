@@ -29,6 +29,11 @@ const (
 	AlertConditionTypeSLI      = "sli"
 )
 
+const (
+	SourceTypeLogs    = "sumologic-logs"
+	SourceTypeMetrics = "sumologic-metrics"
+)
+
 type SLOMonitor struct {
 	Service                   string
 	SLOName                   string
@@ -145,9 +150,9 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 
 	if indicator.Spec.RatioMetric != nil {
 		switch indicator.Spec.RatioMetric.Total.MetricSource.Type {
-		case "sumologic-logs":
+		case SourceTypeLogs:
 			queryType = "Logs"
-		case "sumologic-metrics":
+		case SourceTypeMetrics:
 			queryType = "Metrics"
 		}
 
@@ -185,9 +190,9 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 
 	if indicator.Spec.ThresholdMetric != nil {
 		switch indicator.Spec.ThresholdMetric.MetricSource.Type {
-		case "sumologic-logs":
+		case SourceTypeLogs:
 			queryType = "Logs"
-		case "sumologic-metrics":
+		case SourceTypeMetrics:
 			queryType = "Metrics"
 		}
 
@@ -417,8 +422,20 @@ func mergeSLIMonitors(mons map[string][]SLOMonitor) []SLOMonitor {
 	return mergedMonitors
 }
 
+func GiveSLOMonitorTerraform(apMap map[string]oslo.AlertPolicy, ntMap map[string]oslo.AlertNotificationTarget,
+	slo specs.OpenSLOSpec) (string, error) {
+	sumoSLO, err := ConvertToSumoSLO(slo)
+
+	if err != nil {
+		return "", err
+	}
+
+	return GenSLOMonitorsFromAPNames(apMap, ntMap, sumoSLO, *slo.SLO)
+
+}
+
 func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, ntMap map[string]oslo.AlertNotificationTarget,
-	sumoSLO SLO, slo oslo.SLO) (string, error) {
+	sumoSLO *SLO, slo oslo.SLO) (string, error) {
 
 	var sloMonitors []SLOMonitor
 
@@ -428,7 +445,7 @@ func GenSLOMonitorsFromAPNames(apMap map[string]oslo.AlertPolicy, ntMap map[stri
 
 		ap := apMap[apName]
 
-		mons, err := ConvertToSumoMonitor(ap, &sumoSLO, ntMap)
+		mons, err := ConvertToSumoMonitor(ap, sumoSLO, ntMap)
 		if err != nil {
 			return "", err
 		}

@@ -18,7 +18,6 @@ var tfTemplates *template.Template
 const NameDashboardTmpl = "dashboard.tf.gotf"
 const NameViewTmpl = "sched-view.tf.gotf"
 const NameMonitorTmpl = "monitor.tf.gotf"
-const NameMainTmpl = "main.tf.gotf"
 const NameModuleTmpl = "module_interface.tf.gotf"
 const NameDashFolderTmpl = "dash-folders.tf.gotf"
 const NameMonitorFolderTmpl = "monitor-folders.tf.gotf"
@@ -28,6 +27,9 @@ const NameServiceTrackerTmpl = "service-overview.tf.gotf"
 
 //go:embed templates/terraform/**/*.tf.gotf
 var tmplFiles embed.FS
+
+//go:embed templates/terraform/main.tf.gotf
+var tmplMainTFStr string
 
 var alertPolicyMap = map[string]oslo.AlertPolicy{}
 var notificationTargetMap = map[string]oslo.AlertNotificationTarget{}
@@ -90,6 +92,47 @@ func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 	return genTerraformForAlpha(slosAlpha, c)
 }
 
+func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
+
+	v1Path := filepath.Join(c.OutDir, NativeSLOFolder)
+
+	fillAlertPolicyMap(slos)
+	fillNotificationTargetMap(slos)
+
+	srvMap := map[string]bool{}
+
+	var err error
+	var sloStr, monitorsStr string
+
+	for _, sloM := range slos {
+		if sloM.SLO != nil {
+			slo := sloM.SLO
+
+			// handle sumologic specific stuff
+			if sumologic.IsSource(*slo) {
+				sloStr, monitorsStr, err = sumologic.GiveTerraform(alertPolicyMap, notificationTargetMap, *slo)
+			}
+
+			err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_%s.tf", slo.Metadata.Name)), []byte(sloStr), 0755)
+			if err != nil {
+				return err
+			}
+			srvMap[slo.Spec.Service] = true
+
+			if monitorsStr != "" {
+				err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_monitors_%s.tf", slo.Metadata.Name)), []byte(monitorsStr), 0755)
+			}
+		}
+	}
+
+	srvList := GiveKeys(srvMap)
+	sort.Strings(srvList)
+
+	GenSLOFoldersTF(srvList, c)
+
+	return nil
+}
+
 func genTerraformForAlpha(slosAlpha map[string]*SLOv1Alpha, c GenConf) (string, error) {
 	var err error
 
@@ -144,56 +187,6 @@ func fillNotificationTargetMap(slos map[string]*SLOMultiVerse) {
 			notificationTargetMap[nt.Metadata.Name] = *nt
 		}
 	}
-}
-
-func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
-
-	v1Path := filepath.Join(c.OutDir, NativeSLOFolder)
-
-	fillAlertPolicyMap(slos)
-	fillNotificationTargetMap(slos)
-
-	srvMap := map[string]bool{}
-
-	for _, sloM := range slos {
-		if sloM.SLO != nil {
-			slo := sloM.SLO
-			sumoSLO, err := sumologic.ConvertToSumoSLO(*slo)
-			sumoSLOStr, err := sumologic.GiveSLOTerraform(*slo)
-
-			if err != nil {
-				BadUResult(err.Error() + fmt.Sprintf("| file : %s", sloM.ConfigPath))
-				return err
-			}
-
-			//pretty.Println(sumoSLO)
-
-			err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_%s.tf", slo.Metadata.Name)), []byte(sumoSLOStr), 0755)
-			if err != nil {
-				return err
-			}
-
-			srvMap[slo.Spec.Service] = true
-
-			monitorsStr, err := sumologic.GenSLOMonitorsFromAPNames(alertPolicyMap, notificationTargetMap,
-				*sumoSLO, *slo.SLO)
-
-			if err != nil {
-				return err
-			}
-
-			if monitorsStr != "" {
-				err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_monitors_%s.tf", slo.Metadata.Name)), []byte(monitorsStr), 0755)
-			}
-		}
-	}
-
-	srvList := GiveKeys(srvMap)
-	sort.Strings(srvList)
-
-	GenSLOFoldersTF(srvList, c)
-
-	return nil
 }
 
 func splitMultiVerse(slos map[string]*SLOMultiVerse) (map[string]*SLOv1Alpha, map[string]*specs.OpenSLOSpec) {
@@ -266,7 +259,7 @@ func SetupOutDir(c GenConf) error {
 
 	mainPath := filepath.Join(c.OutDir, "main.tf")
 
-	err = FileFromTmpl(NameMainTmpl, mainPath, c)
+	err = GenMainTF(mainPath, c)
 	if err != nil {
 		return err
 	}
@@ -300,6 +293,20 @@ func SetupOutDir(c GenConf) error {
 	}
 
 	return nil
+}
+
+func GenMainTF(path string, conf GenConf) error {
+	mainTFTmpl := template.Must(template.New("main.tf").Parse(tmplMainTFStr))
+
+	buff := &bytes.Buffer{}
+
+	err := mainTFTmpl.Execute(buff, conf)
+
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, buff.Bytes(), 0644)
 }
 
 func FileFromTmpl(name string, path string, data interface{}) error {

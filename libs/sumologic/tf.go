@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"github.com/OpenSLO/slogen/libs/specs"
+	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"text/template"
 )
 
@@ -25,6 +26,19 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GiveTerraform(apMap map[string]oslo.AlertPolicy, ntMap map[string]oslo.AlertNotificationTarget,
+	slo specs.OpenSLOSpec) (string, string, error) {
+	sloStr, err := GiveSLOTerraform(slo)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	monitorsStr, err := GiveSLOMonitorTerraform(apMap, ntMap, slo)
+
+	return sloStr, monitorsStr, err
 }
 
 func GiveSLOTerraform(s specs.OpenSLOSpec) (string, error) {
@@ -59,4 +73,20 @@ func GiveMonitorTerraform(mons []SLOMonitor) (string, error) {
 	}
 
 	return buff.String(), nil
+}
+
+func IsSource(slo specs.OpenSLOSpec) bool {
+	indicator := slo.Spec.Indicator
+
+	sourceType := ""
+
+	if indicator.Spec.RatioMetric != nil {
+		sourceType = indicator.Spec.RatioMetric.Total.MetricSource.Type
+	}
+
+	if indicator.Spec.ThresholdMetric != nil {
+		sourceType = indicator.Spec.ThresholdMetric.MetricSource.Type
+	}
+
+	return sourceType == SourceTypeLogs || sourceType == SourceTypeMetrics
 }
