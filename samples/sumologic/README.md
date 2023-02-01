@@ -67,3 +67,34 @@ metadata:
 ```
 
 
+
+### Specifying SLO and monitor folders
+The annotation field `sumologic/slo-folder-id` can be used to specify the id of the folder in which the SLO should be created.
+Similarly, the annotation field `sumologic/slo-monitor-folder-id` can be used to specify the id of the folder in which the SLO monitor should be created.
+
+
+e.g. 
+
+```yaml
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: drift_gen_Calendar
+  displayName: DriftGen SLO Calendar
+  annotations:
+    sumologic/signal-type: Latency
+    sumologic/tf-resource-name: slo-driftgen-latency-calendar
+    sumologic/slo-folder-id: 0000000000000ABC
+    sumologic/monitor-folder-id: 0000000000026ABC
+spec:
+  description: test slo created from slogen
+  service: tsat
+  indicator:
+    metadata:
+...
+
+```
+
+### Renaming SLO name while retaining old SLO's in sumo
+The annotation field `sumologic/tf-resource-name` can be used to pin the terraform resource name, thus allowing the SLO name to be changed without destroying the old SLO in sumo.
+This is required as otherwise the terraform resource name is derived from SLO name and its service.  

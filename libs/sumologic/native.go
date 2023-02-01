@@ -18,6 +18,10 @@ const (
 )
 
 const (
+	AnnotationMonitorFolderID  = "sumologic/monitor-folder-id"
+	AnnotationSLOFolderID      = "sumologic/slo-folder-id"
+	AnnotationTFResourceName   = "sumologic/tf-resource-name"
+	AnnotationSignalType       = "sumologic/signal-type"
 	AnnotationEmailRecipients  = "recipients"
 	AnnotationEmailSubject     = "subject"
 	AnnotationEmailBody        = "body"
@@ -37,7 +41,9 @@ const (
 type SLOMonitor struct {
 	Service                   string
 	SLOName                   string
+	FolderID                  string
 	SloID                     string
+	ParentID                  string
 	MonitorName               string
 	EvaluationDelay           string
 	TriggerType               string
@@ -70,6 +76,11 @@ type SLO struct {
 }
 
 func (s SLO) TFResourceName() string {
+
+	if s.ResourceName != "" {
+		return s.ResourceName
+	}
+
 	return fmt.Sprintf("sumologic_slo_%s_%s", s.Service, s.Name)
 }
 
@@ -84,9 +95,12 @@ type SLOFolder struct {
 func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 
 	signalType := "Other"
+	resourceName := slo.Metadata.Annotations[AnnotationTFResourceName]
+	sloFolderID := slo.Metadata.Annotations[AnnotationSLOFolderID]
+	monitorFolderID := slo.Metadata.Annotations[AnnotationMonitorFolderID]
 
-	if slo.Metadata.Annotations["sumologic/signal-type"] != "" {
-		signalType = slo.Metadata.Annotations["sumologic/signal-type"]
+	if slo.Metadata.Annotations[AnnotationSignalType] != "" {
+		signalType = slo.Metadata.Annotations[AnnotationSignalType]
 	}
 
 	size := ""
@@ -112,10 +126,13 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 
 	sumoSLO := &SLO{
 		&sumotf.SLOLibrarySLO{
-			Name:        slo.SLO.Metadata.Name,
-			Description: slo.Spec.Description,
-			Service:     slo.Spec.Service,
-			SignalType:  signalType,
+			ResourceName:    resourceName,
+			Name:            slo.SLO.Metadata.Name,
+			Description:     slo.Spec.Description,
+			Service:         slo.Spec.Service,
+			ParentID:        sloFolderID,
+			MonitorFolderID: monitorFolderID,
+			SignalType:      signalType,
 			Compliance: sumotf.SLOCompliance{
 				ComplianceType: complianceType,
 				Target:         slo.Spec.Objectives[0].Target,
@@ -257,9 +274,14 @@ func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO, notifyMap map[string]os
 
 		name := fmt.Sprintf("%s_%s_%s", slo.Service, slo.Name, c.Metadata.Name)
 
+		if slo.ResourceName != "" {
+			name = fmt.Sprintf("%s_%s_%s", slo.Service, slo.ResourceName, c.Metadata.Name)
+		}
+
 		m := SLOMonitor{
 			SLOName:           slo.Name,
 			Service:           slo.Service,
+			ParentID:          slo.MonitorFolderID,
 			MonitorName:       name,
 			EvaluationDelay:   c.AlertConditionInline.Spec.Condition.AlertAfter,
 			NotifyEmails:      notifyMails,

@@ -1,7 +1,11 @@
 resource "sumologic_slo" "{{ .TFResourceName }}" {
     name        = "{{.Name}}"
     description = "{{.Description}}"
+    {{- if ne .ParentID ""}}
+    parent_id   = "{{.ParentID}}"
+    {{ else }}
     parent_id   = sumologic_slo_folder.slg_tf_{{.Service}}.id
+    {{ end }}
     signal_type = "{{.SignalType}}"
     service     = "{{.Service}}"
     application = ""

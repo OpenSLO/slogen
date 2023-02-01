@@ -33,7 +33,7 @@ spec:
           lookbackWindow: -1h # use ony valid duration value, this is not used
           alertAfter: 5m # use ony valid duration value, this is not used
   notificationTargets:
-    - targetRef: OnCallPagerdutyUrgent
     - targetRef: DevOpsMail
+    - targetRef: OnCallPagerdutyUrgent
 
 

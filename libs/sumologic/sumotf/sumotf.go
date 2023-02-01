@@ -19,25 +19,27 @@ type SLOLibraryFolder struct {
 }
 
 type SLOLibrarySLO struct {
-	ID          string        `json:"id,omitempty"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Version     int           `json:"version"`
-	CreatedAt   string        `json:"createdAt"`
-	CreatedBy   string        `json:"createdBy"`
-	ModifiedAt  string        `json:"modifiedAt"`
-	ModifiedBy  string        `json:"modifiedBy"`
-	ParentID    string        `json:"parentId"`
-	ContentType string        `json:"contentType"`
-	Type        string        `json:"type"`
-	IsSystem    bool          `json:"isSystem"`
-	IsMutable   bool          `json:"isMutable"`
-	IsLocked    bool          `json:"isLocked"`
-	SignalType  string        `json:"signalType"` // string^(Latency|Error|Throughput|Availability|Other)$
-	Compliance  SLOCompliance `json:"compliance"`
-	Indicator   SLOIndicator  `json:"indicator"`
-	Service     string        `json:"service"`
-	Application string        `json:"application"`
+	ResourceName    string // terraform resource name to override the one calculated from the SLO name+service
+	ID              string `json:"id,omitempty"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	Version         int    `json:"version"`
+	CreatedAt       string `json:"createdAt"`
+	CreatedBy       string `json:"createdBy"`
+	ModifiedAt      string `json:"modifiedAt"`
+	ModifiedBy      string `json:"modifiedBy"`
+	ParentID        string `json:"parentId"`
+	MonitorFolderID string
+	ContentType     string        `json:"contentType"`
+	Type            string        `json:"type"`
+	IsSystem        bool          `json:"isSystem"`
+	IsMutable       bool          `json:"isMutable"`
+	IsLocked        bool          `json:"isLocked"`
+	SignalType      string        `json:"signalType"` // string^(Latency|Error|Throughput|Availability|Other)$
+	Compliance      SLOCompliance `json:"compliance"`
+	Indicator       SLOIndicator  `json:"indicator"`
+	Service         string        `json:"service"`
+	Application     string        `json:"application"`
 }
 
 type SLOCompliance struct {

@@ -5,6 +5,9 @@ metadata:
   displayName: DriftGen SLO Calendar
   annotations:
     sumologic/signal-type: Latency
+    sumologic/tf-resource-name: slo-driftgen-latency-calendar
+    sumologic/slo-folder-id: 0000000000000ABC
+    sumologic/monitor-folder-id: 0000000000026ABC
 spec:
   description: test slo created from slogen
   service: tsat

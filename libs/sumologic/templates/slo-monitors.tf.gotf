@@ -7,6 +7,11 @@ resource "sumologic_monitor" "{{ $m.TFResourceName }}" {
     content_type     = "Monitor"
     monitor_type     = "Slo"
     slo_id           = "{{$m.SloID}}"
+    {{- if ne .ParentID ""}}
+    parent_id   = "{{.ParentID}}"
+    {{else}}
+    parent_id   = sumologic_monitor_folder.slg_tf_monitor_{{.Service}}.id
+    {{end}}
     evaluation_delay = "{{$m.EvaluationDelay}}"
 
     trigger_conditions {

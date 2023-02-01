@@ -7,5 +7,5 @@ metadata:
   name: OnCallPagerdutyUrgent
   annotations:
     connection_type : "PagerDuty"
-    connection_id: "0000000000002431"
+    connection_id: "000000000000ABCD"
     run_for_triggers: "Critical,ResolvedCritical"
