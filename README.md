@@ -20,7 +20,7 @@ Flow graphs for sample configs [here](samples/sumologic/v1) (only supported for 
 
 #### Getting the tool
 
-##### install with go1.17 or above as `go install github.com/OpenSLO/slogen@v1.0.1`
+##### install with go1.17 or above as `go install github.com/OpenSLO/slogen@latest`
 
 latest golang release can be installed by using the directions here : https://github.com/udhos/update-golang#usage.
 Add `$GOPATH/bin` to your `$PATH`.
