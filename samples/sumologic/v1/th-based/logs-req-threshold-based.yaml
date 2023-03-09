@@ -1,0 +1,40 @@
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: drift_gen_Calendar_th_req_based
+  displayName: DriftGen SLO Calendar req based
+  annotations:
+    sumologic/signal-type: Latency
+spec:
+  budgetingMethod: Occurrences
+  description: test slo created from slogen
+  service: tsat
+  indicator:
+    metadata:
+      name: driftgen-latency-calendar
+      displayName: DriftGen Latency Calendar
+    spec:
+      thresholdMetric:
+        metricSource:
+          type: sumologic-logs
+          metricSourceRef: sumologic-datasource
+          spec:  # for Occurrences based evaluation, `window` & `aggregate` fields are not required
+            threshold: 1
+            field: latency_sec
+            op: LessThanOrEqual # (Required) The operator used to define a successful window. Valid values are LessThan , LessThanOrEqual, GreaterThan , GreaterThanOrEqual
+            query: | 
+                cluster=sedemostaging namespace=warp004*
+                  | parse "Coffee preparation request time: * ms" as latency nodrop
+                  |  if(isBlank(latency), "false", "true") as hasLatency
+                  | where hasLatency = "true"
+                  |  if(isBlank(latency), 0.0, latency) as latency
+                  | latency/ 1000 as latency_sec
+  timeWindow:
+    - duration: Week
+      calendar:
+        startTime: Monday
+        timeZone: America/New_York
+      isRolling: false
+  objectives:
+    - displayName: Foo Total Errors
+      target: 0.98

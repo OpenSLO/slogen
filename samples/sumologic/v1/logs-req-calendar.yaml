@@ -5,12 +5,11 @@ metadata:
   displayName: DriftGen SLO Calendar
   annotations:
     sumologic/signal-type: Latency
-    sumologic/tf-resource-name: slo-driftgen-latency-calendar
     sumologic/slo-folder-id: 0000000000000ABC
-    sumologic/monitor-folder-id: 0000000000026ABC
 spec:
   description: test slo created from slogen
   service: tsat
+  budgetingMethod: Occurrences
   indicator:
     metadata:
       name: driftgen-latency-calendar
@@ -36,11 +35,10 @@ spec:
                   | where msg="DriftGen query completed"
   timeWindow:
     - duration: Week
+      isRolling: false
       calendar:
         startTime: Monday
         timeZone: America/New_York
-      isRolling: false
-  budgetingMethod: Occurrences
   objectives:
     - displayName: Foo Total Errors
       target: 0.98

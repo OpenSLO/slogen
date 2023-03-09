@@ -37,6 +37,7 @@ resource "sumologic_slo" "{{ .TFResourceName }}" {
             query_type = "{{$ind.QueryType}}"
             size       = "{{$ind.Size}}"
             threshold  = "{{$ind.Threshold}}"
+            aggregation= "{{$ind.Aggregation}}"
             {{range $qgroup := $ind.Queries}}
             queries {
                 query_group_type = "{{$qgroup.QueryGroupType}}"
