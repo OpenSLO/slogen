@@ -87,7 +87,8 @@ func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 		panic(err)
 	}
 
-	makeOSLODepGraph(slosMv, c)
+	//to be moved to conditional compilation later
+	//graph.MakeOSLODepGraph(slosMv, c)
 
 	return genTerraformForAlpha(slosAlpha, c)
 }
@@ -275,7 +276,7 @@ func SetupOutDir(c GenConf) error {
 			{Path: filepath.Join(c.OutDir, ViewsFolder), Vars: nil},
 			{Path: filepath.Join(c.OutDir, MonitorsFolder), Vars: []string{VarNameMonRootFolder}},
 			{Path: filepath.Join(c.OutDir, DashboardsFolder), Vars: []string{VarNameDashRootFolder}},
-			{Path: filepath.Join(c.OutDir, NativeSLOFolder), Vars: []string{VarNameNativeSLORootFolder}},
+			{Path: filepath.Join(c.OutDir, NativeSLOFolder), Vars: []string{VarNameNativeSLORootFolder, VarNameSLOMonitorRootFolder}},
 		}
 	}
 

@@ -1,32 +1,33 @@
-package libs
+package graph
 
 import (
+	"github.com/OpenSLO/slogen/libs"
 	"github.com/goccy/go-graphviz/cgraph"
 
 	"github.com/goccy/go-graphviz"
 )
 
-func makeOSLODepGraph(confs map[string]*SLOMultiVerse, c GenConf) *graphviz.Graphviz {
+func MakeOSLODepGraph(confs map[string]*libs.SLOMultiVerse, c libs.GenConf) *graphviz.Graphviz {
 	g := graphviz.New()
 	graph, err := g.Graph()
 	if err != nil {
-		log.Fatal(err)
+		libs.Log().Fatal(err)
 	}
 	defer func() {
 		if err := graph.Close(); err != nil {
-			log.Fatal(err)
+			libs.Log().Fatal(err)
 		}
 		g.Close()
 	}()
 
 	err = createNodes(graph, confs)
 	if err != nil {
-		log.Errorw("error generating slo graph nodes", "err", err)
+		libs.Log().Errorw("error generating slo graph nodes", "err", err)
 	}
 
 	err = createEdges(graph, confs)
 	if err != nil {
-		log.Errorw("error generating slo graph edges", "err", err)
+		libs.Log().Errorw("error generating slo graph edges", "err", err)
 	}
 
 	filePath := c.OutDir + "/" + "slo-dep-graph.png"
@@ -36,7 +37,7 @@ func makeOSLODepGraph(confs map[string]*SLOMultiVerse, c GenConf) *graphviz.Grap
 	return g
 }
 
-func createNodes(graph *cgraph.Graph, confs map[string]*SLOMultiVerse) error {
+func createNodes(graph *cgraph.Graph, confs map[string]*libs.SLOMultiVerse) error {
 
 	var err error
 	for _, v := range confs {
@@ -70,7 +71,7 @@ func createNodes(graph *cgraph.Graph, confs map[string]*SLOMultiVerse) error {
 		}
 
 		if err != nil {
-			log.Errorw("error generating slo graph", "err", err)
+			libs.Log().Errorw("error generating slo graph", "err", err)
 			return err
 		}
 		//node.
@@ -79,7 +80,7 @@ func createNodes(graph *cgraph.Graph, confs map[string]*SLOMultiVerse) error {
 	return nil
 }
 
-func createEdges(graph *cgraph.Graph, confs map[string]*SLOMultiVerse) error {
+func createEdges(graph *cgraph.Graph, confs map[string]*libs.SLOMultiVerse) error {
 
 	for _, v := range confs {
 

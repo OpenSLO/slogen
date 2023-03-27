@@ -8,18 +8,26 @@ before:
     - go generate ./...
 builds:
   - env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
     goos:
+      - linux
       - darwin
     goarch:
+      - "386"
       - amd64
       - arm
       - arm64
+      - ppc64
+    goarm:
+      - "7"
     ignore:
-      - goos: linux
-        goarch: arm64
-      - goos: linux
+      - goos: windows
         goarch: arm
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=goreleaser
 archives:
   - replacements:
       darwin: Darwin
