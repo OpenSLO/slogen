@@ -52,7 +52,9 @@ resource "sumologic_monitor" "{{ $m.TFResourceName }}" {
             ]
             subject      = "{{$n.Subject}}"
             time_zone    = "{{$n.TimeZone}}"
+            {{- if ne $n.Body ""}}
             message_body = "{{$n.Body}}"
+            {{- end}}
         }
         run_for_trigger_types = [
             {{- range $t := $n.RunForTriggers}}
@@ -67,6 +69,16 @@ resource "sumologic_monitor" "{{ $m.TFResourceName }}" {
         notification {
             connection_type = "{{$n.Type}}"
             connection_id   = "{{$n.ID}}"
+            {{- if ne $n.PayloadOverride ""}}
+            payload_override = <<JSON
+{{$n.PayloadOverride}}
+JSON
+            {{- end}}
+            {{- if ne $n.ResolutionPayloadOverride ""}}
+            resolution_payload_override = <<JSON
+{{$n.ResolutionPayloadOverride}}
+JSON
+            {{- end}}
         }
         run_for_trigger_types = [
             {{- range $t := $n.RunForTriggers}}

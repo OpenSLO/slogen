@@ -9,3 +9,19 @@ metadata:
     connection_type : "PagerDuty"
     connection_id: "000000000000ABCD"
     run_for_triggers: "Critical,ResolvedCritical"
+    payload_override: |
+      {
+        "service_key": "your_pagerduty_api_integration_key",
+        "event_type": "trigger",
+        "description": "Alert: Triggered {{TriggerType}} for Monitor {{Name}}",
+        "client": "Sumo Logic",
+        "client_url": "{{QueryUrl}}"
+      }
+    resolution_payload_override: |
+      {
+        "service_key": "your_pagerduty_api_integration_key",
+        "event_type": "resolve",
+        "description": "Alert: Resolved {{TriggerType}} for Monitor {{Name}}",
+        "client": "Sumo Logic",
+        "client_url": "{{QueryUrl}}"
+      } 
