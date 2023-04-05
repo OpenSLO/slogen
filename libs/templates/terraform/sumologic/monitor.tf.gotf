@@ -55,11 +55,27 @@ QUERY
                 {{end}}
             ]
             subject         = "SLO breach alert: {{$.Service}} - {{$.Name}}"
-            time_zone       = {{if ne $n.TimeZone "" }}"{{$n.TimeZone}}"{{else}}"PST"{{end}}
+            time_zone       = {{ if ne $n.TimeZone "" }} "{{$n.TimeZone}}" {{ else }} {{"PST"}} {{ end }}
+                {{- if ne $n.MessageBody "" }}
+            message_body    =   <<MESSAGE
+{{$n.MessageBody}}
+MESSAGE
+                {{ else }}
             message_body    = "{{`{{Description}} \n Result : {{ResultsJson}}\n Alert: {{AlertResponseURL}}`}}"
-            {{else}}
+                {{- end }}
+            {{ else }}
             connection_id   = "{{$n.ConnectionID}}"
-            {{end}}
+                {{- if ne $n.PayloadOverride ""}}
+            payload_override = <<JSON
+{{$n.PayloadOverride}}
+JSON
+                {{- end}}
+                {{- if ne $n.ResolutionPayloadOverride ""}}
+            resolution_payload_override = <<JSON
+{{$n.ResolutionPayloadOverride}}
+JSON
+                {{- end}}
+            {{- end}}
         }
         run_for_trigger_types = [
             {{range $t := $n.TriggerFor}}

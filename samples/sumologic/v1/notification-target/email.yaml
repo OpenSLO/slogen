@@ -8,6 +8,6 @@ metadata:
   annotations:
     recipients: "agaurav@sumologic.com"
     subject: "Monitor Alert: {{TriggerType}} on {{Name}}"
-    message_body: "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+    message_body: "Triggered {{TriggerType}} Alert on the {{Name}}: {{QueryURL}}"
     time_zone: "PST"
     run_for_triggers: "Critical,ResolvedCritical"

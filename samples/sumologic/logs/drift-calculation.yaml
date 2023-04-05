@@ -34,9 +34,31 @@ alerts:
       longLimit: 14
       notifications:
         - connectionType: 'Email'
+          messageBody: "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
           recipients:
             - 'agaurav@sumologic.com'
           timeZone: 'PST'
           triggerFor:
             - Warning
             - ResolvedWarning
+        - connectionType: 'PagerDuty'
+          connectionID: '000000000001ABCD'  # id of pagerduty connection created in Sumo Logic
+          triggerFor:
+            - Warning
+            - ResolvedWarning
+          payload_override: |
+            {
+              "service_key": "your_pagerduty_api_integration_key",
+              "event_type": "trigger",
+              "description": "Alert: Triggered {{TriggerType}} for Monitor {{Name}}",
+              "client": "Sumo Logic",
+              "client_url": "{{QueryUrl}}"
+            }
+          resolution_payload_override: |
+            {
+              "service_key": "your_pagerduty_api_integration_key",
+              "event_type": "resolve",
+              "description": "Alert: Resolved {{TriggerType}} for Monitor {{Name}}",
+              "client": "Sumo Logic",
+              "client_url": "{{QueryUrl}}"
+            } 

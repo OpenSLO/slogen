@@ -18,19 +18,21 @@ const (
 )
 
 const (
-	AnnotationMonitorFolderID  = "sumologic/monitor-folder-id"
-	AnnotationSLOFolderID      = "sumologic/slo-folder-id"
-	AnnotationTFResourceName   = "sumologic/tf-resource-name"
-	AnnotationSignalType       = "sumologic/signal-type"
-	AnnotationEmailRecipients  = "recipients"
-	AnnotationEmailSubject     = "subject"
-	AnnotationEmailBody        = "body"
-	AnnotationEmailTimeZone    = "timezone"
-	AnnotationRunForTriggers   = "run_for_triggers"
-	AnnotationConnectionID     = "connection_id"
-	AnnotationConnectionType   = "connection_type"
-	AlertConditionTypeBurnRate = "burnrate"
-	AlertConditionTypeSLI      = "sli"
+	AnnotationMonitorFolderID           = "sumologic/monitor-folder-id"
+	AnnotationSLOFolderID               = "sumologic/slo-folder-id"
+	AnnotationTFResourceName            = "sumologic/tf-resource-name"
+	AnnotationSignalType                = "sumologic/signal-type"
+	AnnotationEmailRecipients           = "recipients"
+	AnnotationEmailSubject              = "subject"
+	AnnotationEmailBody                 = "message_body"
+	AnnotationEmailTimeZone             = "timezone"
+	AnnotationRunForTriggers            = "run_for_triggers"
+	AnnotationConnectionID              = "connection_id"
+	AnnotationConnectionType            = "connection_type"
+	AnnotationPayloadOverride           = "payload_override"
+	AnnotationResolutionPayloadOverride = "resolution_payload_override"
+	AlertConditionTypeBurnRate          = "burnrate"
+	AlertConditionTypeSLI               = "sli"
 )
 
 const (
@@ -66,9 +68,11 @@ type NotifyEmail struct {
 }
 
 type NotifyConnection struct {
-	ID             string
-	Type           string
-	RunForTriggers []string
+	ID                        string
+	Type                      string
+	RunForTriggers            []string
+	PayloadOverride           string
+	ResolutionPayloadOverride string
 }
 
 type SLO struct {
@@ -325,15 +329,24 @@ func giveNotifyTargets(ap oslo.AlertPolicy, notifyMap map[string]oslo.AlertNotif
 				TimeZone:       annotations[AnnotationEmailTimeZone],
 				RunForTriggers: strings.Split(annotations[AnnotationRunForTriggers], ","),
 			}
+			if notifyMail.TimeZone == "" {
+				notifyMail.TimeZone = "PST"
+			}
+
+			if notifyMail.Body == "" {
+				notifyMail.Body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+			}
 
 			emailTargets = append(emailTargets, notifyMail)
 		}
 
 		if strings.ToLower(target.Spec.Target) == "connection" {
 			notifyConn := NotifyConnection{
-				Type:           annotations[AnnotationConnectionType],
-				ID:             annotations[AnnotationConnectionID],
-				RunForTriggers: strings.Split(annotations[AnnotationRunForTriggers], ","),
+				Type:                      annotations[AnnotationConnectionType],
+				ID:                        annotations[AnnotationConnectionID],
+				RunForTriggers:            strings.Split(annotations[AnnotationRunForTriggers], ","),
+				PayloadOverride:           annotations[AnnotationPayloadOverride],
+				ResolutionPayloadOverride: annotations[AnnotationResolutionPayloadOverride],
 			}
 			connTargets = append(connTargets, notifyConn)
 		}

@@ -27,13 +27,15 @@ func giveDefaultTriggers() []string {
 }
 
 type Notification struct {
-	TriggerFor     []string `yaml:"triggerFor,omitempty"`
-	ConnectionType string   `yaml:"connectionType"`
-	ConnectionID   string   `yaml:"connectionID,omitempty"`
-	Subject        string   `yaml:"subject,omitempty"`
-	Recipients     []string `yaml:"recipients,omitempty"`
-	MessageBody    string   `yaml:"messageBody,omitempty"`
-	TimeZone       string   `yaml:"timeZone,omitempty"`
+	TriggerFor                []string `yaml:"triggerFor,omitempty"`
+	ConnectionType            string   `yaml:"connectionType"`
+	ConnectionID              string   `yaml:"connectionID,omitempty"`
+	Subject                   string   `yaml:"subject,omitempty"`
+	Recipients                []string `yaml:"recipients,omitempty"`
+	MessageBody               string   `yaml:"messageBody,omitempty"`
+	TimeZone                  string   `yaml:"timeZone,omitempty"`
+	PayloadOverride           string   `yaml:"payload_override,omitempty"`
+	ResolutionPayloadOverride string   `yaml:"resolution_payload_override,omitempty"`
 }
 
 type SLOObjective struct {
