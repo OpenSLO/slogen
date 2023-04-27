@@ -1,9 +1,9 @@
-package sumologic
+package ddlogic
 
 import (
 	"fmt"
-	"github.com/OpenSLO/slogen/libs/specs"
-	"github.com/OpenSLO/slogen/libs/sumologic/sumotf"
+	"github.com/AbirHamzi/dd-slogen/libs/specs"
+	"github.com/AbirHamzi/dd-slogen/libs/ddlogic/ddtf"
 	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"log"
 	"strconv"
@@ -18,10 +18,10 @@ const (
 )
 
 const (
-	AnnotationMonitorFolderID           = "sumologic/monitor-folder-id"
-	AnnotationSLOFolderID               = "sumologic/slo-folder-id"
-	AnnotationTFResourceName            = "sumologic/tf-resource-name"
-	AnnotationSignalType                = "sumologic/signal-type"
+	AnnotationMonitorFolderID           = "ddlogic/monitor-folder-id"
+	AnnotationSLOFolderID               = "ddlogic/slo-folder-id"
+	AnnotationTFResourceName            = "ddlogic/tf-resource-name"
+	AnnotationSignalType                = "ddlogic/signal-type"
 	AnnotationEmailRecipients           = "recipients"
 	AnnotationEmailSubject              = "subject"
 	AnnotationEmailBody                 = "message_body"
@@ -36,8 +36,8 @@ const (
 )
 
 const (
-	SourceTypeLogs    = "sumologic-logs"
-	SourceTypeMetrics = "sumologic-metrics"
+	SourceTypeLogs    = "ddlogic-logs"
+	SourceTypeMetrics = "ddlogic-metrics"
 )
 
 type SLOMonitor struct {
@@ -76,7 +76,7 @@ type NotifyConnection struct {
 }
 
 type SLO struct {
-	*sumotf.SLOLibrarySLO
+	*ddtf.SLOLibrarySLO
 }
 
 func (s SLO) TFResourceName() string {
@@ -85,15 +85,15 @@ func (s SLO) TFResourceName() string {
 		return s.ResourceName
 	}
 
-	return fmt.Sprintf("sumologic_slo_%s_%s", s.Service, s.Name)
+	return fmt.Sprintf("ddlogic_slo_%s_%s", s.Service, s.Name)
 }
 
 func (s SLOMonitor) TFResourceName() string {
-	return fmt.Sprintf("sumologic_monitor_%s", s.MonitorName)
+	return fmt.Sprintf("ddlogic_monitor_%s", s.MonitorName)
 }
 
 type SLOFolder struct {
-	*sumotf.SLOLibraryFolder
+	*ddtf.SLOLibraryFolder
 }
 
 func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
@@ -129,7 +129,7 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 	indicator, _ := giveSLI(slo)
 
 	sumoSLO := &SLO{
-		&sumotf.SLOLibrarySLO{
+		&ddtf.SLOLibrarySLO{
 			ResourceName:    resourceName,
 			Name:            slo.SLO.Metadata.Name,
 			Description:     slo.Spec.Description,
@@ -137,7 +137,7 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 			ParentID:        sloFolderID,
 			MonitorFolderID: monitorFolderID,
 			SignalType:      signalType,
-			Compliance: sumotf.SLOCompliance{
+			Compliance: ddtf.SLOCompliance{
 				ComplianceType: complianceType,
 				Target:         slo.Spec.Objectives[0].Target,
 				Timezone:       timezone,
@@ -152,7 +152,7 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 	return sumoSLO, nil
 }
 
-func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
+func giveSLI(slo specs.OpenSLOSpec) (*ddtf.SLOIndicator, error) {
 	evaluationType := ""
 
 	switch slo.Spec.BudgetingMethod {
@@ -167,7 +167,7 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 	queryType := ""
 	indicator := slo.Spec.Indicator
 
-	var queries []sumotf.SLIQueryGroup
+	var queries []ddtf.SLIQueryGroup
 
 	if indicator.Spec.RatioMetric != nil {
 		switch indicator.Spec.RatioMetric.Total.MetricSource.Type {
@@ -178,27 +178,27 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 		}
 
 		qg := giveQueryGroup(indicator.Spec.RatioMetric.Total.MetricSource.MetricSourceSpec)
-		totalQuery := &sumotf.SLIQueryGroup{
+		totalQuery := &ddtf.SLIQueryGroup{
 			QueryGroupType: "Total",
-			QueryGroup:     []sumotf.SLIQuery{qg},
+			QueryGroup:     []ddtf.SLIQuery{qg},
 		}
 
 		queries = append(queries, *totalQuery)
 
 		if indicator.Spec.RatioMetric.Good != nil {
 			qg := giveQueryGroup(indicator.Spec.RatioMetric.Good.MetricSource.MetricSourceSpec)
-			goodQuery := &sumotf.SLIQueryGroup{
+			goodQuery := &ddtf.SLIQueryGroup{
 				QueryGroupType: "Successful",
-				QueryGroup:     []sumotf.SLIQuery{qg},
+				QueryGroup:     []ddtf.SLIQuery{qg},
 			}
 			queries = append(queries, *goodQuery)
 		}
 
 		if indicator.Spec.RatioMetric.Bad != nil {
 			qg := giveQueryGroup(indicator.Spec.RatioMetric.Bad.MetricSource.MetricSourceSpec)
-			badQuery := &sumotf.SLIQueryGroup{
+			badQuery := &ddtf.SLIQueryGroup{
 				QueryGroupType: "Unsuccessful",
-				QueryGroup:     []sumotf.SLIQuery{qg},
+				QueryGroup:     []ddtf.SLIQuery{qg},
 			}
 			queries = append(queries, *badQuery)
 		}
@@ -219,9 +219,9 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 
 		specSource := indicator.Spec.ThresholdMetric.MetricSource.MetricSourceSpec
 		qg := giveQueryGroup(specSource)
-		query := &sumotf.SLIQueryGroup{
+		query := &ddtf.SLIQueryGroup{
 			QueryGroupType: "Threshold",
-			QueryGroup:     []sumotf.SLIQuery{qg},
+			QueryGroup:     []ddtf.SLIQuery{qg},
 		}
 
 		op = specSource["op"]
@@ -238,7 +238,7 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 		queries = append(queries, *query)
 	}
 
-	sumoIndicator := sumotf.SLOIndicator{
+	sumoIndicator := ddtf.SLOIndicator{
 		EvaluationType: evaluationType,
 		QueryType:      queryType,
 		Queries:        queries,
@@ -251,7 +251,7 @@ func giveSLI(slo specs.OpenSLOSpec) (*sumotf.SLOIndicator, error) {
 	return &sumoIndicator, nil
 }
 
-func giveQueryGroup(spec map[string]string) sumotf.SLIQuery {
+func giveQueryGroup(spec map[string]string) ddtf.SLIQuery {
 	query := spec["query"]
 	field := spec["field"]
 	rowId := spec["row_id"]
@@ -260,7 +260,7 @@ func giveQueryGroup(spec map[string]string) sumotf.SLIQuery {
 		rowId = "A"
 	}
 
-	return sumotf.SLIQuery{
+	return ddtf.SLIQuery{
 		RowId:       rowId,
 		Query:       query,
 		Field:       field,
@@ -301,7 +301,7 @@ func ConvertToSumoMonitor(ap oslo.AlertPolicy, slo *SLO, notifyMap map[string]os
 			panic(fmt.Sprintf("alert condition of this kind not supported : '%s'", c.Kind))
 		}
 
-		m.SloID = fmt.Sprintf("${sumologic_slo.%s.id}", slo.TFResourceName())
+		m.SloID = fmt.Sprintf("${ddlogic_slo.%s.id}", slo.TFResourceName())
 
 		mons = append(mons, m)
 	}

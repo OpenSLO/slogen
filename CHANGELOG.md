@@ -1,4 +1,4 @@
-### [v1.0](https://github.com/OpenSLO/slogen/releases/tag/v1.0.0)
+### [v1.0](https://github.com/AbirHamzi/dd-slogen/releases/tag/v1.0.0)
 
 - **Feature** : Support for OpenSLO v1 spec for `SLO`, `AlertPolicy` and `AlertNotificationTarget`
   - `AlertPolicy` and `AlertNotificationTarget` based approach removes the need for created duplicate alerting configs with each `SLO`
@@ -11,7 +11,7 @@ sample configs to try out the above features are available [here](samples/sumolo
 
 
 
-### [v0.7](https://github.com/OpenSLO/slogen/milestone/2?closed=1)
+### [v0.7](https://github.com/AbirHamzi/dd-slogen/milestone/2?closed=1)
 
 - **Feature** : Timeslice based budgeting (availability calculated w.r.t. good time windows)  
   - [Sample config](samples/openslo/ingest-lag-timeslice-budgeting.yaml)

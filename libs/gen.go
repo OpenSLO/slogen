@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"github.com/OpenSLO/slogen/libs/specs"
-	"github.com/OpenSLO/slogen/libs/sumologic"
+	"github.com/AbirHamzi/dd-slogen/libs/specs"
+	"github.com/AbirHamzi/dd-slogen/libs/ddlogic"
 	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"os"
 	"path/filepath"
@@ -61,7 +61,7 @@ type GenConf struct {
 func init() {
 	var err error
 
-	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terraform/sumologic/**")
+	tfTemplates, err = template.ParseFS(tmplFiles, "templates/terraform/ddlogic/**")
 	if err != nil {
 		panic(err)
 	}
@@ -109,9 +109,9 @@ func genTerraformForV1(slos map[string]*SLOMultiVerse, c GenConf) error {
 		if sloM.SLO != nil {
 			slo := sloM.SLO
 
-			// handle sumologic specific stuff
-			if sumologic.IsSource(*slo) {
-				sloStr, monitorsStr, err = sumologic.GiveTerraform(alertPolicyMap, notificationTargetMap, *slo)
+			// handle ddlogic specific stuff
+			if ddlogic.IsSource(*slo) {
+				sloStr, monitorsStr, err = ddlogic.GiveTerraform(alertPolicyMap, notificationTargetMap, *slo)
 			}
 
 			err = os.WriteFile(filepath.Join(v1Path, fmt.Sprintf("slo_%s.tf", slo.Metadata.Name)), []byte(sloStr), 0755)

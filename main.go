@@ -17,7 +17,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/OpenSLO/slogen/cmd"
+	"github.com/AbirHamzi/dd-slogen/cmd"
 	"runtime"
 	"runtime/debug"
 )

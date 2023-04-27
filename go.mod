@@ -1,4 +1,4 @@
-module github.com/OpenSLO/slogen
+module github.com/AbirHamzi/dd-slogen
 
 go 1.18
 

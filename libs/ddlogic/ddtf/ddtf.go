@@ -1,4 +1,4 @@
-package sumotf
+package ddtf
 
 type SLOLibraryFolder struct {
 	ID          string   `json:"id,omitempty"`

@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"github.com/OpenSLO/slogen/libs"
+	"github.com/AbirHamzi/dd-slogen/libs"
 	"github.com/goccy/go-graphviz/cgraph"
 
 	"github.com/goccy/go-graphviz"

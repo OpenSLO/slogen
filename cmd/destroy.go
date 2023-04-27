@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/OpenSLO/slogen/libs"
+	"github.com/AbirHamzi/dd-slogen/libs"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )

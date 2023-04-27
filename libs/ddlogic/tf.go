@@ -1,9 +1,9 @@
-package sumologic
+package ddlogic
 
 import (
 	"bytes"
 	"embed"
-	"github.com/OpenSLO/slogen/libs/specs"
+	"github.com/AbirHamzi/dd-slogen/libs/specs"
 	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"text/template"
 )

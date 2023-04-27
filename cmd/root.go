@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/OpenSLO/slogen/libs"
+	"github.com/AbirHamzi/dd-slogen/libs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
