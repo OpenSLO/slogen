@@ -23,6 +23,7 @@ type SLOLibrarySLO struct {
 	ID              string `json:"id,omitempty"`
 	Name            string `json:"name"`
 	Description     string `json:"description"`
+	Tags            string `json:"tags"`
 	Version         int    `json:"version"`
 	CreatedAt       string `json:"createdAt"`
 	CreatedBy       string `json:"createdBy"`

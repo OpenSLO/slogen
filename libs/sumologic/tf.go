@@ -3,9 +3,10 @@ package sumologic
 import (
 	"bytes"
 	"embed"
-	"github.com/OpenSLO/slogen/libs/specs"
-	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"text/template"
+
+	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
+	"github.com/OpenSLO/slogen/libs/specs"
 )
 
 //go:embed templates/*.tf.gotf

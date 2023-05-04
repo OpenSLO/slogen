@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"github.com/OpenSLO/slogen/libs/specs"
-	"github.com/OpenSLO/slogen/libs/sumologic"
-	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"os"
 	"path/filepath"
 	"sort"
 	"text/template"
+
+	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
+	"github.com/OpenSLO/slogen/libs/specs"
+	"github.com/OpenSLO/slogen/libs/sumologic"
 )
 
 var tfTemplates *template.Template
@@ -78,8 +79,6 @@ func GenTerraform(slosMv map[string]*SLOMultiVerse, c GenConf) (string, error) {
 		BadResult("error setting up path : %s", err)
 		return "", err
 	}
-
-	//pretty.Println(slosV1)
 
 	err = genTerraformForV1(slosMv, c)
 

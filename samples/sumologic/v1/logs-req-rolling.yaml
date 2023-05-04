@@ -3,6 +3,13 @@ kind: SLO
 metadata:
   name: drift_gen_Rolling
   displayName: DriftGen SLO Rolling
+  labels:
+    organization: "acme"
+    costCentre: "project1"
+    serviceTier:
+       - "tier-1"
+    addons:
+       - "v1"
   annotations:
     sumologic/signal-type: Latency
 spec:
