@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -131,15 +130,22 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 	indicator, _ := giveSLI(slo)
 
 	tagsMap := make(map[string]string)
+
 	for k := range slo.ObjectHeader.Metadata.Labels {
 		if len(slo.ObjectHeader.Metadata.Labels[k]) > 0 {
 			tagsMap[k] = slo.ObjectHeader.Metadata.Labels[k][0]
+
 		}
 	}
 
-	tagsStr, err := json.Marshal(tagsMap)
-	if err != nil {
-		return nil, err
+	tagsStr := ""
+	c := 0
+	for k := range tagsMap {
+		tagsStr += "\"" + k + "\" = \"" + tagsMap[k] + "\""
+		if c < len(tagsMap)-1 {
+			tagsStr += ", "
+		}
+		c += 1
 	}
 
 	sumoSLO := &SLO{
@@ -147,7 +153,7 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 			ResourceName:    resourceName,
 			Name:            slo.SLO.Metadata.Name,
 			Description:     slo.Spec.Description,
-			Tags:            strings.Replace(string(tagsStr), ":", " = ", -1),
+			Tags:            tagsStr,
 			Service:         slo.Spec.Service,
 			ParentID:        sloFolderID,
 			MonitorFolderID: monitorFolderID,
