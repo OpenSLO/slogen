@@ -1,13 +1,15 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/OpenSLO/slogen/libs/specs"
-	"github.com/OpenSLO/slogen/libs/sumologic/sumotf"
-	oslo "github.com/agaurav/oslo/pkg/manifest/v1"
 	"log"
 	"strconv"
 	"strings"
+
+	oslo "github.com/OpenSLO/oslo/pkg/manifest/v1"
+	"github.com/OpenSLO/slogen/libs/specs"
+	"github.com/OpenSLO/slogen/libs/sumologic/sumotf"
 )
 
 const (
@@ -128,11 +130,24 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 
 	indicator, _ := giveSLI(slo)
 
+	tagsMap := make(map[string]string)
+	for k := range slo.ObjectHeader.Metadata.Labels {
+		if len(slo.ObjectHeader.Metadata.Labels[k]) > 0 {
+			tagsMap[k] = slo.ObjectHeader.Metadata.Labels[k][0]
+		}
+	}
+
+	tagsStr, err := json.Marshal(tagsMap)
+	if err != nil {
+		return nil, err
+	}
+
 	sumoSLO := &SLO{
 		&sumotf.SLOLibrarySLO{
 			ResourceName:    resourceName,
 			Name:            slo.SLO.Metadata.Name,
 			Description:     slo.Spec.Description,
+			Tags:            strings.Replace(string(tagsStr), ":", " = ", -1),
 			Service:         slo.Spec.Service,
 			ParentID:        sloFolderID,
 			MonitorFolderID: monitorFolderID,

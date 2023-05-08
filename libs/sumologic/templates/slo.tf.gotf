@@ -10,6 +10,8 @@ resource "sumologic_slo" "{{ .TFResourceName }}" {
     service     = "{{.Service}}"
     application = ""
 
+    tags = {{.Tags}}
+
     {{with .Compliance -}}
     compliance {
         compliance_type = "{{.ComplianceType}}"
