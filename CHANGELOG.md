@@ -1,3 +1,9 @@
+### [v1.2](https://github.com/OpenSLO/slogen/releases/tag/v1.2)
+
+#### Support for Labels
+`labels` from the OpenSLO config are now applied as tags to the native SLOs created in the vendor environment (Sumologic). In the OpenSLO spec, `metadata.labels` is an optional map of keys to one or more values. Slogen supports only one value per unique key. The first value specified in the list of values will be considered.
+
+
 ### [v1.0](https://github.com/OpenSLO/slogen/releases/tag/v1.0.0)
 
 - **Feature** : Support for OpenSLO v1 spec for `SLO`, `AlertPolicy` and `AlertNotificationTarget`
