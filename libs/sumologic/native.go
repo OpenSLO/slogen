@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -130,17 +131,20 @@ func ConvertToSumoSLO(slo specs.OpenSLOSpec) (*SLO, error) {
 	indicator, _ := giveSLI(slo)
 
 	tagsMap := make(map[string]string)
+	var tagKeys []string
 
 	for k := range slo.ObjectHeader.Metadata.Labels {
 		if len(slo.ObjectHeader.Metadata.Labels[k]) > 0 {
 			tagsMap[k] = slo.ObjectHeader.Metadata.Labels[k][0]
-
+			tagKeys = append(tagKeys, k)
 		}
 	}
 
+	sort.Strings(tagKeys)
+
 	tagsStr := ""
 	c := 0
-	for k := range tagsMap {
+	for _, k := range tagKeys {
 		tagsStr += "\"" + k + "\" = \"" + tagsMap[k] + "\""
 		if c < len(tagsMap)-1 {
 			tagsStr += ", "
