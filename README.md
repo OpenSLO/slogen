@@ -137,5 +137,5 @@ slogen list -c
 Slogen supports `labels` from the OpenSLO config and applies them as tags to the native SLOs created in the vendor environment (Sumologic). In the OpenSLO spec, `metadata.labels` is an optional map of keys to one or more values. Slogen supports only one value per unique key. The first value specified in the list of values will be considered.
 
 ### Change Log
-- [New feature and fixes in v1.2](CHANGELOG.md)
+- [Bug fixes in v1.3](CHANGELOG.md)
 

@@ -1,3 +1,8 @@
+### [v1.3](https://github.com/OpenSLO/slogen/releases/tag/v1.3)
+
+- **Fix** : Prevents reordering of slo tags on generating terraform configuration
+
+
 ### [v1.2](https://github.com/OpenSLO/slogen/releases/tag/v1.2)
 
 #### Support for Labels
